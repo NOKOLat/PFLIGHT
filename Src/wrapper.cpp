@@ -5,11 +5,14 @@
 void init(){
 
 	printf("IMU: %d\n",init_imu());
+
+	//debug_mode();
 }
 
 void loop(){
 
 	//----------Arm待機----------//
+	printf("-----Wait Arm-----\n");
 
 	//SBUSの受信開始(LED消灯）
 	init_sbus();
@@ -25,6 +28,8 @@ void loop(){
 
 	//----------飛行待機----------//
 
+	printf("-----Wait fly-----\n");
+
 	//モーター待機(LED点灯）
 	while(!is_rotate());
 
@@ -39,10 +44,14 @@ void loop(){
 
 	//----------ArmLoop----------/
 
+	printf("-----ArmLoop-----\n");
+
 	while(is_arm()){
 
 		//指定時間まで待機
 		while(is_wait_armloop());
+
+		//printf("---mainloop---\n");
 
 		set_wait_flag();
 
@@ -60,6 +69,7 @@ void loop(){
 	}
 
 	//----------DisArm処理----------//
+	printf("-----DisArm-----\n");
 
 	//PWMの停止
 	void stop_pwm();
@@ -67,7 +77,7 @@ void loop(){
 
 	//割り込みの停止
 	deinit_timer_interrupt();
-	deinit_sbus();
+	//deinit_sbus();
 
 	HAL_Delay(1000);
 }
@@ -77,12 +87,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	//FailSafe
 	if(htim == &htim5){
 
-//		if(check_failsafe()){
-//
-//			printf("-----failsafe-----\n");
-//
-//			HAL_Delay(65535);
-//		}
+		if(check_failsafe()){
+
+
+			printf("-----failsafe-----\n");
+			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+			HAL_Delay(65535);
+		}
 	}
 
 	//MainLoop
@@ -100,10 +111,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
-	if(huart == &huart2){
+	if(huart == &huart1){
 
 		encode_sbus();
-		init_sbus();
+		sbus_to_angle();
 	}
+
+	init_sbus();
 }
 

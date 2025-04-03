@@ -36,7 +36,7 @@ uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float MagData[3],flo
 		FIR_calc(GyroData);//保存されたデータにFIRをかけ、引数に出力する
 
 		float rotation[3][3];
-		kalman_theta(AccelData,GyroData,theta,0.0001,rotation);//カルマンフィルタ
+		kalman_theta(AccelData,GyroData,theta,0.0005,rotation);//カルマンフィルタ
 		//position_cal(AccelData,speed,position,(end-start)*1.0e-5,rotation);
 
 		//theta[2] += integral(GyroData[2],0.001);

@@ -16,6 +16,8 @@ ICM42688P_HAL_SPI icm(&hspi1, GPIOB, GPIO_PIN_6);
 SBUS sbus;
 PID pitch, roll, yaw;
 
+uint8_t RawSbus[25] = {};
+
 //----------構造体----------//
 struct ArmLoop{
 
@@ -29,6 +31,10 @@ struct ArmLoop{
 struct Data{
 
 	uint16_t sbus[10] = {};
+	uint16_t sbus_max[10] = {0,1662,1664,1680,1651};
+	uint16_t sbus_center[10] = {0, 1000, 1000, 0, 1000};
+	uint16_t sbus_min[10] = {0, 348, 352, 360, 339};
+
 	RINGBUFFER accel;
 	RINGBUFFER gyro;
 	RINGBUFFER mag;
@@ -39,13 +45,13 @@ struct Data{
 
 struct Channel{
 
-	const uint8_t pitch    = 0;
-	const uint8_t roll     = 1;
-	const uint8_t yaw      = 3;
-	const uint8_t throttle = 2;
+	const uint8_t pitch    = 2;
+	const uint8_t roll     = 4;
+	const uint8_t yaw      = 1;
+	const uint8_t throttle = 3;
 
-	const uint8_t arm = 5;
-	const uint8_t motor = 6;
+	const uint8_t arm = 6;
+	const uint8_t motor = 5;
 }channel;
 
 struct PWM{
@@ -76,7 +82,14 @@ struct Control{
  */
 uint8_t is_arm(){
 
-	return data.sbus[channel.arm] > 1000;
+	if(data.sbus[channel.arm] > 1000){
+
+		return 1;
+	}
+
+	printf("%d\n", data.sbus[channel.arm]);
+
+	return 0;
 }
 
 /* @brief 自動操縦の判定
@@ -167,39 +180,35 @@ void deinit_timer_interrupt(){
  */
 void init_sbus(){
 
-	HAL_UART_Receive_DMA(&huart2, sbus.GetBufferPointer(), sbus.DataLen);
+	HAL_UART_Receive_DMA(&huart1, RawSbus, 25);
 }
 
 void deinit_sbus(){
 
-	HAL_UART_DMAStop(&huart2);
+	HAL_UART_DMAStop(&huart1);
 }
 
 void encode_sbus(){
 
-	if(sbus.IsSBUS() == 0){
+	if(sbus.encode(RawSbus, data.sbus) == 0){
 
-		sbus.Encode();
-		sbus.GetData(data.sbus);
 		armloop.failsafe_count = 0;
 	}
 }
 
-//SBUS 1000 ~ 2000
 void sbus_to_angle(){
 
 	//pitch(angle)
-	control.target[0] = float(data.sbus[channel.pitch] - 1500) * 45 / 500;
+	control.target[0] = (data.sbus[channel.pitch] - data.sbus_center[channel.pitch]) * 45.0 / (data.sbus_max[channel.pitch] - data.sbus_center[channel.pitch]) / 45.0 * 100;
 
 	//roll(angle)
-	control.target[1] = float(data.sbus[channel.pitch] - 1500) * 45 / 500;
+	control.target[1] = (data.sbus[channel.roll] - data.sbus_center[channel.roll]) * 45.0 / (data.sbus_max[channel.roll] - data.sbus_center[channel.roll]) / 45.0 * 100;
 
 	//yaw(speed)
-	control.target[2] = float(data.sbus[channel.pitch] - 1500) * 25 / 500;
+	control.target[2] = (data.sbus[channel.yaw] - data.sbus_center[channel.yaw]) * 45.0 / (data.sbus_max[channel.yaw] - data.sbus_center[channel.yaw]) / 45.0 * 100;
 
 	//throttle(500~2000)
-	control.throttle = float(data.sbus[channel.throttle] - 500) / 1500;
-
+	control.throttle = (data.sbus[channel.throttle] - data.sbus_min[channel.throttle])*1.0 / (data.sbus_max[channel.throttle] - data.sbus_min[channel.throttle])* 100.0;
 }
 /* @brief フェイルセーフのチェック
  *
@@ -207,12 +216,10 @@ void sbus_to_angle(){
  */
 uint8_t check_failsafe(){
 
-	if(armloop.failsafe_count > 10){
+	if(RawSbus[23] != 0){
 
 		return 1;
 	}
-
-	armloop.failsafe_count ++;
 	return 0;
 }
 
@@ -298,10 +305,10 @@ void pid_calc(){
 
 void pid_to_pwm(){
 
-	pwm.motor[0] = control.throttle + control.pid_output[0] + control.pid_output[1] + control.pid_output[2];
-	pwm.motor[1] = control.throttle + control.pid_output[0] + control.pid_output[1] + control.pid_output[2];
-	pwm.motor[2] = control.throttle + control.pid_output[0] + control.pid_output[1] + control.pid_output[2];
-	pwm.motor[3] = control.throttle + control.pid_output[0] + control.pid_output[1] + control.pid_output[2];
+	pwm.motor[0] = (2500 * 0.45) + control.throttle + control.pid_output[0] + control.pid_output[1] - control.pid_output[2];
+//	pwm.motor[1] = control.throttle + control.pid_output[0] - control.pid_output[1] + control.pid_output[2];
+//	pwm.motor[2] = control.throttle - control.pid_output[0] + control.pid_output[1] - control.pid_output[2];
+//	pwm.motor[3] = control.throttle - control.pid_output[0] - control.pid_output[1] + control.pid_output[2];
 }
 //---------------PWM---------------//
 
@@ -361,11 +368,15 @@ void generate_pwm(){
 
 void printvalue(){
 
-	printf("%3.3lf, %3.3lf, %3.3lf\n", data.angle[0], data.angle[1], data.angle[2]);
+	//printf("%3.3lf, %3.3lf, %3.3lf\n", data.angle[0], data.angle[1], data.angle[2]);
+	//printf("%3.3lf, %3.3lf, %3.3lf, %3.3lf\n", control.target[0], control.target[1], control.target[2], control.throttle);
+	//printf("%d, %d, %d, %d\n", data.sbus[1], data.sbus[2], data.sbus[3], data.sbus[4]);
+	//printf("%3.3lf, %3.3lf, %3.3lf\n", control.pid_output[0], control.pid_output[1], control.pid_output[2]);
+	//printf("%d, %d, %d, %d\n", pwm.motor[0], pwm.motor[1], pwm.motor[2], pwm.motor[3]);
 }
 
 void debug_mode(){
 
-	data.sbus[5] = 1500;
-	data.sbus[6] = 1500;
+	data.sbus[channel.arm] = 1500;
+	data.sbus[channel.motor] = 1500;
 }

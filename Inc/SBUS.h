@@ -1,8 +1,8 @@
 /*
  * SBUS.h
  *
- *  Created on: Mar 28, 2025
- *      Author: Sezakiaoi
+ *  Created on: Oct 18, 2024
+ *      Author: aoi25
  */
 
 #ifndef INC_SBUS_H_
@@ -14,17 +14,11 @@ class SBUS {
 
 	public:
 
-	uint8_t* GetBufferPointer();
-	void Encode();
-	uint8_t IsSBUS();
-	void GetData(uint16_t* SBUSData);
-
-	const uint8_t DataLen = 25;
+	uint8_t encode(uint8_t sbus_buffer[25], uint16_t data_buffer[10]);
 
 	private:
 
-	uint8_t RawData[25];
-	uint16_t SBUSData[10] = {};
 };
 
 #endif /* INC_SBUS_H_ */
+

@@ -23,7 +23,7 @@ class PID {
 		float Gain_D    = 0.0;
 		float Goal      = 0.0;
 		float Pre_Error = 0.0;
-		float Time      = 1.0 / 100.0;
+		float Time      = 0.020;
 };
 
 #endif /* INC_PID_H_ */

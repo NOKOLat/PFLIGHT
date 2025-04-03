@@ -1,45 +1,30 @@
 /*
  * SBUS.cpp
  *
- *  Created on: Mar 28, 2025
- *      Author: Sezakiaoi
+ *  Created on: Oct 18, 2024
+ *      Author: aoi25
  */
 
-#include "SBUS.h"
+#include <SBUS.h>
 
-uint8_t* SBUS::GetBufferPointer(){
+uint8_t SBUS::encode(uint8_t buffer[25], uint16_t sbus_data[10]){
 
-	return RawData;
-}
+	if(buffer[0] == 0x0F && buffer[25] == 0x00){
 
-uint8_t SBUS::IsSBUS(){
-
-	if(RawData[0] == 0x0F && RawData[25] == 0x00){
+		sbus_data[0]  = 0;
+		sbus_data[1]  = (buffer[1]        | buffer[2] << 8)   & 0x07FF;
+		sbus_data[2]  = (buffer[2] >> 3   | buffer[3] << 5)   & 0x07FF;
+		sbus_data[3]  = (buffer[3] >> 6   | buffer[4] << 2    | buffer[5] << 10) & 0x07FF;
+		sbus_data[4]  = (buffer[5] >> 1   | buffer[6] << 7)   & 0x07FF;
+		sbus_data[5]  = (buffer[6] >> 4   | buffer[7] << 4)   & 0x07FF;
+		sbus_data[6]  = (buffer[7] >> 7   | buffer[8] << 1    | buffer[9] << 9) & 0x07FF;
+		sbus_data[7]  = (buffer[9] >> 2   | buffer[10] << 6)  & 0x07FF;
+		sbus_data[8]  = (buffer[10] >> 5  | buffer[11] << 3)  & 0x07FF;
+		sbus_data[9]  = (buffer[12]       | buffer[13] << 8)  & 0x07FF;
+		sbus_data[10] = (buffer[13] >> 3  | buffer[14] << 5)  & 0x07FF;
 
 		return 0;
 	}
 
 	return 1;
-}
-
-void SBUS::Encode(){
-
-		SBUSData[0]  = (RawData[1]        | RawData[2] << 8)   & 0x07FF;
-		SBUSData[1]  = (RawData[2] >> 3   | RawData[3] << 5)   & 0x07FF;
-		SBUSData[2]  = (RawData[3] >> 6   | RawData[4] << 2    | RawData[5] << 10) & 0x07FF;
-		SBUSData[3]  = (RawData[5] >> 1   | RawData[6] << 7)   & 0x07FF;
-		SBUSData[4]  = (RawData[6] >> 4   | RawData[7] << 4)   & 0x07FF;
-		SBUSData[5]  = (RawData[7] >> 7   | RawData[8] << 1    | RawData[9] << 9) & 0x07FF;
-		SBUSData[6]  = (RawData[9] >> 2   | RawData[10] << 6)  & 0x07FF;
-		SBUSData[7]  = (RawData[10] >> 5  | RawData[11] << 3)  & 0x07FF;
-		SBUSData[8]  = (RawData[12]       | RawData[13] << 8)  & 0x07FF;
-		SBUSData[9] = (RawData[13] >> 3  | RawData[14] << 5)  & 0x07FF;
-}
-
-void SBUS::GetData(uint16_t* SBUSData){
-
-	for(uint8_t i=0; i<10; i++){
-
-		SBUSData[i] = this->SBUSData[i];
-	}
 }

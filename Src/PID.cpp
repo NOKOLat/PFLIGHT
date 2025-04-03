@@ -16,10 +16,12 @@ void PID::Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D, floa
 	Goal   = Input_Goal;
 }
 
-float PID::Calc(float Angle, float Angular_Velocity){
+float PID::Calc(float Angle, float Goal){
+
+	this->Goal = Goal;
 
 	float Error = Goal - Angle;
-	float Delta = Angular_Velocity;
+	float Delta = 0;
 	float Integral = (Error - Pre_Error) * Time;
 
 	return Error * Gain_P + Delta * Gain_I + Integral * Gain_D;

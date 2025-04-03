@@ -8,14 +8,14 @@
 #ifndef INC_KALMAN_H_
 #define INC_KALMAN_H_
 
-#define pre_Noise 0.05
+#define pre_Noise 0.1
 #define obs_Noise 0.05
 
 //#include "arm_math.h" //計算ライブラリdep
 #include "quaternion.h"
 #include "matrix.h"
 
-//#include "stdio.h"
+#include "stdio.h"
 
 void setting_theta (float AccelData[3],float GyroData[3],float time,
 		float q_kalman[4],float q_obs[4],float q_pre[4],float A[4][4],float Q[4][4],float R[4][4]);
@@ -38,10 +38,15 @@ void kalman_theta(float AccelData[3],float GyroData[3],float theta[3],float time
 
 	static float q_obs[4],q_pre[4],q_kalman[4]={1,0,0,0};//クォータニオン
 
+	static float count;
+
 	setting_theta(AccelData,GyroData,time,q_kalman,q_obs,q_pre,A,Q,R);
 	quaternion_rotation(q_obs,rotation);//qの回転行列がroatに入る
 	euler(theta,rotation);//現在保存されている回転行列をオイラー角に変換する
-	//printf("%f ",theta[0]);
+	if (count > 10){
+		printf("%f ",theta[0]);
+	}
+
 
 
 	//SQ = A * S * A.transpose() + Q;
@@ -78,7 +83,12 @@ void kalman_theta(float AccelData[3],float GyroData[3],float theta[3],float time
 
 	quaternion_rotation(q_kalman,rotation);//qの回転行列がroatに入る
 	euler(theta,rotation);//現在保存されている回転行列をオイラー角に変換する
-	//printf("%f %f\n",theta[0],theta[0]);
+	if (count > 10){
+		count = 0;
+		printf("%f %f\n",theta[0],theta[0]);
+	}
+	count ++;
+
 }
 
 
