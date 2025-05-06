@@ -48,7 +48,7 @@ void Avg(float data[3],float avg[3]){
 
 }
 
-uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float MagData[3],float theta[3],float speed[3],float position[3]){
+uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float theta[3]){
 	static uint8_t i = 0;
 	static float sum[3]={};
 
