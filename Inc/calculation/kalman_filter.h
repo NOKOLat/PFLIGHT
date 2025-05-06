@@ -8,7 +8,7 @@
 #ifndef INC_KALMAN_H_
 #define INC_KALMAN_H_
 
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 #define  G 9.80665
 
