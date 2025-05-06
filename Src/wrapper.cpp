@@ -155,7 +155,7 @@ void loop(){
 		for(uint8_t i=0; i<8; i++){
 
 			float dummy[3] = {};
-			PoseEstimation(&accel_tmp[3*i], &gyro_tmp[3*i], dummy, data.angle, data.speed, data.position);
+			PoseEstimation(&accel_tmp[3*i], &gyro_tmp[3*i], data.angle);
 		}
 
 		//SBUSのデータから目標角を計算
