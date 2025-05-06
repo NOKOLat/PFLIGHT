@@ -11,15 +11,48 @@
 #include "arm_math.h" //計算ライブラリdep
 #include "calculation/FIR.h" //FIRフィルタ
 #include "calculation/kalman_filter.h" //カルマンフィルタ
-#include "calculation/integration.h"
-#include "calculation/position.h"
-#include "stdio.h"
+//#include "stdio.h"
+
+#define RE 30
+static double alpha;//平均化定数
+
+
+void Avg(float data[3],float avg[3]){
+    uint8_t i;
+    static uint64_t n;
+    static float sum[3];
+    static float buf[3];
+
+    //平均化
+    n ++;
+    alpha = ( 2.0/(n+1) );//1以下になるようにするn=1,2,3,・・・
+    for (i=0;i<3;i++){
+
+        if (n>RE-(RE/10)){
+            sum[i] += data[i];
+        }else{
+            sum[i] = 0;
+        }
+
+        if (n == RE){
+            avg[i] = sum[i]/(RE/10);
+
+        }else{
+            avg[i] = (buf[i])+alpha*( (data[i])-(buf[i]) );
+        }
+        buf[i] = avg[i];
+    }
+    if (n == RE){
+        n = 1;
+    }
+
+}
 
 uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float MagData[3],float theta[3],float speed[3],float position[3]){
 	static uint8_t i = 0;
 	static float sum[3]={};
 
-	if (i<BLOCK_SIZE/4){
+	if (i < BLOCK_SIZE/4){
 		FIR_set(GyroData);//観測値を保存する
 
 		sum[0] += AccelData[0]; sum[1] +=  AccelData[1]; sum[2] +=  AccelData[2];
@@ -29,6 +62,7 @@ uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float MagData[3],flo
 
 	}else{
 
+
 		 AccelData[0] = sum[0]/i;
 		 AccelData[1] = sum[1]/i;
 		 AccelData[2] = sum[2]/i;
@@ -37,15 +71,19 @@ uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float MagData[3],flo
 		 sum[2] = 0;
 		i = 0;
 
+		//printf("%+3.3lf %+3.3lf %+3.3lf ", AccelData[0], AccelData[1], AccelData[2]);
+
 		FIR_calc(GyroData);//保存されたデータにFIRをかけ、引数に出力する
 
+		//printf("%+3.3lf %+3.3lf %+3.3lf ", GyroData[0], GyroData[1], GyroData[2]);
+
 		float rotation[3][3];
-		kalman_theta(AccelData,GyroData,theta,0.0005,rotation);//カルマンフィルタ
+		kalman_theta(AccelData,GyroData,theta,0.00125,rotation);//カルマンフィルタ
 
-		theta[2] = GyroData[2];
-		//position_cal(AccelData,speed,position,(end-start)*1.0e-5,rotation);
+		Avg(theta,theta);
+		//printf("%+3.3lf %+3.3lf %+3.3lf\n", theta[0], theta[1], theta[2]);
 
-		//theta[2] += integral(GyroData[2],0.001);
+
 
 
 		return 0; //計算処理終了
