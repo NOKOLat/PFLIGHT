@@ -50,15 +50,15 @@ void init(){
 
 	printf("IMU Status: %d\n", ImuInit());
 
-	//PWMの初期化
-	MotorInit();
-
 	//初期化終了LEDをつける
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
 }
 
 //-----FC MainLoop-----//
 void loop(){
+
+	//PWMの初期化
+	MotorInit();
 
 	//----------Arm待機----------//
 	printf("-----Wait Arm-----\n");
