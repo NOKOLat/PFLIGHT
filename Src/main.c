@@ -26,8 +26,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "wrapper.hpp"
 #include "stdio.h"
+#include "wrapper.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,25 +60,10 @@ static void MPU_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-/*
-#ifdef __GNUC__
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif
-PUTCHAR_PROTOTYPE
-{
-	HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-
-	return ch;
-}
-*/
-
 int __io_putchar(int ch){
 	HAL_UART_Transmit(&huart2, (uint8_t *)&ch,1,100);
 	return ch;
 }
-
 /* USER CODE END 0 */
 
 /**
@@ -114,21 +99,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
+  MX_TIM1_Init();
+  MX_TIM3_Init();
+  MX_TIM12_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
-  MX_TIM5_Init();
+  MX_SPI1_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
-  MX_SPI1_Init();
-  MX_TIM1_Init();
-  MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
   setbuf(stdout,NULL);
-  printf("start");
-  /*
-  uint8_t txt[] ="start";
-  HAL_UART_Transmit(&huart2,txt,5,10);
-  */
   init();
   /* USER CODE END 2 */
 

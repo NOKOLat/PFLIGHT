@@ -117,26 +117,28 @@ void loop(){
 		//ArmLoop待機
 		while(IsWaitLoop()){
 
-			//フェイルセーフの判定
-			if(sbus.CheckFailsafe()){
+			;
+		}
 
-				printf("-----FailSafe-----\n");
+		//フェイルセーフの判定
+		if(sbus.CheckFailsafe()){
 
-				//PWMを止める
-				MotorStop();
+			printf("-----FailSafe-----\n");
 
-				//割り込みを止める
-				SbusDeInit(&huart5);
-				ArmIQRDeinit();
+			//PWMを止める
+			MotorStop();
 
-				//無限ループでスタックさせる
-				while(1){
+			//割り込みを止める
+			SbusDeInit(&huart5);
+			ArmIQRDeinit();
 
-					HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
-					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
-					HAL_Delay(250);
-				}
+			//無限ループでスタックさせる
+			while(1){
+
+				HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
+				HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+				HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
+				HAL_Delay(250);
 			}
 		}
 
@@ -154,7 +156,7 @@ void loop(){
 		//センサーデータから現在角を計算
 		for(uint8_t i=0; i<8; i++){
 
-			float dummy[3] = {};
+
 			PoseEstimation(&accel_tmp[3*i], &gyro_tmp[3*i], data.angle);
 		}
 
@@ -172,6 +174,10 @@ void loop(){
 
 		//PWMの値を使ってモーターを回す
 		MotorGenerate(data.motor, data.servo);
+
+		printf("%d %d %d %d\n",data.motor[0],data.motor[1],data.motor[2],data.motor[3]);
+		//printf("%d %d %d %d\n",data.sbus[0],data.sbus[1],data.sbus[2],data.sbus[3]);
+
 
 		//Debug
 		//SendData(data.motor);

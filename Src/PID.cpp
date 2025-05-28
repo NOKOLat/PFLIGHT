@@ -18,7 +18,7 @@ void PID::Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D){
 void PID::Calc(float Angle, float Goal){
 
 	float Error = Goal - Angle;
-	integral += (Error + Pre_Error) / 2 * Time;
+	integral += (Error + Pre_Error) / 2.0 * Time;
 	float Delta = (Pre_Error - Error) / Time;
 
 	control = Error * Gain_P + integral * Gain_I + Delta * Gain_D;

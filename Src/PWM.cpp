@@ -11,10 +11,11 @@ ServoPWM servo_pwm;
 //PIDの制御量をモータに分配
 void PidtoPwm(float throttle, float control[3], uint16_t motor[4]){
 
-	motor[0] = motor_pwm.min + throttle + control[0] - control[1] - control[2];
-	motor[1] = motor_pwm.min + throttle + control[0] + control[1] + control[2];
-	motor[2] = motor_pwm.min + throttle - control[0] - control[1] + control[2];
-	motor[3] = motor_pwm.min + throttle - control[0] + control[1] - control[2];
+	motor[0] = (uint16_t)(motor_pwm.min + throttle + control[0] + control[1] - control[2]);
+	motor[1] = (uint16_t)(motor_pwm.min + throttle + control[0] - control[1] + control[2]);
+	motor[2] = (uint16_t)(motor_pwm.min + throttle - control[0] + control[1] + control[2]);
+	motor[3] = (uint16_t)(motor_pwm.min + throttle - control[0] - control[1] - control[2]);
+
 
 	//PWMが最大値を超えないように処理
 	for(uint8_t i=0; i<4; i++){
