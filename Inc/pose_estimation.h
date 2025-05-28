@@ -80,8 +80,9 @@ uint8_t PoseEstimation(float AccelData[3],float GyroData[3],float theta[3]){
 		kalman_theta(AccelData,GyroData,theta,0.00125,rotation);//カルマンフィルタ
 
 		Avg(theta,theta);
-		//printf("%+3.3lf %+3.3lf %+3.3lf\n", theta[0], theta[1], theta[2]);
-
+		if (DEBUG_MODE){
+			printf("%+3.3lf %+3.3lf %+3.3lf\n", theta[0], theta[1], theta[2]);
+		}
 
 
 

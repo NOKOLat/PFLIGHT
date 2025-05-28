@@ -25,7 +25,7 @@ class PID {
 		float Goal      = 0.0;
 		float Pre_Error = 0.0;
 		float integral  = 0.0;
-		float Time      = 0.020;
+		float Time      = 0.005;
 		float control   = 0.0;
 };
 

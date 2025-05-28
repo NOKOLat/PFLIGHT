@@ -10,9 +10,9 @@ PID yaw;
 
 void PidSetup(){
 
-	pitch.Setup(0.7, 0, 0.01);
-	roll.Setup(0.7, 0, 0.01);
-	yaw.Setup(1.0, 0, 0.01);
+	pitch.Setup(1.5, 0, 0.0001);
+	roll.Setup(1.5, 0, 0.0001);
+	yaw.Setup(1.0, 0, 0);
 
 }
 

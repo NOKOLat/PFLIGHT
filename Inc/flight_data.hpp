@@ -64,16 +64,16 @@ uint8_t IsAuto(){
 void SbustoAngle(){
 
 	//pitch(angle)
-	data.target_angle[0] = ((float)(data.sbus[channel.pitch] - data.sbus_center[channel.pitch]) / (float)(data.sbus_max[channel.pitch] - data.sbus_center[channel.pitch])) * 30.0;
+	data.target_angle[0] = (float)((data.sbus[channel.pitch] - data.sbus_center[channel.pitch]) / (float)(data.sbus_max[channel.pitch] - data.sbus_center[channel.pitch])) * 30.0;
 
 	//roll(angle)
-	data.target_angle[1] = ((float)(data.sbus[channel.roll] - data.sbus_center[channel.roll]) / (float)(data.sbus_max[channel.roll] - data.sbus_center[channel.roll])) * 30.0;
+	data.target_angle[1] = (float)((data.sbus[channel.roll] - data.sbus_center[channel.roll]) / (float)(data.sbus_max[channel.roll] - data.sbus_center[channel.roll])) * 30.0;
 
 	//yaw(speed)
-	data.target_angle[2] = ((float)(data.sbus[channel.yaw] - data.sbus_center[channel.yaw]) / (float)(data.sbus_max[channel.yaw] - data.sbus_center[channel.yaw])) * 45;
+	data.target_angle[2] = (float)((data.sbus[channel.yaw] - data.sbus_center[channel.yaw]) / (float)(data.sbus_max[channel.yaw] - data.sbus_center[channel.yaw])) * 45.0;
 
 	//throttle(500~2000)
-	data.throttle = (float)(data.sbus[channel.throttle] - data.sbus_min[channel.throttle]) / (data.sbus_max[channel.throttle] - data.sbus_min[channel.throttle])* 750.0;
+	data.throttle = (float)((float)(data.sbus[channel.throttle] - data.sbus_min[channel.throttle]) / (data.sbus_max[channel.throttle] - data.sbus_min[channel.throttle]))* 750.0;
 
 }
 
