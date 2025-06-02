@@ -52,7 +52,7 @@ void init(){
 	}
 
 	printf("IMU Status: %d\n", ImuInit());
-	Madgwick_Start(500);
+	Madgwick_Start(400);
 
 	//初期化終了LEDをつける
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
