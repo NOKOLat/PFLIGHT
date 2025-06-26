@@ -1,6 +1,14 @@
-#  PFLIGHT V1.24
+#  PFLIGHT V1.30(beta)
 
-- あとはPIDのチューニングをすればいいはず
+## UpDate
+
+- USER_Setting.hppを追加
+  - すべての設定項目をこのファイルから触れるようにした
+  - 将来的な通信ツールの実装用
+
+- モーターを回し始める時の条件にthrottleの値を追加
+
+- PIDとPWM周りの関数のリファクタリング
 
 ## Setup
 
