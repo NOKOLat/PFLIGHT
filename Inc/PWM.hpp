@@ -54,7 +54,7 @@ struct MotorPWM{
 	uint16_t counter_period = 2499 + 1;
 
 	uint16_t max  = counter_period * 0.95;
-	uint16_t min  = counter_period * 0.50;
+	uint16_t min  = counter_period * 0.45;
 	uint16_t init = counter_period * 0.40;
 
 	uint16_t value[4] = {};
