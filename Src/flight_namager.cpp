@@ -308,6 +308,9 @@ StateResult FlightManager::WaitFly(){
     //PIDの初期化
     PidSetup();
 
+　　//Madgwickの初期化
+　　Madgwick_Start(400.0);
+	
     // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
     result.state_changed = true;
