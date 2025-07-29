@@ -9,6 +9,7 @@
 #define INC_PWM_HPP_
 
 #include "tim.h"
+#include "flight_data.hpp"
 
 /* モーター配置（上が前）
  * 	1	2
@@ -56,8 +57,6 @@ struct MotorPWM{
 	uint16_t max  = counter_period * 0.95;
 	uint16_t min  = counter_period * 0.50;
 	uint16_t init = counter_period * 0.40;
-
-	uint16_t value[4] = {};
 };
 
 //サーボー用のPWM値
@@ -68,14 +67,14 @@ struct ServoPWM{
 	uint16_t open   = counter_period * 0.16;
 	uint16_t center = counter_period * 0.40;
 	uint16_t close  = counter_period * 0.72;
-
-	uint16_t value[2] = {};
 };
 
-void PidtoPwm(float throttle, float control[3], uint16_t* motor);
-void MotorInit();
-void MotorIdel(uint16_t motor, uint16_t servo);
-void MotorGenerate(uint16_t* motor, uint16_t* servo);
-void MotorStop();
+void CalcMotorPwm(float throttle, float control[3], uint16_t* motor);
+void CalcServoPwm(SbusData sbus_data, uint16_t adc_value, uint16_t* servo_pwm);
+void PwmInit();
+void PwmIdel(uint16_t motor, uint16_t servo);
+void PwmGenerate(uint16_t* motor, uint16_t* servo);
+void PwmStop();
+void TestMotor();
 
 #endif /* INC_PWM_HPP_ */

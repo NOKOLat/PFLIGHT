@@ -12,7 +12,7 @@ class PID {
 
 	public:
 
-		void Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D);
+		void Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D, float time);
 		void Calc(float Target, float Angle);
 		float GetData();
 		void Reset();
@@ -25,7 +25,7 @@ class PID {
 		float Goal      = 0.0;
 		float Pre_Error = 0.0;
 		float integral  = 0.0;
-		float Time      = 0.020;
+		float Time      = 0.000;
 		float control   = 0.0;
 };
 

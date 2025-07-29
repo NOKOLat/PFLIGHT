@@ -8,11 +8,13 @@
 #include <PID.h>
 
 
-void PID::Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D){
+void PID::Setup(float Input_Gain_P, float Input_Gain_I, float Input_Gain_D, float time){
 
 	Gain_P = Input_Gain_P;
 	Gain_I = Input_Gain_I;
 	Gain_D = Input_Gain_D;
+	this->Time = time;
+
 }
 
 void PID::Calc(float Angle, float Goal){
