@@ -32,7 +32,7 @@ STM32CubeIDEの標準的なプロジェクト構成を取っています
 
 ```
 PFLIGHT/
-├── PFLIGHT.ioc           　　　　　# STM32CubeIDEプロジェクト設定ファイル
+├── PFLIGHT.ioc           　　　　　 # STM32CubeIDEプロジェクト設定ファイル
 ├── Readme.md                       # プロジェクト説明書
 ├── STM32F732RETX_FLASH.ld          # Flashメモリリンカスクリプト
 ├── STM32F732RETX_RAM.ld            # RAMリンカスクリプト
