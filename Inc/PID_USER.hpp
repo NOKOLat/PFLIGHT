@@ -24,14 +24,14 @@ void PidSetup(){
 //	Dで抑えて
 //	目標値とのズレをIで合わせる
 
-	//角度制御(100hz)
-	angle_pitch.Setup(0.85, 0, 0, angle_pid_time);
-	angle_roll.Setup(0.85, 0, 0, angle_pid_time);
+	//角度PID制御(100hz)
+	angle_pitch.Setup(2.2, 0.05, 0.2, angle_pid_time);
+	angle_roll.Setup(2.2, 0.05, 0.2, angle_pid_time);
 
-	//角速度制御(400hz)
-	rate_pitch.Setup(1, 0, 0, rate_pid_time);
-	rate_roll.Setup(1, 0, 0, rate_pid_time);
-	rate_yaw.Setup(1, 0, 0.1, rate_pid_time);
+	//角速度PD制御(400hz)
+	rate_pitch.Setup(0.8, 0.0, 0.001, rate_pid_time);
+	rate_roll.Setup(0.8, 0.0, 0.001, rate_pid_time);
+	rate_yaw.Setup(4, 0.0, 0.01, rate_pid_time);
 }
 
 void AnglePIDCalc(float current[2], float target[2]){

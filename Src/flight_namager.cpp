@@ -111,10 +111,10 @@ void FlightManager::SbusUpDate(uint16_t sbus[10], bool failsafe_bit){
 	}
 
 	//pitch(angle ±30 dgree)
-	sbus_data.target_pitch_angle = (float)((sbus[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch]) / (float)(sbus_data.max[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch])) * 30.0;
+	sbus_data.target_pitch_angle = (float)((sbus[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch]) / (float)(sbus_data.max[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch])) * 20.0;
 
 	//roll(angle ±30 dgree)
-	sbus_data.target_roll_angle  = (float)((sbus[(uint8_t)Channel::roll]	 - sbus_data.center[(uint8_t)Channel::roll])  / (float)(sbus_data.max[(uint8_t)Channel::roll]     - sbus_data.center[(uint8_t)Channel::roll]))  * 30.0;
+	sbus_data.target_roll_angle  = (float)((sbus[(uint8_t)Channel::roll]	 - sbus_data.center[(uint8_t)Channel::roll])  / (float)(sbus_data.max[(uint8_t)Channel::roll]     - sbus_data.center[(uint8_t)Channel::roll]))  * 20.0;
 
 	//yaw(rate ±60 dps)
 	sbus_data.target_yaw_rate    = (float)((sbus[(uint8_t)Channel::yaw]      - sbus_data.center[(uint8_t)Channel::yaw])   / (float)(sbus_data.max[(uint8_t)Channel::yaw] 	  - sbus_data.center[(uint8_t)Channel::yaw]))   * 60.0;
@@ -136,6 +136,7 @@ void FlightManager::SbusUpDate(uint16_t sbus[10], bool failsafe_bit){
 
 		sbus_data.arm = false;
 	}
+
 
 	//飛行開始判定
 	if(sbus[(uint8_t)Channel::fly] > 1500 && sbus[(uint8_t)Channel::throttle] < 400){
@@ -206,7 +207,7 @@ StateResult FlightManager::Init(){
         result.state_changed = false;
 
         return result;
-    } 
+    }
         
     // IMUの受信チェック
     if(ImuInit() == 1){
@@ -267,6 +268,8 @@ StateResult FlightManager::Arm(){
 
     StateResult result;
 
+    icm.Calibration(5000);
+
     //ESCの初期化
     PwmInit();
     
@@ -279,13 +282,14 @@ StateResult FlightManager::Arm(){
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
 
 
+    //TestMotor();
     return result;
 }
 
 StateResult FlightManager::WaitFly(){
 
     StateResult result;
-    
+
     //Armが解除されていた場合→DisArmへ
     if(sbus_data.arm == false){
 
@@ -308,9 +312,6 @@ StateResult FlightManager::WaitFly(){
     //PIDの初期化
     PidSetup();
 
-　　//Madgwickの初期化
-　　Madgwick_Start(400.0);
-	
     // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
     result.state_changed = true;
@@ -345,9 +346,17 @@ StateResult FlightManager::Fly(){
     //センサーデータの取得
     ImuGetData(sensor_data.accel, sensor_data.gyro);
 
+
     //Madgickフィルターによる姿勢推定
     Madgwick_UpDate(sensor_data.accel, sensor_data.gyro);
     Madgwick_GetAngle(sensor_data.angle);
+
+    //センサー向きの調整
+        float buf=sensor_data.gyro[0];
+        sensor_data.gyro[0]=sensor_data.gyro[1];
+        sensor_data.gyro[1]=buf;
+        sensor_data.gyro[2]*=-1;
+    
 
     //100hz 角度制御(pitch, roll)
     if(fly_loop_count % 4 == 0){
@@ -374,7 +383,11 @@ StateResult FlightManager::Fly(){
 	//PWMを生成
 	PwmGenerate(control_data.motor_pwm, control_data.servo_pwm);
 
-	printf("Motor: %d, %d, %d, %d \n", control_data.motor_pwm[0],control_data.motor_pwm[1],control_data.motor_pwm[2],control_data.motor_pwm[3]);
+	//printf("%+.2f %+.2f %+.2f  ",sbus_data.target_angle[0],sbus_data.target_angle[1],sbus_data.target_rate[2]);
+	//printf("%+.2f %+.2f %+.2f  ",sensor_data.angle[0],sensor_data.angle[1],sensor_data.angle[2]);
+	//printf("%+.2f %+.2f %+.2f  ",control_data.pid_control[0],control_data.pid_control[1],control_data.pid_control[2]);
+	//printf("Motor: %d, %d, %d, %d ", control_data.motor_pwm[0],control_data.motor_pwm[1],control_data.motor_pwm[2],control_data.motor_pwm[3]);
+	//printf("\n");
 
     // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
@@ -431,7 +444,7 @@ StateResult FlightManager::Automation(){
 
 StateResult FlightManager::FailSafe(){
     StateResult result;
-    
+
     // TODO: フェイルセーフ処理を実装
     PwmStop();
     printf("FailSafe() \n");
@@ -445,6 +458,6 @@ StateResult FlightManager::FailSafe(){
 
 
     }
-    
+
     return result;
 }

@@ -11,21 +11,19 @@ ServoPWM servo_pwm;
 
 //PIDの制御量をモータに分配
 void CalcMotorPwm(float throttle, float control[3], uint16_t motor[4]){
-	motor[0] = motor_pwm.min + throttle + control[0] - control[1] - control[2];
-	motor[1] = motor_pwm.min + throttle + control[0] + control[1] + control[2];
-	motor[2] = motor_pwm.min + throttle - control[0] - control[1] + control[2];
-	motor[3] = motor_pwm.min + throttle - control[0] + control[1] - control[2];
+	motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
+	motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
+	motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
+	motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
 
-	uint32_t pwm_min = motor_pwm.min;
-	uint32_t pwm_max = motor_pwm.max;
-	uint32_t pwm_max2 = motor_pwm.max * motor_pwm.max;
-	uint32_t pwm_min2 = motor_pwm.min * motor_pwm.min;
-	uint32_t pwm_range = pwm_max - pwm_min;
-	uint32_t pwm_range2 = pwm_max2 - pwm_min2;
+//	uint32_t pwm_min = motor_pwm.min;
+//	uint32_t pwm_max = motor_pwm.max;
+//	uint32_t pwm_max2 = motor_pwm.max * motor_pwm.max;
+//	uint32_t pwm_min2 = motor_pwm.min * motor_pwm.min;
+//	uint32_t pwm_range = pwm_max - pwm_min;
+//	uint32_t pwm_range2 = pwm_max2 - pwm_min2;
 
 	for(uint8_t i=0; i<4; i++){
-
-		//線形的になるように処理
 		if(motor[i] >= motor_pwm.max){
 
 			motor[i] = motor_pwm.max;
@@ -34,8 +32,8 @@ void CalcMotorPwm(float throttle, float control[3], uint16_t motor[4]){
 
 			motor[i] = motor_pwm.min;
 		}
-
-		motor[i] = sqrt(pwm_min2 + pwm_range2 * (motor[i] - pwm_min) / pwm_range);
+		//線形的になるように処理
+		//motor[i] = sqrt(pwm_min2 + pwm_range2 * (motor[i] - pwm_min) / pwm_range);
 	}
 }
 
@@ -123,4 +121,29 @@ void PwmStop(){
 	//servo
 	HAL_TIM_PWM_Stop(servo_tim.servo1, servo_channel.servo1);
 	HAL_TIM_PWM_Stop(servo_tim.servo2, servo_channel.servo2);
+}
+
+void TestMotor(){
+	PwmInit();
+	HAL_Delay(1000);
+	uint8_t i,j;
+	uint16_t motor[4],hoge[4];
+	for (i=0;i<4;i++){
+		for (j=0;j<4;j++){
+			if (i==j){
+				motor[j] = motor_pwm.min;
+			}else{
+			motor[j] = motor_pwm.init;
+			}
+		}
+		PwmGenerate(motor,hoge);
+		HAL_Delay(300);
+		motor[0] = motor_pwm.init;
+		motor[1] = motor_pwm.init;
+		motor[2] = motor_pwm.init;
+		motor[3] = motor_pwm.init;
+		PwmGenerate(motor,hoge);
+
+	}
+	PwmStop();
 }
