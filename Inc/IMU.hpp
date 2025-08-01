@@ -17,9 +17,7 @@ uint8_t ImuInit(){
 	HAL_Delay(10);
 
 	icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0250, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
-	HAL_Delay(10);
 
-	icm.Calibration(1000);
 	HAL_Delay(10);
 
 	return 0;

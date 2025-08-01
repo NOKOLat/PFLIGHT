@@ -55,7 +55,7 @@ struct MotorPWM{
 	uint16_t counter_period = 2499 + 1;
 
 	uint16_t max  = counter_period * 0.95;
-	uint16_t min  = counter_period * 0.45;
+	uint16_t min  = counter_period * 0.50;
 	uint16_t init = counter_period * 0.40;
 };
 
@@ -75,5 +75,6 @@ void PwmInit();
 void PwmIdel(uint16_t motor, uint16_t servo);
 void PwmGenerate(uint16_t* motor, uint16_t* servo);
 void PwmStop();
+void TestMotor();
 
 #endif /* INC_PWM_HPP_ */
