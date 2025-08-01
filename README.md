@@ -12,103 +12,82 @@ LEDやTeraTermでのシリアル受信によって現在のFCの状態がわか�
 
 | LED        | 状態      
 |--------------|------------------------|
-| 赤点滅 | SBUSの受信中   | 
 | 赤点灯 | 初期化成功     |
-| 黄点滅 | Arm待機   | 
 | 黄点灯 | Arm成功     |
-| 緑点滅 | 飛行待機  | 
 | 緑点灯 | 飛行中     |
 | 全点滅 | FailSafe     |
 
 
 ## 必要なもの
 
-使用しているものと、代替方法についてです
-
-軽量化を目指す場合は、自作基板の作成が必要になります
-
 | 役割         | 使用しているもの        | 代替方法              |
 |--------------|------------------------|-----------------------|
 | MCU（制御用マイコン） | STM32F732RET6         | 他のSTM32シリーズ、64KB以上推奨|
 | IMU（慣性計測ユニット） | ICM42688P              | MPU6050、ICM20948など |
 
-## 設定の変更方法について
+## ファイル構成
 
-様々な理由で、プログラムの設定を変更する必要がある場合は以下を参考にしてください
+STM32CubeIDEの標準的なプロジェクト構成を取っています
+使用する際には```Inc/Src```ファイル内のファイルを```Project/Core/Inc``` or ```Project/Core/Src```に入れてください
 
-割と危険なことになる可能性が高いため、自己責任で気を付けて行ってください
-
-## 1. 使うMCUを変更する場合
-
-基板レベルの話になるため、プログラムで特別にやることはありません
-
-通常通りCubeIDEなどを使用して、ピン割り当てをして後述するピン設定の部分を必要に応じて変更してください
-
-## 2. 使うセンサーを変更する場合
-
-``IMU.hpp``に6軸のデータ取得用の関数があります
-
-2つの関数の中身に、使うセンサーライブラリの関数などを実装してください
-
-また```GetData()```の引数はセンサーから受け取ったデータが入ります。ここは、変更しないでください
-
-```cpp
-uint8_t IMUInit();
-uint8_t IMUGetData(float accel_data[3], float gyro_data[3]);
 ```
-
-## 3. ピンを変更する場合
-
-```USER_Setting.hpp```内にピン情報を定義している部分があります
-
-例えばモーター用のPWM出力ピンを変えたい場合は、```MotorTim```と```MotorChannel```構造体の中を変更してください
-
-```cpp
-struct MotorTim{
-
-	TIM_HandleTypeDef* motor1 = &htim1;
-	TIM_HandleTypeDef* motor2 = &htim1;
-	TIM_HandleTypeDef* motor3 = &htim1;
-	TIM_HandleTypeDef* motor4 = &htim1;
-};
+PFLIGHT/
+├── PFLIGHT.ioc           　　　　　# STM32CubeIDEプロジェクト設定ファイル
+├── Readme.md                       # プロジェクト説明書
+├── STM32F732RETX_FLASH.ld          # Flashメモリリンカスクリプト
+├── STM32F732RETX_RAM.ld            # RAMリンカスクリプト
+├── Core/                           # メインソースコード
+│   ├── Inc/                        # ヘッダファイル
+│   │   ├── main.h                  # メイン関数のヘッダ
+│   │   ├── flight_manager.hpp      # フライト管理システム
+│   │   ├── flight_data.hpp         # フライトデータ構造体
+│   │   ├── IMU.hpp                 # IMUセンサー制御
+│   │   ├── ICM42688P.h             # ICM42688P IMUセンサードライバ
+│   │   ├── ICM42688P_HAL_SPI.h     # ICM42688P SPI通信
+│   │   ├── MadgwickAHRS.h          # Madgwick姿勢推定アルゴリズム
+│   │   ├── MadgwickAHRS_USER.hpp   # Madgwick姿勢推定カスタム
+│   │   ├── PID.h                   # PID制御
+│   │   ├── PID_USER.hpp            # PIDコントローラカスタム
+│   │   ├── PWM.hpp                 # PWM信号制御
+│   │   ├── LED.hpp                 # LED制御
+│   │   ├── sbus.h                  # SBUS通信プロトコル
+│   │   ├── ringBuffer.h            # リングバッファ
+│   │   ├── wrapper.hpp             # C/C++ラッパー関数
+│   │   ├── adc.h                   # ADC制御
+│   │   ├── dma.h                   # DMA制御
+│   │   ├── gpio.h                  # GPIO制御
+│   │   ├── spi.h                   # SPI通信
+│   │   ├── tim.h                   # タイマー制御
+│   │   ├── usart.h                 # UART通信
+│   │   ├── stm32f7xx_hal_conf.h    # HALライブラリ設定
+│   │   └── stm32f7xx_it.h          # 割り込みハンドラ
+│   ├── Src/                        # ソースファイル
+│   │   ├── main.c                  # メイン関数
+│   │   ├── flight_namager.cpp      # フライト管理システム実装
+│   │   ├── ICM42688P.cpp           # ICM42688P IMUドライバ実装
+│   │   ├── ICM42688P_HAL_SPI.cpp   # ICM42688P SPI通信実装
+│   │   ├── MadgwickAHRS.cpp        # Madgwick姿勢推定実装
+│   │   ├── PID.cpp                 # PID制御実装
+│   │   ├── PWM.cpp                 # PWM制御実装
+│   │   ├── sbus.cpp                # SBUS通信実装
+│   │   ├── wrapper.cpp             # C/C++ラッパー実装
+│   │   ├── adc.c                   # ADC制御実装
+│   │   ├── dma.c                   # DMA制御実装
+│   │   ├── gpio.c                  # GPIO制御実装
+│   │   ├── spi.c                   # SPI通信実装
+│   │   ├── tim.c                   # タイマー制御実装
+│   │   ├── usart.c                 # UART通信実装
+│   │   ├── stm32f7xx_hal_msp.c     # HAL MSP設定
+│   │   ├── stm32f7xx_it.c          # 割り込みハンドラ実装
+│   │   └── system_stm32f7xx.c      # システム初期化
+│   └── Startup/                    # スタートアップファイル
+│       └── startup_stm32f732retx.s # アセンブリスタートアップ
+├── Debug/                          # デバッグビルド出力
+├── Drivers/                        # STM32 HALドライバ
+│   ├── CMSIS/                      # CMSIS標準ライブラリ
+│   └── STM32F7xx_HAL_Driver/       # STM32F7 HALドライバ
+└── .settings/                      # IDE設定ファイル
 ```
-
-```cpp
-struct MotorChannel{
-
-	uint32_t motor1 = TIM_CHANNEL_1;
-	uint32_t motor2 = TIM_CHANNEL_2;
-	uint32_t motor3 = TIM_CHANNEL_3;
-	uint32_t motor4 = TIM_CHANNEL_4;
-};
-```
-
-## 4. PIDを変更したい場合
-
-### 4-1. ゲインの調整
-
-このプログラムは、角度制御と角速度制御が入っています
-
-それぞれ、```AnglePID```と```RatePID```という名前になっているので、
-
-適切な構造体の中の値を変更してください
-
-### 4-2. 制御周期を変更したい場合
-
-追記予定
-
-## 5.SBUSの設定
-
-### 5-1 ラジオキャリブレーション
-
-```SbusValue```構造体の中に、プロポのSBUS出力値の最大、最小、中立の値を書き込んでください
-
-### 5-2 チャンネルの変更
-
-基本的にプロポで合わせてください
-
-どうしても変更したい場合は、```SbusChannel```構造体の値を変更してください
-
 
 
 
