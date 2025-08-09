@@ -1,35 +1,76 @@
-#ifndef INC_FLIGHT_MANEGER_HPP_
-#define INC_FLIGHT_MANEGER_HPP_
+/*
+ * flight_manager.hpp
+ *
+ *  Created on: Jun 30, 2025
+ *      Author: Sezakiaoi
+ */
 
+#ifndef INC_FLIGHT_MANAGER_HPP_
+#define INC_FLIGHT_MANAGER_HPP_
+
+#include "flight_data.hpp"
 #include <cstdint>
 
-struct FlightManager{
+enum class state: uint8_t{
 
-	uint8_t wait = 0;
-	uint8_t loop_count = 0;
-	uint8_t failsafe_count = 0;
-}armloop;
+	init = 0,
+	wait_arm,
+	arm,
+	wait_fly,
+	fly,
+	disarm,
+	automation,
+	failsafe,
+};
 
-uint8_t IsWaitLoop(){
+enum class error_state: uint8_t{
 
-	return armloop.wait;
-}
+	NO_ERROR = 0,
+	SBUS_NOT_DETECTED,
+	IMU_NOT_DETECTED,
+	ARM_NOT_DETECTED,
+	FLY_NOT_DETECTED,
+	DELAY_NOW,
+};
 
-void ArmLoopReset(){
+//各状態ごとの処理の戻り値
+struct StateResult{
 
-	armloop.wait = 0;
-	armloop.loop_count = 0;
-}
+	bool state_changed = false;
+	state next_state = state::init;
+	error_state error = error_state::NO_ERROR;
+};
 
-void ArmLoopSet(){
+class FlightManager{
 
-	armloop.wait = 1;
-}
+	public:
 
-void ArmLoopClear(){
+	void UpDate();
+	void SbusUpDate(uint16_t sbus_data[10], bool failsafe_bit);
+	state GetCurrentState();
 
-	armloop.wait = 0;
-	armloop.loop_count ++;
-}
+	private:
 
-#endif
+	//現在の状態
+	state current_state = state::init;
+
+	//状態ごとの処理
+	StateResult Init();
+	StateResult WaitArm();
+
+	StateResult Arm();
+	StateResult WaitFly();
+	StateResult Fly();
+	StateResult DisArm();
+	StateResult Automation();
+	StateResult FailSafe();
+
+	//データ構造体のインスタンス
+	SensorData sensor_data;
+	SbusData sbus_data;
+	ControlData control_data;
+};
+
+
+
+#endif /* INC_FLIGHT_MANAGER_HPP_ */

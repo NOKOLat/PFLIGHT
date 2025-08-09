@@ -19,22 +19,16 @@ void Madgwick_Start(float rate){
 	madgwick.begin(rate);
 }
 
-void Madgwick_UpDate(float accel[3], float gyro[3], float mag[3]){
+void Madgwick_UpDate(float accel[3], float gyro[3]){
 
-	madgwick.update(gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2], mag[0], mag[1], mag[2]);
+	madgwick.updateIMU(gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2]);
 }
 
-void Madgwick_GetAngle(float angle[3], float angle_speed[3]){
+void Madgwick_GetAngle(float angle[3]){
 
 	angle[0] = madgwick.getPitch();
 	angle[1] = madgwick.getRoll();
 	angle[2] = madgwick.getYaw();
-
-	for(uint8_t i=0; i<3; i++){
-
-		angle_speed[i] = (angle[i] - pre_angle[i]);
-		pre_angle[i] = angle[i];
-	}
 }
 
 #endif /* INC_MADGWICKAHRS_USER_HPP_ */
