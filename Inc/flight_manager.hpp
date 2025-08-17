@@ -21,6 +21,7 @@ enum class state: uint8_t{
 	disarm,
 	automation,
 	failsafe,
+	twin,
 };
 
 enum class error_state: uint8_t{
@@ -65,6 +66,7 @@ class FlightManager{
 	StateResult DisArm();
 	StateResult Automation();
 	StateResult FailSafe();
+	StateResult Twin();
 
 	//データ構造体のインスタンス
 	SensorData sensor_data;

@@ -17,26 +17,26 @@ const float rate_pid_time = 0.0025;
 void PidSetup(){
 
 	//角度PID制御(100hz)
-	angle_pitch.GainSet(2.2, 0.05, 0.2);
+	angle_pitch.GainSet(2.2, 0.1, 0.3);
 	angle_pitch.TimeSet(angle_pid_time);
-	angle_pitch.LimitSet(10.0, 50.0); 
+	angle_pitch.LimitSet(20.0, 50.0);
 
-	angle_roll.GainSet(2.2, 0.05, 0.2);
+	angle_roll.GainSet(2.2, 0.1, 0.3);
 	angle_roll.TimeSet(angle_pid_time);
-	angle_roll.LimitSet(10.0, 50.0);  
+	angle_roll.LimitSet(20.0, 50.0);
 
 	//角速度PD制御(400hz)
 	rate_pitch.GainSet(0.8, 0.0, 0.001);
 	rate_pitch.TimeSet(rate_pid_time);
-	rate_pitch.LimitSet(5.0, 30.0);   
+	rate_pitch.LimitSet(0.0, 30.0);
 
 	rate_roll.GainSet(0.8, 0.0, 0.001);
 	rate_roll.TimeSet(rate_pid_time);
-	rate_roll.LimitSet(5.0, 30.0);     
+	rate_roll.LimitSet(0.0, 30.0);
 	
 	rate_yaw.GainSet(4, 0.0, 0.01);
 	rate_yaw.TimeSet(rate_pid_time);
-	rate_yaw.LimitSet(8.0, 40.0); 
+	rate_yaw.LimitSet(0.0, 40.0);
 }
 
 //角度PIDの計算

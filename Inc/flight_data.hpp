@@ -42,6 +42,7 @@ struct SbusData{
 	uint8_t drop    = 0;
 	bool autodrop   = false;
 	bool autofly = false;
+	bool twin = false;
 
 	//failsafe
 	bool failsafe_bit = false;
@@ -64,8 +65,9 @@ enum class Channel: uint8_t{
 	yaw = 4 - 1,
 	arm = 6 - 1,
 	fly = 5 - 1,
-	drop = 7 - 1,
+	drop = 10 - 1,
 	autodrop = 8 - 1,
 	autofly = 9 - 1,
+	twin = 7 - 1,
 };
 #endif /* INC_FLIGHT_DATA_HPP_ */
