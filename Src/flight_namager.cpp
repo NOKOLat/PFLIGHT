@@ -512,9 +512,7 @@ StateResult FlightManager::FailSafe(){
 StateResult FlightManager::Automation(){
 
     StateResult result;
-    static uint8_t fly_loop_count = 0;
-    fly_loop_count ++;
-
+   
     //Armのチェック
     if(sbus_data.arm == false){
 
@@ -529,57 +527,6 @@ StateResult FlightManager::Automation(){
         return result;
     }
 
-    //センサーデータの取得
-    ImuGetData(sensor_data.accel, sensor_data.gyro);
-
-    //Madgickフィルターによる姿勢推定
-    Madgwick_UpDate(sensor_data.accel, sensor_data.gyro);
-    Madgwick_GetAngle(sensor_data.angle);
-
-    //センサー向きの調整
-        float buf=sensor_data.gyro[0];
-        sensor_data.gyro[0]=sensor_data.gyro[1];
-        sensor_data.gyro[1]=buf;
-        sensor_data.gyro[2]*=-1;
-
-        //自動操縦用
-    	sbus_data.target_pitch_angle = 0;
-    	sbus_data.target_roll_angle = 0;
-    	sbus_data.target_yaw_rate = 0;
-
-
-    //100hz 角度制御(pitch, roll)
-    if(fly_loop_count % 4 == 0){
-
-    	//目標角と現在角から目標角速度を計算
-    	AnglePIDCalc(sensor_data.angle, sbus_data.target_angle);
-    	AnglePIDGetData(sbus_data.target_rate);
-    }
-
-    //400hz 角速度制御
-	//目標角速度と現在角速度(センサーデータ）から制御量を計算
-	RatePIDCalc(sensor_data.gyro, sbus_data.target_rate);
-	RatePIDGetData(control_data.pid_control);
-
-	//PID結果を各モーターに分配
-	CalcMotorPwm(sbus_data.throttle, control_data.pid_control, control_data.motor_pwm);
-
-	//Servoのpwmを生成
-	uint16_t adc_value = 0;
-
-	//adcの値を読む
-	CalcServoPwm(sbus_data, adc_value, control_data.servo_pwm);
-
-	//PWMを生成
-	PwmGenerate(control_data.motor_pwm, control_data.servo_pwm);
-
-	//printf("%+.2f %+.2f %+.2f  ",sbus_data.target_angle[0],sbus_data.target_angle[1],sbus_data.target_rate[2]);
-	//printf("%+.2f %+.2f %+.2f  ",sensor_data.angle[0],sensor_data.angle[1],sensor_data.angle[2]);
-	//printf("%+.2f %+.2f %+.2f  ",control_data.pid_control[0],control_data.pid_control[1],control_data.pid_control[2]);
-	//printf("Motor: %d, %d, %d, %d ", control_data.motor_pwm[0],control_data.motor_pwm[1],control_data.motor_pwm[2],control_data.motor_pwm[3]);
-	//printf("\n");
-
-    // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
     result.state_changed = false;
 
@@ -589,7 +536,6 @@ StateResult FlightManager::Automation(){
 StateResult FlightManager::Twin() {
 
     StateResult result;
-    MotorPWM motor_pwm;
 
     //Armのチェック
     if(sbus_data.arm == false){
@@ -602,70 +548,12 @@ StateResult FlightManager::Twin() {
 
         return result;
     }
+	
+    result.state_changed = true;
+    result.next_state = state::fly;
 
-    static float throttle[2] = {};
-    static uint16_t twin_count = 0;
-
-
-    if (twin_count == 0){
-    	throttle[0] = sbus_data.throttle;
-    	throttle[1] = sbus_data.throttle;
-    }
-
-    if (twin_count > 2200) {
-
-        result.state_changed = true;
-        result.next_state = state::fly;
-
-        sbus_data.twin = false;
-        twin_count = 0;
-
-        printf("END: twin() \n");
-
-        return result;
-    }
-
-
-    if (twin_count > 2000) {
-
-        throttle[0] -= sbus_data.throttle * 0.005;
-        throttle[1] += sbus_data.throttle * 0.005;
-
-        if (throttle[0] < sbus_data.throttle) {
-            throttle[0] = sbus_data.throttle;
-        }
-        if (throttle[1] > sbus_data.throttle) {
-            throttle[1] = sbus_data.throttle;
-        }
-
-    }else {
-
-        throttle[0] += sbus_data.throttle * 0.025;
-        throttle[1] -= sbus_data.throttle * 0.005;
-
-        if (throttle[0] > sbus_data.throttle * 2.5) {
-            throttle[0] = sbus_data.throttle * 2.5;
-        }
-        if (throttle[1] < 0) {
-            throttle[1] = motor_pwm.init - motor_pwm.min;
-        }
-    }
-
-    control_data.motor_pwm[0] = motor_pwm.min + throttle[1];
-    control_data.motor_pwm[1] = motor_pwm.min + throttle[0];
-    control_data.motor_pwm[2] = motor_pwm.min + throttle[0];
-    control_data.motor_pwm[3] = motor_pwm.min + throttle[1];
-
-    PwmGenerate(control_data.motor_pwm, control_data.servo_pwm);
-
-    //printf("Motor: %d, %d, %d, %d ", control_data.motor_pwm[0],control_data.motor_pwm[1],control_data.motor_pwm[2],control_data.motor_pwm[3]);
-    //printf("\n");
-
-    // 状態遷移用の処理
-    result.error = error_state::NO_ERROR;
-    result.state_changed = false;
-
-    twin_count ++;
+    sbus_data.twin = false;
 
     return result;
 }
+
