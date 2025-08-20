@@ -520,7 +520,6 @@ StateResult FlightManager::Automation(){
         result.state_changed = true;
         result.next_state = state::disarm;
 
-        fly_loop_count = 0;
 
         printf("END: Fly() \n");
 

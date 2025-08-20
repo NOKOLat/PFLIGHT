@@ -42,9 +42,13 @@ void CalcServoPwm(SbusData sbus_data, uint16_t adc_value, uint16_t* servo){
 	//投下条件
 	//autodrop == 1 かつ 赤外線が閾値以上
 	//drop == 1
-	if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop){
+	if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop == 0){
 
 		servo[0] = servo_pwm.open;
+	}
+	else if(sbus_data.drop == 1){
+
+		servo[0] = servo_pwm.center;
 	}
 	else{
 
