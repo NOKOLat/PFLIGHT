@@ -114,6 +114,15 @@ void PwmGenerate(uint16_t* motor, uint16_t* servo){
 	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo2, servo[1]);
 }
 
+void PwmServoGenerate(uint16_t* servo){
+
+	//servo
+	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo1, servo[0]);
+	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo2, servo[1]);
+
+}
+
+
 void PwmStop(){
 
 	//motor

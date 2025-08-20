@@ -74,6 +74,7 @@ void CalcServoPwm(SbusData sbus_data, uint16_t adc_value, uint16_t* servo_pwm);
 void PwmInit();
 void PwmIdel(uint16_t motor, uint16_t servo);
 void PwmGenerate(uint16_t* motor, uint16_t* servo);
+void PwmServoGenerate(uint16_t* servo);
 void PwmStop();
 void TestMotor();
 

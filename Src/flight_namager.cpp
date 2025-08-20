@@ -116,10 +116,10 @@ void FlightManager::SbusUpDate(uint16_t sbus[10], bool failsafe_bit){
 	}
 
 	//pitch(angle ±30 dgree)
-	sbus_data.target_pitch_angle = (float)((sbus[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch]) / (float)(sbus_data.max[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch])) * 20.0;
+	sbus_data.target_pitch_angle = (float)((sbus[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch]) / (float)(sbus_data.max[(uint8_t)Channel::pitch]    - sbus_data.center[(uint8_t)Channel::pitch])) * 30.0;
 
 	//roll(angle ±30 dgree)
-	sbus_data.target_roll_angle  = (float)((sbus[(uint8_t)Channel::roll]	 - sbus_data.center[(uint8_t)Channel::roll])  / (float)(sbus_data.max[(uint8_t)Channel::roll]     - sbus_data.center[(uint8_t)Channel::roll]))  * 20.0;
+	sbus_data.target_roll_angle  = (float)((sbus[(uint8_t)Channel::roll]	 - sbus_data.center[(uint8_t)Channel::roll])  / (float)(sbus_data.max[(uint8_t)Channel::roll]     - sbus_data.center[(uint8_t)Channel::roll]))  * 30.0;
 
 	//yaw(rate ±60 dps)
 	sbus_data.target_yaw_rate    = (float)((sbus[(uint8_t)Channel::yaw]      - sbus_data.center[(uint8_t)Channel::yaw])   / (float)(sbus_data.max[(uint8_t)Channel::yaw] 	  - sbus_data.center[(uint8_t)Channel::yaw]))   * 60.0;
@@ -240,6 +240,9 @@ StateResult FlightManager::Init(){
         return result;
     }
 
+    //ESCの初期化
+    PwmInit();
+
     // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
     result.state_changed = true;
@@ -257,6 +260,10 @@ StateResult FlightManager::WaitArm(){
 
     StateResult result;
     
+    CalcServoPwm(sbus_data, 0, control_data.servo_pwm);
+    PwmServoGenerate(control_data.servo_pwm);
+
+
     //InitLED(赤色）をつける
     RedLed(PinState::on);
 
@@ -291,9 +298,6 @@ StateResult FlightManager::Arm(){
     StateResult result;
 
     icm.Calibration(5000);
-
-    //ESCの初期化
-    PwmInit();
     
     // 状態遷移用の処理
     result.error = error_state::NO_ERROR;
@@ -311,6 +315,9 @@ StateResult FlightManager::Arm(){
 StateResult FlightManager::WaitFly(){
 
     StateResult result;
+
+    CalcServoPwm(sbus_data, 0, control_data.servo_pwm);
+    PwmServoGenerate(control_data.servo_pwm);
 
     //Armが解除されていた場合→DisArmへ
     if(sbus_data.arm == false){
@@ -480,6 +487,9 @@ StateResult FlightManager::DisArm(){
 
     	return result;
     }
+
+    //ESCの初期化
+    PwmInit();
 
     result.error = error_state::NO_ERROR;
     result.state_changed = true;
