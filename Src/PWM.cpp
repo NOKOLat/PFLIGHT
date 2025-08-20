@@ -11,10 +11,10 @@ ServoPWM servo_pwm;
 
 //PIDの制御量をモータに分配
 void CalcMotorPwm(float throttle, float control[3], uint16_t motor[4]){
-	motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
-	motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
-	motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
-	motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
+	motor[0] = motor_pwm.min + throttle ;//+ control[0] - control[1] - control[2]);
+	motor[1] = motor_pwm.min + throttle ;//+ control[0] + control[1] + control[2]);
+	motor[2] = motor_pwm.min + throttle ;//- control[0] - control[1] + control[2]);
+	motor[3] = motor_pwm.min + throttle ;//- control[0] + control[1] - control[2]);
 
 //	uint32_t pwm_min = motor_pwm.min;
 //	uint32_t pwm_max = motor_pwm.max;
@@ -41,15 +41,19 @@ void CalcServoPwm(SbusData sbus_data, uint16_t adc_value, uint16_t* servo){
 
 	//投下条件
 	//autodrop == 1 かつ 赤外線が閾値以上
-	//drop == 1
-	if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop){
+	if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop == 0){
 
 		servo[0] = servo_pwm.open;
+	}
+	else if(sbus_data.drop == 1){
+
+		servo[0] = servo_pwm.center;
 	}
 	else{
 
 		servo[0] = servo_pwm.close;
 	}
+
 }
 void PwmServo(){
 

@@ -1,4 +1,4 @@
-w/*
+/*
  * LED.hpp
  *
  *  Created on: Jun 29, 2025
@@ -39,15 +39,15 @@ void YellowLed(PinState pin_state){
 
 	if(pin_state == PinState::off){
 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
 	}
 	else if(pin_state == PinState::on){
 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
 	}
 	else{
 
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_4);
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
 	}
 }
 
@@ -56,15 +56,15 @@ void GrrenLed(PinState pin_state){
 
 	if(pin_state == PinState::off){
 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
 	}
 	else if(pin_state == PinState::on){
 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 	}
 	else{
 
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_4);
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
 	}
 }
 
