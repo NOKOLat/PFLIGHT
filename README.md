@@ -1,17 +1,56 @@
-# PFLIGHT 
+# PFLIGHT v2.10.2
 
-2025年度に作成した、4発マルチコプターのFCプログラムです
+2025年度の部内大会で使用するはずのコード
 
-現在開発中につき、同じチームの人以外の使用を禁止します
+## 1. 使用について
+
+- 2025年9月30日までは、開発チーム以外の一切の使用を禁止します
+- 2025年10月1日以降は、下記のライセンスしたがって利用してください
+
+## 2. ライセンスについて
+
+- このプロジェクトで作成したファイルはすべてMITライセンスで公開しています
+
+基本的に自由に使用できますが、何が起きても自己責任になります
+
+ただし、以下は外部のコードを使用しているため、作成者が設定したライブラリに依存します
+
+- STM32CubeIDEによる生成ファイル(各ファイルやST公式の記述を参照してください)
+- [Core/Lib/MadgwickAHRS](https://github.com/arduino-libraries/MadgwickAHRS) 
+- [Core/Lib/SBUS](https://github.com/NOKOLat/SBUS)
+- [Core/Lib/RingBuffer](https://github.com/NOKOLat/Ring-Buffer)
 
 
-## 設定
-=======
-（大会で使用する + 安全上の欠陥が高確率で存在しているため）
+## 3. 動作環境
 
-## 使い方
+- MCU: STM32F732RET6
+- IMU: ICM42688P
+- 無線通信: SBUS(10channel)
+- 開発環境: STM32CubeIDE v1.18.1
 
-LEDやTeraTermでのシリアル受信によって現在のFCの状態がわかります
+## 4. 使い方
+
+1. このリポジトリをクローン
+
+2. STM32CubeIDEで開き、CodeGenerateを行う
+
+3. 使用する基板に書き込みを行う
+
+- ```Core/Inc/UserSetting```でPIDやモーターのPWM値の調節ができます
+
+## 5. 飛ばし方
+
+- SBUSのChannel6(arm)を常時オンにできるスイッチに割り当て
+- SBUSのChannel5(fly)を一時的にオンになるスイッチに割り当ててください
+
+- Channel5によってArm状態に移行し、Channel6によって飛行状態に移行できます
+- プロポのスイッチ切断 or Channel5をオフにすることでDisArmします
+
+## 6. デバックとLEDについて
+
+- STLinkなどでFCとPCを接続することで、エラー出力や飛行状態の確認を行うことができます
+
+- 通常時はLEDを確認することで、現在がどの状態かを判定することができます
 
 | LED        | 状態      
 |--------------|------------------------|
@@ -20,66 +59,70 @@ LEDやTeraTermでのシリアル受信によって現在のFCの状態がわか�
 | 緑点灯 | 飛行中     |
 | 全点滅 | FailSafe     |
 
-## ファイル構成
+## 7. ファイル構成
 
-STM32CubeIDEの標準的なプロジェクト構成を取っています
-使用する際には```Inc/Src```ファイル内のファイルを```Project/Core/Inc``` or ```Project/Core/Src```に入れてください
+Coreの実装はこのようになっています(STM32CubeIDEによる生成ファイルは省略)
+
+Stateパターンをベースとした状態遷移を行っています
 
 ```
-PFLIGHT/
-├── PFLIGHT.ioc           　　　　　 # STM32CubeIDEプロジェクト設定ファイル
-├── Readme.md                       # プロジェクト説明書
-├── STM32F732RETX_FLASH.ld          # Flashメモリリンカスクリプト
-├── STM32F732RETX_RAM.ld            # RAMリンカスクリプト
-├── Core/                           # メインソースコード
-│   ├── Inc/                        # ヘッダファイル
-│   │   ├── main.h                  # メイン関数のヘッダ
-│   │   ├── flight_manager.hpp      # フライト管理システム
-│   │   ├── flight_data.hpp         # フライトデータ構造体
-│   │   ├── IMU.hpp                 # IMUセンサー制御
-│   │   ├── ICM42688P.h             # ICM42688P IMUセンサードライバ
-│   │   ├── ICM42688P_HAL_SPI.h     # ICM42688P SPI通信
-│   │   ├── MadgwickAHRS.h          # Madgwick姿勢推定アルゴリズム
-│   │   ├── MadgwickAHRS_USER.hpp   # Madgwick姿勢推定カスタム
-│   │   ├── PID.h                   # PID制御
-│   │   ├── PID_USER.hpp            # PIDコントローラカスタム
-│   │   ├── PWM.hpp                 # PWM信号制御
-│   │   ├── LED.hpp                 # LED制御
-│   │   ├── sbus.h                  # SBUS通信プロトコル
-│   │   ├── ringBuffer.h            # リングバッファ
-│   │   ├── wrapper.hpp             # C/C++ラッパー関数
-│   │   ├── adc.h                   # ADC制御
-│   │   ├── dma.h                   # DMA制御
-│   │   ├── gpio.h                  # GPIO制御
-│   │   ├── spi.h                   # SPI通信
-│   │   ├── tim.h                   # タイマー制御
-│   │   ├── usart.h                 # UART通信
-│   │   ├── stm32f7xx_hal_conf.h    # HALライブラリ設定
-│   │   └── stm32f7xx_it.h          # 割り込みハンドラ
-│   ├── Src/                        # ソースファイル
-│   │   ├── main.c                  # メイン関数
-│   │   ├── flight_namager.cpp      # フライト管理システム実装
-│   │   ├── ICM42688P.cpp           # ICM42688P IMUドライバ実装
-│   │   ├── ICM42688P_HAL_SPI.cpp   # ICM42688P SPI通信実装
-│   │   ├── MadgwickAHRS.cpp        # Madgwick姿勢推定実装
-│   │   ├── PID.cpp                 # PID制御実装
-│   │   ├── PWM.cpp                 # PWM制御実装
-│   │   ├── sbus.cpp                # SBUS通信実装
-│   │   ├── wrapper.cpp             # C/C++ラッパー実装
-│   │   ├── adc.c                   # ADC制御実装
-│   │   ├── dma.c                   # DMA制御実装
-│   │   ├── gpio.c                  # GPIO制御実装
-│   │   ├── spi.c                   # SPI通信実装
-│   │   ├── tim.c                   # タイマー制御実装
-│   │   ├── usart.c                 # UART通信実装
-│   │   ├── stm32f7xx_hal_msp.c     # HAL MSP設定
-│   │   ├── stm32f7xx_it.c          # 割り込みハンドラ実装
-│   │   └── system_stm32f7xx.c      # システム初期化
-│   └── Startup/                    # スタートアップファイル
-│       └── startup_stm32f732retx.s # アセンブリスタートアップ
-├── Debug/                          # デバッグビルド出力
-├── Drivers/                        # STM32 HALドライバ
-│   ├── CMSIS/                      # CMSIS標準ライブラリ
-│   └── STM32F7xx_HAL_Driver/       # STM32F7 HALドライバ
-└── .settings/                      # IDE設定ファイル
+Core/
+├─ Inc/          
+│  ├─ FlightManager.h       // 状態管理クラスのヘッダー                      
+│  ├─ wrapper.hpp           // C++ 用ラッパー
+│  ├─ FlightData/           // データ用の構造体
+│  │  ├─ ControlData.hpp    // 制御出力とPWM値
+│  │  ├─ SbusData.hpp       // SBUS
+│  │  └─ SensorData.hpp     // センサデータ
+│  ├─ State/                
+│  │  └─ Headers/
+│  │     └─ FlightStates.h   // 各状態の定義
+│  ├─ State/Interface/
+│  │  └─ FlightStateInterface.h // 状態クラスのインターフェース
+│  ├─ UserSetting/          
+│  │  ├─ MotorSetting.hpp   // モーター設定
+│  │  └─ PIDSetting.hpp     // PID設定
+│  └─ Utils/               
+│     ├─ ICM42688P_SPI_Util.hpp // ICM42688PSPI用ユーティリティ
+│     ├─ LED.hpp            // LEDラッパー
+│     ├─ PWM.hpp            // PWMラッパー
+│     └─ SbusDecoder.hpp    // SBUSデコード
+│
+├─ Lib/
+│  ├─ ICM42688P/            // IMU ライブラリ
+│  │  ├─ ICM42688P.cpp
+│  │  ├─ ICM42688P.h
+│  │  ├─ ICM42688P_HAL_I2C.cpp/.h
+│  │  ├─ ICM42688P_HAL_SPI.cpp/.h
+│  │  └─ ICM42688P_Wire_I2C.* 
+│  ├─ KalmanFilter/         // カルマンフィルタ（現状未使用）
+│  │  ├─ kalman.cpp/.h
+│  │  └─ matrix.cpp/.h
+│  ├─ MadgwickAHRS/         // Madgwick AHRS ライブラリソース
+│  │  └─ src/MadgwickAHRS.cpp/.h
+│  ├─ PID/                  // PID ライブラリ
+│  │  ├─ PID.cpp
+│  │  └─ PID.h
+│  ├─ ringBuffer/           // リングバッファライブラリ
+│  │  └─ ringBuffer.h
+│  └─ SBUS/                 // SBUS ライブラリ
+│     ├─ sbus.cpp
+│     └─ sbus.h
+│
+└─ Src/
+   ├─ main.cpp                      // エントリーポイント
+   ├─ FlightManager.cpp             // 状態管理クラス
+   ├─ wrapper.cpp
+   ├─ State/
+   │  ├─ InitState.cpp
+   │  ├─ PreArmingState.cpp
+   │  ├─ PreFlightState.cpp
+   │  ├─ FlyingState.cpp
+   │  ├─ AutoFlyState.cpp           // 未実装
+   │  ├─ DisarmingState.cpp
+   │  ├─ EmergencyControlState.cpp  // 未実装
+   │  └─ FailSafeState.cpp
+   └─ Utils/
+      ├─ ICM42688P_SPI_Util.cpp
+      └─ PWM.cpp              
 ```
