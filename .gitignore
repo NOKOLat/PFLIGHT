@@ -1,0 +1,31 @@
+# Build outputs
+/Debug/
+/Release/
+*.o
+*.su
+*.d
+*.elf
+*.map
+*.list
+*.cyclo
+
+# IDE settings (environment-specific)
+/.settings/
+
+# STM32CubeMX generated, environment-dependent
+.mxproject
+
+# Debug/launch configurations (environment-dependent)
+*.launch
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Logs
+*.log
+Core/Lib/SBUS
+Core/Lib/ICM42688P
+Core/Lib/SBUS
