@@ -22,7 +22,6 @@ void FlyingState::update(FlightManager& manager) {
 
 		manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
 
-		//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);
 	}
 
 	// Madgwickフィルターでの姿勢推定
@@ -36,8 +35,6 @@ void FlyingState::update(FlightManager& manager) {
 	manager.sensor_data.angle[0] = manager.madgwick.getPitch();
 	manager.sensor_data.angle[1] = manager.madgwick.getRoll();
 	manager.sensor_data.angle[2] = manager.madgwick.getYaw();
-
-	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.angle[0], manager.sensor_data.angle[1], manager.sensor_data.angle[2]);
 
     // センサー向きの調整
     float buf = manager.sensor_data.gyro[0];
@@ -69,43 +66,30 @@ void FlyingState::update(FlightManager& manager) {
 
 	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
-	//printf("PidResult: %+4.4lf %+4.4lf %+4.4lf \n", manager.control_data.pid_result[0], manager.control_data.pid_result[1], manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
 	PwmCalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
 
-//	// ADCの値を読む
-	uint16_t adc_value = 0;
-//
-//	static bool adc_started = false;
-//
-//	if(adc_started == false){
-//
-//		adc_started = true;
-//
-//		//ADCのスタート
-//		HAL_ADC_Start(&hadc1);
-//	}
-//
-//	//変換を待機
-//	if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK ){
-//
-//		//値の読み取り
-//		adc_value = HAL_ADC_GetValue(&hadc1);
-//		adc_started = false;
-//		HAL_ADC_Stop(&hadc1);
-//
-//		// デバック用コード
-//		//printf("adc_value: %d \n", adc_value);
-//	}
+	//ADCX値の読み取り
+	manager.sensor_data.adc_value = HAL_ADC_GetValue(&hadc1);
 
+	//ADCのストップ
+	HAL_ADC_Stop(&hadc1);
+
+	//ADCのスタート
+	HAL_ADC_Start(&hadc1);
 
 	// Servoのpwmを生成
-	PwmCalcServo(manager.sbus_data, adc_value, manager.control_data.servo_pwm);
+	PwmCalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
 
 	// PWMを生成
 	PwmGenerate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
 
+	//Debug用のコード
+	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);
+	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.angle[0], manager.sensor_data.angle[1], manager.sensor_data.angle[2]);
+	//printf("PidResult: %+4.4lf %+4.4lf %+4.4lf \n", manager.control_data.pid_result[0], manager.control_data.pid_result[1], manager.control_data.pid_result[2]);
+	//printf("adc_value: %d \n",adc_value);
 	//printf("sbus_yaw: %lf \n", manager.sbus_data.target_value[2]);
 	//printf("motorPwm: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
 }
