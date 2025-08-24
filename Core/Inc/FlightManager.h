@@ -4,6 +4,7 @@
 #include "FlightData/SbusData.hpp"
 #include "FlightData/SensorData.hpp"
 #include "UserSetting/PIDSetting.hpp"
+#include "UserSetting/ImuSetting.hpp"
 #include "PID/PID.h"
 #include "Utils/ICM42688P_SPI_Util.hpp"
 #include "Utils/LED.hpp"

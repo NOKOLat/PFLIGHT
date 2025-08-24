@@ -1,7 +1,6 @@
 #include "State/Headers/FlightStates.h"
 #include "UserSetting/PIDSetting.hpp"
 
-// Prototype: defined later in this file
 void InitPIDFromUserSetting(FlightManager& manager);
 
 void InitState::update(FlightManager& manager) {
