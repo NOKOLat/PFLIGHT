@@ -76,10 +76,8 @@ void AutoFlyState::update(FlightManager& manager) {
 
 void AutoFlyState::enter(FlightManager& manager) {
     
-    // Todo: LEDをつける
 }
 
 void AutoFlyState::exit(FlightManager& manager) {
 
-    // Todo: LEDを消す
 }

@@ -2,6 +2,7 @@
 
 void DisarmingState::update(FlightManager& manager) {
 
+	// Pwmの停止
 	PwmStop();
 
 	// 各PIDインスタンスのリセット
@@ -11,6 +12,7 @@ void DisarmingState::update(FlightManager& manager) {
 	manager.rate_roll.reset();
 	manager.rate_yaw.reset();
 
+	// PreArmingへの遷移
 	manager.changeState(std::make_unique<PreArmingState>());
 }
 

@@ -91,5 +91,5 @@ void FlyingState::update(FlightManager& manager) {
 	//printf("PidResult: %+4.4lf %+4.4lf %+4.4lf \n", manager.control_data.pid_result[0], manager.control_data.pid_result[1], manager.control_data.pid_result[2]);
 	//printf("adc_value: %d \n",adc_value);
 	//printf("sbus_yaw: %lf \n", manager.sbus_data.target_value[2]);
-	//printf("motorPwm: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
+	printf("motorPwm: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
 }

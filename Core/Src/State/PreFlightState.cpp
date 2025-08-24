@@ -5,6 +5,7 @@ void PreFlightState::update(FlightManager& manager) {
 	// Armスイッチの判定
 	if(!manager.sbus_data.arm){
 
+		// Disarm状態に遷移
 		manager.changeState(std::make_unique<DisarmingState>());
 	}
 
@@ -29,6 +30,7 @@ void PreFlightState::update(FlightManager& manager) {
 		//飛行用LEDをつける
 		greenLed(PinState::on);
 
+		// 飛行状態に遷移
 		manager.changeState(std::make_unique<FlyingState>());
 	}
 }

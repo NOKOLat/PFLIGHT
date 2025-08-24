@@ -1,8 +1,10 @@
 #include "Utils/ICM42688P_SPI_Util.hpp"
 
-ICM42688P_SPI_Util::ICM42688P_SPI_Util()
-    : icm(&hspi1, GPIOA, GPIO_PIN_4) {}
+ICM42688P_SPI_Util::ICM42688P_SPI_Util(SPI_HandleTypeDef* hspi, GPIO_TypeDef* gpio_port, uint32_t gpio_pin)
+    : icm(hspi, gpio_port, gpio_pin) {
 
+        
+    }
 uint8_t ICM42688P_SPI_Util::init() {
 
     if (icm.Connection() == 1) {
@@ -31,6 +33,7 @@ uint8_t ICM42688P_SPI_Util::init() {
 }
 
 uint8_t ICM42688P_SPI_Util::getData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
+
     float accel[3] = {};
     float gyro[3]  = {};
 
