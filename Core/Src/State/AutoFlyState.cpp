@@ -47,11 +47,11 @@ void AutoFlyState::update(FlightManager& manager) {
     if(loop_count % 4 == 0){
 
     	// 目標角と現在角から目標角速度を計算
-			// pitch, rollの目標角速度計算: calc() を呼んだ後 getData() で結果を取得
-			manager.angle_pitch.calc(manager.sbus_data.target_value[0], manager.sensor_data.angle[0]);
-			manager.angle_pitch.getData(&manager.control_data.target_rate[0]);
-			manager.angle_roll.calc(manager.sbus_data.target_value[1], manager.sensor_data.angle[1]);
-			manager.angle_roll.getData(&manager.control_data.target_rate[1]);
+		// pitch, rollの目標角速度計算: calc() を呼んだ後 getData() で結果を取得
+		manager.angle_pitch.calc(manager.sbus_data.target_value[0], manager.sensor_data.angle[0]);
+		manager.angle_pitch.getData(&manager.control_data.target_rate[0]);
+		manager.angle_roll.calc(manager.sbus_data.target_value[1], manager.sensor_data.angle[1]);
+		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
         manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
@@ -59,13 +59,13 @@ void AutoFlyState::update(FlightManager& manager) {
 
     // 400hz 角速度制御
 	//目標角速度と現在角速度(センサーデータ）から制御量を計算
-		// pitch, roll, yawの制御量計算: calc() を呼んだ後 getData() で結果を取得
-		manager.rate_pitch.calc(manager.control_data.target_rate[0], manager.sensor_data.gyro[0]);
-		manager.rate_pitch.getData(&manager.control_data.pid_result[0]);
-		manager.rate_roll.calc(manager.control_data.target_rate[1], manager.sensor_data.gyro[1]);
-		manager.rate_roll.getData(&manager.control_data.pid_result[1]);
-		manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
-		manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
+	// pitch, roll, yawの制御量計算: calc() を呼んだ後 getData() で結果を取得
+	manager.rate_pitch.calc(manager.control_data.target_rate[0], manager.sensor_data.gyro[0]);
+	manager.rate_pitch.getData(&manager.control_data.pid_result[0]);
+	manager.rate_roll.calc(manager.control_data.target_rate[1], manager.sensor_data.gyro[1]);
+	manager.rate_roll.getData(&manager.control_data.pid_result[1]);
+	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
+	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
 	PwmCalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);

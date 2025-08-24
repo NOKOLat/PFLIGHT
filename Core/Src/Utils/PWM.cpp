@@ -11,13 +11,14 @@ ServoPWM servo_pwm;
 
 //PIDの制御量をモータに分配
 void PwmCalcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor){
+
+	//モーターの値を計算
 	motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
 	motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
 	motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
 	motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
 
 	//　最大値と最小値を超えた場合の処理
-
 	for(uint8_t i=0; i<4; i++){
 
 		if(motor[i] >= motor_pwm.max){
@@ -49,7 +50,7 @@ void PwmCalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint
 		}
 		else{
 
-			servo[i] = servo_pwm.center;
+			servo[i] = servo_pwm.close;
 		}
 	}
 }
@@ -67,7 +68,6 @@ void PwmInitMotor(){
 	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.init);
-
 
 	//初期化待機
 	HAL_Delay(2500);
