@@ -8,6 +8,9 @@ void PreArmingState::update(FlightManager& manager) {
 		//ESCの初期化をすませておく
 		PwmInitMotor();
 
+		// センサーのキャリブレーション
+		manager.imuUtil->calibrate();
+
 		//黄LEDをつける
 		yellowLed(PinState::on);
 

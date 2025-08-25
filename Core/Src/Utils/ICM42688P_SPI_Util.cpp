@@ -18,6 +18,20 @@ uint8_t ICM42688P_SPI_Util::init() {
     icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0250, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
     HAL_Delay(10);
 
+    if (calibration_error == 1) {
+
+        return 1;
+    }
+    else if (calibration_error == 2) {
+
+        return 2;
+    }
+
+    return 0;
+}
+
+uint8_t ICM42688P_SPI_Util::calibrate() {
+
     uint8_t calibration_error = icm.Calibration(1000);
 
     if (calibration_error == 1) {
@@ -30,7 +44,7 @@ uint8_t ICM42688P_SPI_Util::init() {
     }
 
     return 0;
-}
+}   
 
 uint8_t ICM42688P_SPI_Util::getData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
 

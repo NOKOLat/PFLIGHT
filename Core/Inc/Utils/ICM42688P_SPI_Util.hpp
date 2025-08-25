@@ -12,6 +12,7 @@ public:
     ICM42688P_SPI_Util(SPI_HandleTypeDef* hspi, GPIO_TypeDef* gpio_port, uint32_t gpio_pin);
     
     uint8_t init();
+    uint8_t calibrate();
     uint8_t getData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data);
 
 private:
