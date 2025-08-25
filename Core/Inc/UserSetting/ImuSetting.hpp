@@ -22,6 +22,7 @@ struct ImuPinSetting{
 namespace UserSetting{
 
 	constexpr ImuPinSetting imuPinSetting{&hspi1, GPIOA, GPIO_PIN_4};
+	constexpr uint16_t calibration_count = 1000;
 }
 
 #endif /* INC_USERSETTING_IMUSETTING_HPP_ */

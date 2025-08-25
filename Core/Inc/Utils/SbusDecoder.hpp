@@ -33,10 +33,10 @@ namespace nokolat {
         channel_data.target_value[1] = (float)((sbus_data[(uint8_t)SbusChannel::roll]	 - channel_data.center[(uint8_t)SbusChannel::roll])  / (float)(channel_data.max[(uint8_t)SbusChannel::roll]     - channel_data.center[(uint8_t)SbusChannel::roll]))  * channel_data.angle_roll_max;
 
         //yaw(rate)
-        channel_data.target_value[2]    = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] 	  - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;
+        channel_data.target_value[2] = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] 	  - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;
 
         //throttle
-        channel_data.throttle 			 = (float)((sbus_data[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle]) / (float)(channel_data.max[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle])) * channel_data.throttle_max;
+        channel_data.throttle 	     = (float)((sbus_data[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle]) / (float)(channel_data.max[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle])) * channel_data.throttle_max;
 
         //armの判定
         if(sbus_data[(uint8_t)SbusChannel::arm] > 1500){
@@ -47,7 +47,6 @@ namespace nokolat {
 
             channel_data.arm = false;
         }
-
 
         //飛行開始判定
         if(sbus_data[(uint8_t)SbusChannel::fly] > 1500 && sbus_data[(uint8_t)SbusChannel::throttle] < 400){
@@ -60,11 +59,11 @@ namespace nokolat {
         }
 
         //投下判定(2段階投下を採用）
-        if(sbus_data[(uint8_t)SbusChannel::drop] > 1500){
+        if(sbus_data[(uint8_t)SbusChannel::drop] > 1250){
 
             channel_data.drop = 2;
         }
-        else if(sbus_data[(uint8_t)SbusChannel::drop] > 1000){
+        else if(sbus_data[(uint8_t)SbusChannel::drop] > 750){
 
             channel_data.drop = 1;
         }
