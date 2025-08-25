@@ -41,6 +41,7 @@ void PwmCalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint
 	for(uint8_t i=0; i<2; i++){
 
 		if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop == 2){
+		//if(sbus_data.drop == 2){
 
 			servo[i] = servo_pwm.open;
 		}
