@@ -10,11 +10,17 @@ FlightLoopManager flightLoopManager;
 nokolat::SBUS sbus;
 nokolat::SBUS_DATA sbus_data;
 SbusChannelData decoded_sbus_data;
+uint8_t esp_data_buffer[17];
 
 void init(){
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
+
+    //UART3(DMA) ESPからのデータ受信用
+    HAL_UART_Receive_DMA(&huart3, esp_data_buffer, sizeof(esp_data_buffer));
+
+    aaa
 
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -62,5 +68,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
         // 受信の再開
         HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
+    }
+
+    // UART3(DMA)
+    if(huart == &huart3){
+        
     }
 }
