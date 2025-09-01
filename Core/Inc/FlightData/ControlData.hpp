@@ -8,6 +8,7 @@ struct ControlData {
 
     std::array<float, 3> target_rate = {};
     std::array<float, 3> pid_result = {};
+    float throttle_assist = 0.0f;
 	std::array<uint16_t, 4> motor_pwm = {};
 	std::array<uint16_t, 2> servo_pwm = {};
 };

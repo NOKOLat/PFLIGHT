@@ -14,8 +14,8 @@ void PreArmingState::update(FlightManager& manager) {
 		//黄LEDをつける
 		yellowLed(PinState::on);
 
-		//PreFlightStateに遷移
-		manager.changeState(std::make_unique<PreFlightState>());
+		//CalibrationStateに遷移
+		manager.changeState(std::make_unique<CalibrationState>());
 	}
 
 	// Servo判定とPwm出力(abc_value = 0)

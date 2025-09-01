@@ -10,12 +10,22 @@ void FlyingState::update(FlightManager& manager) {
 	if(!manager.sbus_data.arm){
 
 		manager.changeState(std::make_unique<DisarmingState>());
+		return;
 	}
 
-	// automationへの遷移
+	// AutoFlyStateへの遷移
+	if(manager.sbus_data.autofly){
 
+		manager.changeState(std::make_unique<AutoFlyState>());
+		return;
+	}
 
 	// EmergencyControlへの遷移
+	if(manager.sbus_data.emergency_control){
+
+		manager.changeState(std::make_unique<DisarmingState>());
+		return;
+	}
 
 	// センサーデータの取得
 	if (manager.imuUtil){

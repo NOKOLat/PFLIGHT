@@ -7,10 +7,10 @@ void CalibrationState::enter(FlightManager& manager) {
 
     // センサー単体のキャリブレーション
 
-    // IMU
+    // IMUのキャリブレーション
     manager.imuUtil->calibration(1000);
 
-    // 気圧センサー
+    // 気圧センサーのキャリブレーション
 
 }
 void CalibrationState::update(FlightManager& manager) {
@@ -30,6 +30,7 @@ void CalibrationState::update(FlightManager& manager) {
     if (calibration_count >= 100) {
 
         manager.changeState(std::make_unique<PreFlightState>());
+        return;
     }
 }
 

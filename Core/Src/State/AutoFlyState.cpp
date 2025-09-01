@@ -10,12 +10,14 @@ void AutoFlyState::update(FlightManager& manager) {
 	if(!manager.sbus_data.arm){
 
 		manager.changeState(std::make_unique<DisarmingState>());
+		return;
 	}
 
     // 通常飛行への復帰
     if(!manager.sbus_data.emergency_control){
 
 		manager.changeState(std::make_unique<FlyingState>());
+		return;
 	}
 
     // 目標角データの取得(仮で0)
