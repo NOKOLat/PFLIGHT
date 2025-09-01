@@ -20,8 +20,6 @@ void init(){
     //UART3(DMA) ESPからのデータ受信用
     HAL_UART_Receive_DMA(&huart3, esp_data_buffer, sizeof(esp_data_buffer));
 
-    aaa
-
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
 }
