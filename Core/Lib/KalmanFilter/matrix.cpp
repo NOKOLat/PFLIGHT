@@ -4,10 +4,10 @@
  *  Created on: Aug 15, 2025
  *      Author: takut
  */
-#include "matrix.h"
 #include <math.h>
+#include "matrix.hpp"
 
-static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C);
+static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C, char op);
 static uint8_t MatValid(const MATRIX* M);
 static void MatSetNaN(MATRIX* C);
 
@@ -27,14 +27,38 @@ void MatInit(MATRIX* mat) {
     }
 }
 
-// 行列演算
-void MatCalc(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
-    if (!MatPrecheck(A, B, C)) {
-        return; // 共通の前提チェックを呼び出し
+// 共通の前提チェック（失敗時は C を NaN 埋めしてエラーコードを返す）
+// 戻り値: 0=OK, 1=出力C不正, 2=A不正, 3=B不正, 4=形状未設定, 5=サイズ超過
+static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
+    if (!C || !C->data) return 1; // 出力C不正
+
+    // 転置・逆行列はAのみでOK
+    if (op == 't' || op == 'i') {
+        if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
+        if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
+        if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
+            C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
+        return 0; // OK
     }
 
+    // それ以外はA/B両方チェック
+    if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
+    if (B && !MatValid(B)) { MatSetNaN(C); return 3; } // B不正
+    if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
+    if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
+        C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
+    if (B && (B->rows > MATRIX_MAX_SIZE || B->cols > MATRIX_MAX_SIZE)) { MatSetNaN(C); return 5; } // サイズ超過
+
+    return 0; // OK
+}
+
+// 行列演算
+void MatCalc(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
+    // if (MatPrecheck(A, B, C, op)) {
+    //     return;
+    // }
     switch (op) {
-        case '+': MatAdd(A, B, C); break;;
+        case '+': MatAdd(A, B, C); break;
         case '-': MatSub(A, B, C); break;
         case '*': MatMul(A, B, C); break;
         case 't': MatTrans(A, C);  break;
@@ -101,6 +125,16 @@ static void MatTrans(const MATRIX* A, MATRIX* C) {
 static void MatInv(const MATRIX* A, MATRIX* C) {
     if (!(A->rows == A->cols && C->rows == A->rows && C->cols == A->cols)) { MatSetNaN(C); return; }
     const uint8_t n = A->rows;
+
+    // n == 1 の簡易処理（オーバーヘッド回避）
+    if (n == 1) {
+        const float v = A->data[0];
+        const float eps = 1e-8f;
+        if (fabsf(v) < eps) { MatSetNaN(C); return; }
+        C->data[0] = 1.0f / v;
+        return;
+    }
+
     float aug[MATRIX_MAX_SIZE * (2 * MATRIX_MAX_SIZE)]; // [A|I]
     // 構築
     for (uint8_t i = 0; i < n; ++i) {
@@ -153,17 +187,6 @@ static void MatSetNaN(MATRIX* C) {
 // 内部関数: 行列の基本妥当性チェック
 static uint8_t MatValid(const MATRIX* M) {
     return (M && M->data && M->rows > 0 && M->cols > 0);
-}
-
-// 共通の前提チェック（失敗時はCをNaN埋めして1を返す）
-static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C) {
-    if (!C || !C->data) return 1;
-    if (MatValid(A)) { MatSetNaN(C); return 1; }
-    if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 1; }
-    if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
-        C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 1; }
-    if (B && (B->rows > MATRIX_MAX_SIZE || B->cols > MATRIX_MAX_SIZE)) { MatSetNaN(C); return 1; }
-    return 0;
 }
 
 
