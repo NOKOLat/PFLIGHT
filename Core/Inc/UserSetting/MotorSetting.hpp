@@ -8,6 +8,8 @@
 #ifndef INC_MOTORSETTING_HPP_
 #define INC_MOTORSETTING_HPP_
 
+#include <cstdint>
+
 /* モーター配置（上が前）
  * 	1	2
  *
@@ -21,6 +23,11 @@ struct MotorTim{
 	TIM_HandleTypeDef* motor2 = &htim1;
 	TIM_HandleTypeDef* motor3 = &htim1;
 	TIM_HandleTypeDef* motor4 = &htim1;
+	
+	TIM_HandleTypeDef* motor5 = &htim3;
+	TIM_HandleTypeDef* motor6 = &htim3;
+	TIM_HandleTypeDef* motor7 = &htim3;
+	TIM_HandleTypeDef* motor8 = &htim3;
 };
 
 //モーターのチャンネル番号
@@ -30,6 +37,10 @@ struct MotorChannel{
 	uint32_t motor2 = TIM_CHANNEL_2;
 	uint32_t motor3 = TIM_CHANNEL_3;
 	uint32_t motor4 = TIM_CHANNEL_4;
+	uint32_t motor5 = TIM_CHANNEL_1;
+	uint32_t motor6 = TIM_CHANNEL_2;
+	uint32_t motor7 = TIM_CHANNEL_3;
+	uint32_t motor8 = TIM_CHANNEL_4;
 };
 
 //サーボのタイマー番号

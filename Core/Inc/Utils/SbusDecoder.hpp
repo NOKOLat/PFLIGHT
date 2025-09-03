@@ -16,11 +16,11 @@ namespace nokolat {
 
         if(sbus_data[(uint8_t)SbusChannel::arm] != 0){
 
-        	channel_data.is_receive = true;
+            channel_data.is_receive = true;
         }
         else{
 
-        	channel_data.is_receive = false;
+            channel_data.is_receive = false;
         }
 
         //FailSafeの処理
@@ -92,9 +92,23 @@ namespace nokolat {
             channel_data.autofly = false;
         }
 
+        //モーター停止側の判定(dropチャンネルの参照)
+        if(sbus_data[(uint8_t)SbusChannel::drop] > 1500){
+
+            channel_data.stop_motor_side = 2;
+        }
+        else if(sbus_data[(uint8_t)SbusChannel::drop] > 1000){
+
+            channel_data.stop_motor_side = 1;
+        }
+        else{
+
+            channel_data.stop_motor_side = 0;
+        }
+
         return channel_data;
     }
 
 }
 
-#endif // SBUS_DECODER_HPP#endif // SBUS_DECODER_HPP
+#endif // SBUS_DECODER_HPP
