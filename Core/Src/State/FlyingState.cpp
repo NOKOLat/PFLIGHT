@@ -62,7 +62,7 @@ void FlyingState::update(FlightManager& manager) {
 		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
-    	manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+		manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
     }
 
     // 400hz 角速度制御

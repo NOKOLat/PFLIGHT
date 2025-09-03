@@ -35,10 +35,10 @@ void PwmCalcMainMotor(float throttle, std::array<float,3>& control, std::array<u
 void PwmCalcSubMotor(float throttle, std::array<uint16_t,4>& motor){
 
 	//モーターの値を計算
-	motor[0] = motor_pwm.min + throttle / 10.0;
-	motor[1] = motor_pwm.min + throttle / 10.0;
-	motor[2] = motor_pwm.min + throttle / 10.0;
-	motor[3] = motor_pwm.min + throttle / 10.0;
+	motor[0] = motor_pwm.min + throttle;
+	motor[1] = motor_pwm.min + throttle;
+	motor[2] = motor_pwm.min + throttle;
+	motor[3] = motor_pwm.min + throttle;
 
 	//　最大値と最小値を超えた場合の処理
 	for(uint8_t i=0; i<4; i++){
