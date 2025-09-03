@@ -22,6 +22,15 @@ void InitState::update(FlightManager& manager) {
 		}
 	}
 
+	if (manager.dps368) {
+
+		if (manager.dps368->init() != 0) {
+
+			printf("BAROMETER_ERROR \n");
+			return;
+		}
+	}
+
 	// Servoの初期化
 	PwmInitServo();
 

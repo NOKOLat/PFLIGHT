@@ -5,14 +5,18 @@
 #include "FlightData/SensorData.hpp"
 #include "UserSetting/PIDSetting.hpp"
 #include "UserSetting/ImuSetting.hpp"
+#include "UserSetting/Dps368Setting.hpp"
 #include "PID/PID.h"
+#include "Utils/altitude.h"
 #include "Utils/ICM42688P_SPI_Util.hpp"
 #include "Utils/LED.hpp"
 #include "MadgwickAHRS/src/MadgwickAHRS.h"
+#include "DPS368/DPS368_HAL_I2C.hpp"
 #include <memory>
 #include <iostream>
 
 // ループ管理構造体
+
 
 struct FlightLoopManager{
 
@@ -68,6 +72,8 @@ class FlightManager {
         PID rate_yaw;
 		ICM42688P_SPI_Util* imuUtil;
 		Madgwick madgwick;
+    
+        DPS368_HAL_I2C* dps368 = nullptr;
 
     private:
 

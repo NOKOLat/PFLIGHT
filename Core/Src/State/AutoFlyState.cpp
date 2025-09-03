@@ -14,7 +14,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	}
 
     // 通常飛行への復帰
-    if(!manager.sbus_data.emergency_control){
+    if(!manager.sbus_data.autofly){
 
 		manager.changeState(std::make_unique<FlyingState>());
 		return;
@@ -45,7 +45,7 @@ void AutoFlyState::update(FlightManager& manager) {
     manager.sensor_data.gyro[2] *= -1;
 
 
-    // 100hz 角度制御(pitch, roll)
+	// 100hz 角度制御(pitch, roll)
     if(loop_count % 4 == 0){
 
     	// 目標角と現在角から目標角速度を計算
@@ -57,6 +57,22 @@ void AutoFlyState::update(FlightManager& manager) {
 
     	// yaw軸はセンサーデータを使用
         manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+
+
+		// --- 気圧の取得 ---
+		float pressure_Pa = 0.0f;
+		float temperature_C = 0.0f;
+		// 可能ならバーオメータから取得（FlightManager に保持される dps368 を使用）
+		if (manager.dps368) {
+			if (manager.dps368->getData(&pressure_Pa, &temperature_C) == 0) {
+				// legacy の uint16_t フィールドに収める場合は切り詰め
+				manager.sensor_data.pressure = pressure_Pa;
+			}
+		}
+
+		altitude.Update(pressure_Pa, manager.sensor_data.accel.data(), manager.sensor_data.angle.data(), 0.01f);
+		
+
     }
 
     // 400hz 角速度制御

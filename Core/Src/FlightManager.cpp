@@ -3,11 +3,16 @@
 #include <iomanip>
 #include <cstring>
 
+
 // コンストラクタ
 FlightManager::FlightManager() {
     
     // IMUユーティリティのインスタンス化
     imuUtil = new ICM42688P_SPI_Util(UserSetting::imuPinSetting.spi_pin, UserSetting::imuPinSetting.gpio_port, UserSetting::imuPinSetting.gpio_pin);
+
+    // Barometer (DPS368) のインスタンス化（hi2c1 は i2c.c で定義）
+    dps368 = new DPS368_HAL_I2C(UserSetting::dps368I2cSetting.i2c_pin);
+
 
     // 初期状態をInitStateに設定
     current_state = std::make_unique<InitState>();

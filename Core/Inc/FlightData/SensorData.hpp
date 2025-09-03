@@ -11,8 +11,8 @@ struct SensorData {
 	std::array<float, 3> angle = {};
     float altitude = 0.0f;
     uint16_t adc_value = 0;
-    uint16_t temperature = 0;
-    uint16_t pressure = 0;  
+    float temperature = 0.0f;
+    float pressure = 0.0f;
 };
 
 #endif // SENSOR_DATA_HPP
