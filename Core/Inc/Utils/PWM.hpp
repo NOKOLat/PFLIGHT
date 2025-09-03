@@ -14,13 +14,22 @@
 #include "FlightData/SbusData.hpp"
 #include "UserSetting/MotorSetting.hpp"
 
-void PwmCalcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
+// Pwm値の計算
+void PwmCalcMainMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
+void PwmCalcSubMotor(float throttle, std::array<uint16_t,4>& motor);
 void PwmCalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
+
+// 初期化
 void PwmInitMotor();
 void PwmInitServo();
-void PwmGenerateMotor(std::array<uint16_t,4>& motor);
+
+// Pwmの出力
+void PwmGenerate(std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor, std::array<uint16_t,2>& servo);
+void PwmGenerateUpperMotor(std::array<uint16_t,4>& upper_motor);
+void PwmGenerateLowerMotor(std::array<uint16_t,4>& lower_motor);
 void PwmGenerateServo(std::array<uint16_t,2>& servo);
-void PwmGenerate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo);
+
+// モーターの停止
 void PwmStop();
 
 #endif /* INC_PWM_HPP_ */

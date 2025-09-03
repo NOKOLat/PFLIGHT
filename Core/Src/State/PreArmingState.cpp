@@ -8,14 +8,12 @@ void PreArmingState::update(FlightManager& manager) {
 		//ESCの初期化をすませておく
 		PwmInitMotor();
 
-		// センサーのキャリブレーション
-		manager.imuUtil->calibration(UserSetting::calibration_count);
-
 		//黄LEDをつける
 		yellowLed(PinState::on);
 
 		//CalibrationStateに遷移
 		manager.changeState(std::make_unique<CalibrationState>());
+		return;
 	}
 
 	// Servo判定とPwm出力(abc_value = 0)

@@ -23,8 +23,8 @@ void FlyingState::update(FlightManager& manager) {
 	// EmergencyControlへの遷移
 	if(manager.sbus_data.emergency_control){
 
-		manager.changeState(std::make_unique<DisarmingState>());
-		return;
+		manager.changeState(std::make_unique<EmergencyControlState>());
+		// returnしないでください、自由落下する場合があります
 	}
 
 	// センサーデータの取得
@@ -62,7 +62,7 @@ void FlyingState::update(FlightManager& manager) {
 		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
-    	manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+		manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
     }
 
     // 400hz 角速度制御
@@ -76,10 +76,13 @@ void FlyingState::update(FlightManager& manager) {
 	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
-	// PID結果を各モーターに分配
-	PwmCalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
+	// 上のモーターはスロットル + 制御出力をミキシング
+	PwmCalcMainMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm);
 
-	//ADCX値の読み取り
+	// 下のモーターはスロットルのみに比例
+	PwmCalcSubMotor(manager.sbus_data.throttle, manager.control_data.lower_motor_pwm);
+
+	//ADC値の読み取り
 	manager.sensor_data.adc_value = HAL_ADC_GetValue(&hadc1);
 
 	//ADCのストップ
@@ -92,7 +95,7 @@ void FlyingState::update(FlightManager& manager) {
 	PwmCalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
 
 	// PWMを生成
-	PwmGenerate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
+	PwmGenerate(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm, manager.control_data.servo_pwm);
 
 	//Debug用のコード
 	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);

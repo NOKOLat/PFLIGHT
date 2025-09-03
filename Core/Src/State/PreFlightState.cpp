@@ -32,5 +32,6 @@ void PreFlightState::update(FlightManager& manager) {
 
 		// 飛行状態に遷移
 		manager.changeState(std::make_unique<FlyingState>());
+		return;
 	}
 }

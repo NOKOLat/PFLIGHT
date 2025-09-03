@@ -85,11 +85,15 @@ void AutoFlyState::update(FlightManager& manager) {
 	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
-	// PID結果を各モーターに分配
-	PwmCalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
+	// 上のモーターはスロットル + 制御出力をミキシング
+	PwmCalcMainMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm);
 
-	// PWMを生成
-	PwmGenerate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
+	// 下のモーターはスロットルのみに比例
+	PwmCalcSubMotor(manager.sbus_data.throttle, manager.control_data.lower_motor_pwm);
+
+
+	PwmGenerate(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm, manager.control_data.servo_pwm);
+
 }
 
 void AutoFlyState::enter(FlightManager& manager) {

@@ -28,7 +28,7 @@ struct SbusChannelData{
     bool autodrop = false;
     bool autofly = false;
     bool emergency_control = false;
-
+    uint8_t stop_motor_side = 0;
     // 受信判定
     bool is_receive = false;
 

@@ -75,8 +75,6 @@ class EmergencyControlState : public FlightStateInterface {
 
     public:
         void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        void exit(FlightManager& manager) override;
         const char* getStateName() const override { return "EmergencyControl"; }
 };
 
