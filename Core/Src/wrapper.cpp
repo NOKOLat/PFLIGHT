@@ -5,6 +5,9 @@
 #include "Sbus\sbus.h"
 #include "Utils/SbusDecoder.hpp"
 
+#include "Utils/SbusDebug.hpp"
+
+
 FlightManager flightManager;
 FlightLoopManager flightLoopManager;
 nokolat::SBUS sbus;
@@ -13,6 +16,11 @@ SbusChannelData decoded_sbus_data;
 uint8_t esp_data_buffer[17];
 
 void init(){
+    
+    DebugSbus::overrideData.arm = true;
+    DebugSbus::overrideData.throttle = 0;
+    DebugSbus::overrideData.fly = 0;
+    DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());

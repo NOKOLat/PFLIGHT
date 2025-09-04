@@ -7,7 +7,6 @@
 #include <math.h>
 #include "matrix.hpp"
 
-static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C, char op);
 static uint8_t MatValid(const MATRIX* M);
 static void MatSetNaN(MATRIX* C);
 
@@ -29,28 +28,28 @@ void MatInit(MATRIX* mat) {
 
 // 共通の前提チェック（失敗時は C を NaN 埋めしてエラーコードを返す）
 // 戻り値: 0=OK, 1=出力C不正, 2=A不正, 3=B不正, 4=形状未設定, 5=サイズ超過
-static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
-    if (!C || !C->data) return 1; // 出力C不正
+// static uint8_t MatPrecheck(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
+//     if (!C || !C->data) return 1; // 出力C不正
 
-    // 転置・逆行列はAのみでOK
-    if (op == 't' || op == 'i') {
-        if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
-        if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
-        if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
-            C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
-        return 0; // OK
-    }
+//     // 転置・逆行列はAのみでOK
+//     if (op == 't' || op == 'i') {
+//         if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
+//         if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
+//         if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
+//             C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
+//         return 0; // OK
+//     }
 
-    // それ以外はA/B両方チェック
-    if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
-    if (B && !MatValid(B)) { MatSetNaN(C); return 3; } // B不正
-    if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
-    if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
-        C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
-    if (B && (B->rows > MATRIX_MAX_SIZE || B->cols > MATRIX_MAX_SIZE)) { MatSetNaN(C); return 5; } // サイズ超過
+//     // それ以外はA/B両方チェック
+//     if (!MatValid(A)) { MatSetNaN(C); return 2; } // A不正
+//     if (B && !MatValid(B)) { MatSetNaN(C); return 3; } // B不正
+//     if (C->rows == 0 || C->cols == 0) { MatSetNaN(C); return 4; } // 形状未設定
+//     if (A->rows > MATRIX_MAX_SIZE || A->cols > MATRIX_MAX_SIZE ||
+//         C->rows > MATRIX_MAX_SIZE || C->cols > MATRIX_MAX_SIZE) { MatSetNaN(C); return 5; } // サイズ超過
+//     if (B && (B->rows > MATRIX_MAX_SIZE || B->cols > MATRIX_MAX_SIZE)) { MatSetNaN(C); return 5; } // サイズ超過
 
-    return 0; // OK
-}
+//     return 0; // OK
+// }
 
 // 行列演算
 void MatCalc(const MATRIX* A, const MATRIX* B, MATRIX* C, char op) {
