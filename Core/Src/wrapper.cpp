@@ -6,6 +6,7 @@
 #include "Utils/SbusDecoder.hpp"
 
 #include "Utils/SbusDebug.hpp"
+#include "Utils/P2PReceiver.hpp"
 
 
 FlightManager flightManager;
@@ -78,6 +79,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
     // UART3(DMA)
     if(huart == &huart3){
-        
+    // Process fixed-length P2P packet from esp (use utility)
+    Utils::P2PReceiver::Process(esp_data_buffer, sizeof(esp_data_buffer), flightManager);
+
+    // restart UART3 DMA receive
+    HAL_UART_Receive_DMA(&huart3, esp_data_buffer, sizeof(esp_data_buffer));
     }
 }
