@@ -3,7 +3,7 @@
 void DisarmingState::update(FlightManager& manager) {
 
 	// Pwmの停止
-	PwmStop();
+	manager.pwm.stop();
 
 	// 各PIDインスタンスのリセット
 	manager.angle_pitch.reset();

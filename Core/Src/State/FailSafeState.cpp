@@ -8,7 +8,7 @@ void FailSafeState::update(FlightManager& manager) {
 		for(volatile uint32_t i=0; i<1000000; i++);
 
 		// Pwmの停止
-		PwmStop();
+		manager.pwm.stop();
 
 		redLed(PinState::toggle);
 		yellowLed(PinState::toggle);
@@ -19,7 +19,7 @@ void FailSafeState::update(FlightManager& manager) {
 void FailSafeState::enter(FlightManager& manager) {
 
 	// Pwmの停止
-	PwmStop();
+	manager.pwm.stop();
 
 	// PIDのリセット
 	manager.angle_pitch.reset();

@@ -23,7 +23,7 @@ void InitState::update(FlightManager& manager) {
 	}
 
 	// Servoの初期化
-	PwmInitServo();
+	manager.pwm.initServo();
 
 	// 赤LEDをつける
 	redLed(PinState::on);
@@ -37,7 +37,7 @@ void InitState::enter(FlightManager& manager) {
 	printf("FC start \n");
 
 	//PWMの停止（安全のため）
-	PwmStop();
+	manager.pwm.stop();
 
 	// PIDの初期化（FlightManager の PID インスタンスに設定を反映）
 	InitPIDFromUserSetting(manager);

@@ -6,7 +6,7 @@ void PreArmingState::update(FlightManager& manager) {
 	if(manager.sbus_data.arm){
 
 		//ESCの初期化をすませておく
-		PwmInitMotor();
+		manager.pwm.initMotor();
 
 		// センサーのキャリブレーション
 		manager.imuUtil->calibration(UserSetting::calibration_count);
@@ -19,6 +19,6 @@ void PreArmingState::update(FlightManager& manager) {
 	}
 
 	// Servo判定とPwm出力(abc_value = 0)
-	PwmCalcServo(manager.sbus_data, 0, manager.control_data.servo_pwm);
-	PwmGenerateServo(manager.control_data.servo_pwm);
+	manager.pwm.calcServo(manager.sbus_data, 0, manager.control_data.servo_pwm);
+	manager.pwm.generateServo(manager.control_data.servo_pwm);
 }

@@ -2,9 +2,9 @@
 
 void AutoFlyState::update(FlightManager& manager) {
 
-    // ループカウント
-	static uint32_t loop_count = 0;
-	loop_count++;
+//  ループカウント
+static uint32_t loop_count = 0;
+loop_count++;
 
     // Armのチェック
 	if(!manager.sbus_data.arm){
@@ -68,10 +68,10 @@ void AutoFlyState::update(FlightManager& manager) {
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
-	PwmCalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
+	manager.pwm.calcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
 
 	// PWMを生成
-	PwmGenerate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.generate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
 }
 
 void AutoFlyState::enter(FlightManager& manager) {
