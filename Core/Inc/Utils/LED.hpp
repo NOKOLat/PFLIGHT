@@ -18,55 +18,41 @@ enum class PinState: uint8_t{
 	toggle
 };
 
-//Init
-inline void redLed(PinState pin_state){
 
-	if(pin_state == PinState::off){
+// LED制御クラス
+class LED {
 
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
+public:
+
+	void LEDInit(GPIO_TypeDef* gpio_port, uint32_t gpio_pin){
+
+		this->gpio_port = gpio_port;
+		this->gpio_pin = gpio_pin;
+
+		// 初期状態をoffに設定
+		HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_RESET);
 	}
-	else if(pin_state == PinState::on){
 
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+	void Set(PinState pin_state){
+
+		if(pin_state == PinState::off){
+
+			HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_RESET);
+		}
+		else if(pin_state == PinState::on){
+
+			HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_SET);
+		}
+		else{
+
+			HAL_GPIO_TogglePin(gpio_port, gpio_pin);
+		}
 	}
-	else{
 
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
-	}
-}
+private:
 
-//Arm
-inline void yellowLed(PinState pin_state){
-
-	if(pin_state == PinState::off){
-
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-	}
-	else if(pin_state == PinState::on){
-
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	}
-	else{
-
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-	}
-}
-
-//Fly
-inline void greenLed(PinState pin_state){
-
-	if(pin_state == PinState::off){
-
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-	}
-	else if(pin_state == PinState::on){
-
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	}
-	else{
-
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
-	}
-}
+	GPIO_TypeDef* gpio_port;
+	uint32_t gpio_pin;
+};
 
 #endif /* INC_LED_HPP_ */

@@ -2,7 +2,8 @@
 #include <array>
 
 // PIDの制御量をモータに分配
-void PWM::calcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor){
+void PWM::CalcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor){
+
 	//モーターの値を計算
 	motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
 	motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
@@ -11,30 +12,41 @@ void PWM::calcMotor(float throttle, std::array<float,3>& control, std::array<uin
 
 	//　最大値と最小値を超えた場合の処理
 	for(uint8_t i=0; i<4; i++){
+
 		if(motor[i] >= motor_pwm.max){
+
 			motor[i] = motor_pwm.max;
 		}
 		if(motor[i] <= motor_pwm.min){
+
 			motor[i] = motor_pwm.min;
 		}
 	}
 }
 
-void PWM::calcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t, 2>& servo){
+// サーボの開閉判定
+void PWM::CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t, 2>& servo){
+
 	for(uint8_t i=0; i<2; i++){
+
 		if((sbus_data.autodrop && (adc_value > 2000)) || sbus_data.drop == 2){
+
 			servo[i] = servo_pwm.open;
 		}
 		else if(sbus_data.drop == 1){
+
 			servo[i] = servo_pwm.center;
 		}
 		else{
+
 			servo[i] = servo_pwm.close;
 		}
 	}
 }
 
-void PWM::initMotor(){
+// モーター用PWMの初期化
+void PWM::InitMotor(){
+
 	//motor start
 	HAL_TIM_PWM_Start(motor_tim.motor1, motor_channel.motor1);
 	HAL_TIM_PWM_Start(motor_tim.motor2, motor_channel.motor2);
@@ -51,7 +63,9 @@ void PWM::initMotor(){
 	HAL_Delay(2500);
 }
 
-void PWM::initServo(){
+// サーボ用PWMの初期化
+void PWM::InitServo(){
+
 	//servo start
 	HAL_TIM_PWM_Start(servo_tim.servo1, servo_channel.servo1);
 	HAL_TIM_PWM_Start(servo_tim.servo2, servo_channel.servo2);
@@ -61,34 +75,48 @@ void PWM::initServo(){
 	__HAL_TIM_SET_COMPARE(servo_tim.servo2 , servo_channel.servo2, servo_pwm.close);
 }
 
-void PWM::generateMotor(std::array<uint16_t,4>& motor){
+// モーター用のPWM出力
+void PWM::GenerateMotor(std::array<uint16_t,4>& motor){
+
 	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor[0]);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor2, motor[1]);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor3, motor[2]);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor4, motor[3]);
 }
 
-void PWM::generateServo(std::array<uint16_t,2>& servo){
+// サーボ用のPWM出力
+void PWM::GenerateServo(std::array<uint16_t,2>& servo){
+
 	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo1, servo[0]);
 	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo2, servo[1]);
 }
 
-void PWM::generate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo){
-	generateMotor(motor);
-	generateServo(servo);
+// モーターとサーボのPWMをまとめて出力
+void PWM::Generate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo){
+
+	GenerateMotor(motor);
+	GenerateServo(servo);
 }
 
-void PWM::generate(std::array<uint16_t,4>& /*upper_motor*/, std::array<uint16_t,4>& /*lower_motor*/, std::array<uint16_t,2>& /*servo*/){
-	// 未使用オーバーロード（将来拡張用）
-}
+// モーターの停止
+void PWM::MotorStop(){
 
-void PWM::motorStop(){
 	HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor1);
 	HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor2);
 	HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor3);
 	HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor4);
 }
 
-void PWM::stop(){
-	motorStop();
+// 設定セッター（Motor）
+void PWM::SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm){
+	motor_tim = tim;
+	motor_channel = channel;
+	motor_pwm = pwm;
+}
+
+// 設定セッター（Servo）
+void PWM::SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm){
+	servo_tim = tim;
+	servo_channel = channel;
+	servo_pwm = pwm;
 }

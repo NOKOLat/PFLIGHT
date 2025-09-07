@@ -24,22 +24,22 @@ public:
     ~PWM() = default;
 
     // Servo
-    void initServo();
-    void calcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
-    void generateServo(std::array<uint16_t,2>& servo);
+    void InitServo();
+    void CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
+    void GenerateServo(std::array<uint16_t,2>& servo);
 
     // Motor
-    void initMotor();
-    void calcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
-    void generateMotor(std::array<uint16_t,4>& motor);
-    void motorStop();
+    void InitMotor();
+    void CalcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
+    void GenerateMotor(std::array<uint16_t,4>& motor);
+    void MotorStop();
 
-    // Both
-    void generate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo);
-    void generate(std::array<uint16_t,4>& /*upper_motor*/, std::array<uint16_t,4>& /*lower_motor*/, std::array<uint16_t,2>& /*servo*/); // 予備（未使用）
+    // Common
+    void Generate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo);
 
-    // 旧PwmStop互換 呼び出し側は stop() を使用
-    void stop();
+    // Config
+    void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm);
+    void SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm);
 
 private:
 

@@ -69,11 +69,14 @@ class FlightManager {
         PID rate_yaw;
         ICM42688P_SPI_Util* imuUtil;
         Madgwick madgwick;
-        PWM pwm;
+		PWM pwm;
+		LED red_led;
+		LED yellow_led;
+		LED green_led;
 
     private:
 
-    std::unique_ptr<FlightStateInterface> current_state;
-    uint16_t sbus_lost_count = 0;
+		std::unique_ptr<FlightStateInterface> current_state;
+		uint16_t sbus_lost_count = 0;
 
 };

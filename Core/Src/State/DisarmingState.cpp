@@ -3,7 +3,7 @@
 void DisarmingState::update(FlightManager& manager) {
 
 	// Pwmの停止
-	manager.pwm.stop();
+	manager.pwm.MotorStop();
 
 	// 各PIDインスタンスのリセット
 	manager.angle_pitch.reset();
@@ -24,6 +24,6 @@ void DisarmingState::enter(FlightManager& manager) {
 
 void DisarmingState::exit(FlightManager& manager) {
 
-	yellowLed(PinState::off);
-	greenLed(PinState::off);
+	manager.yellow_led.Set(PinState::off);
+	manager.green_led.Set(PinState::off);
 }

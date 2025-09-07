@@ -4,7 +4,7 @@
 #include <cstring>
 
 // コンストラクタ
-FlightManager::FlightManager() {
+FlightManager::FlightManager(){
     
     // IMUユーティリティのインスタンス化
     imuUtil = new ICM42688P_SPI_Util(UserSetting::imuPinSetting.spi_pin, UserSetting::imuPinSetting.gpio_port, UserSetting::imuPinSetting.gpio_pin);

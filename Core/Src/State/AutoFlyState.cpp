@@ -68,10 +68,10 @@ loop_count++;
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
-	manager.pwm.calcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
 
 	// PWMを生成
-	manager.pwm.generate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.Generate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
 }
 
 void AutoFlyState::enter(FlightManager& manager) {
