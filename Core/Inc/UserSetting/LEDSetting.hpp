@@ -12,9 +12,13 @@ struct LEDSetting {
     GPIO_PinState pin_state;
 };
 
-LEDSetting redLedSetting    = {GPIOC, GPIO_PIN_4, GPIO_PIN_RESET};
-LEDSetting yellowLedSetting = {GPIOB, GPIO_PIN_0, GPIO_PIN_RESET};
-LEDSetting greenLedSetting  = {GPIOB, GPIO_PIN_1, GPIO_PIN_RESET};
+// LED設定用のインスタンスの作成
 
+namespace UserSetting{
+
+	LEDSetting redLedSetting    = {GPIOC, GPIO_PIN_4, GPIO_PIN_RESET};
+	LEDSetting yellowLedSetting = {GPIOB, GPIO_PIN_0, GPIO_PIN_RESET};
+	LEDSetting greenLedSetting  = {GPIOB, GPIO_PIN_1, GPIO_PIN_RESET};
+}
 
 #endif /* INC_LEDSETTING_HPP_ */

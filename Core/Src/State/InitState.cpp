@@ -51,6 +51,8 @@ void InitState::enter(FlightManager& manager) {
 // LEDの初期化関数
 void InitLED(FlightManager& manager) {
 
+	using namespace UserSetting;
+
 	manager.red_led.LEDInit(redLedSetting.gpio_port, redLedSetting.gpio_pin);
 	manager.yellow_led.LEDInit(yellowLedSetting.gpio_port, yellowLedSetting.gpio_pin);
 	manager.green_led.LEDInit(greenLedSetting.gpio_port, greenLedSetting.gpio_pin);

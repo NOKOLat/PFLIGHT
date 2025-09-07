@@ -14,7 +14,6 @@
 #include "FlightData/SbusData.hpp"
 #include "UserSetting/MotorSetting.hpp"
 
-
 // PWM制御クラス（元のグローバル関数をメンバー関数化）
 class PWM {
 
