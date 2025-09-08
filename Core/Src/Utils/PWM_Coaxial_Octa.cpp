@@ -44,10 +44,14 @@ void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, u
     motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
     motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
     motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
-    motor[4] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
-    motor[5] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
-    motor[6] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
-    motor[7] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
+    // motor[4] = motor_pwm.min + (throttle + control[0] - control[1] + control[2]);
+    // motor[5] = motor_pwm.min + (throttle + control[0] + control[1] - control[2]);
+    // motor[6] = motor_pwm.min + (throttle - control[0] - control[1] - control[2]);
+    // motor[7] = motor_pwm.min + (throttle - control[0] + control[1] + control[2]);
+    motor[4] = motor_pwm.min;
+    motor[5] = motor_pwm.min;
+    motor[6] = motor_pwm.min;
+    motor[7] = motor_pwm.min;
 
     for(uint8_t i=0; i<8; i++){
 
