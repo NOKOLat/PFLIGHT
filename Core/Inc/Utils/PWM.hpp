@@ -1,8 +1,6 @@
 /*
  * PWM.hpp
- *
- *  Created on: May 4, 2025
- *      Author: aoi25
+ * 基底PWMクラス: Servo系のデフォルト実装を提供し、Motor系は純粋仮想
  */
 
 #ifndef INC_PWM_HPP_
@@ -14,38 +12,30 @@
 #include "FlightData/SbusData.hpp"
 #include "UserSetting/MotorSetting.hpp"
 
-// PWM制御クラス（元のグローバル関数をメンバー関数化）
+// 基底PWMクラス
 class PWM {
-
 public:
-
     PWM() = default;
-    ~PWM() = default;
+    virtual ~PWM() = default;
 
-    // Servo
-    void InitServo();
-    void CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
-    void GenerateServo(std::array<uint16_t,2>& servo);
+    // -------- Servo (仮想: 既定実装あり) --------
+    virtual void InitServo();
+    virtual void CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
+    virtual void GenerateServo(std::array<uint16_t,2>& servo);
+    virtual void SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm);
 
-    // 4Motor
-    void InitMotor();
-    void CalcMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
-    void GenerateMotor(std::array<uint16_t,4>& motor);
-    void MotorStop();
+    // -------- Motor (純粋仮想) --------
+    virtual void InitMotor() = 0;
+    virtual void CalcMotor(float throttle, std::array<float,4>& control, uint16_t* motor_pwm) = 0;
+    virtual void GenerateMotor(uint16_t* motor_pwm) = 0;
+    virtual void MotorStop() = 0;
+    virtual void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm) = 0;
 
-    // Config
-    void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm);
-    void SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm);
-
-private:
-
-    MotorTim motor_tim;
-    MotorChannel motor_channel;
-    MotorPWM motor_pwm;
-    ServoTim servo_tim;
-    ServoChannel servo_channel;
-    ServoPWM servo_pwm;
+protected:
+    // Servo設定のみ基底が保持
+    ServoTim servo_tim{};
+    ServoChannel servo_channel{};
+    ServoPWM servo_pwm{};
 };
-
 
 #endif /* INC_PWM_HPP_ */
