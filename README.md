@@ -1,5 +1,9 @@
 # PFLIGHT v2.10.3
 
+> [!WARNING]
+> PIDの設定値が共有できていない可能性があるため、
+> 飛行前には`UserSetting/PIDSetting.hpp`で値を確認してください
+
 4発マルチコプターのFCコードです
 
 ## 1. 使用について
