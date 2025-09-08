@@ -17,7 +17,7 @@ void InitState::update(FlightManager& manager) {
 	// IMUの通信チェック
 	if (manager.imuUtil) {
 
-		if (manager.imuUtil->init() != 0) {
+		if (manager.imuUtil->Init() != 0) {
 
 			printf("IMU_ERROR \n");
 			return;

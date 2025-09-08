@@ -20,7 +20,7 @@ void FlyingState::update(FlightManager& manager) {
 	// センサーデータの取得
 	if (manager.imuUtil){
 
-		manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
+		manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
 	}
 
 	// Madgwickフィルターでの姿勢推定
