@@ -1,6 +1,6 @@
-# PFLIGHT v2.10.2
+# PFLIGHT v2.10.3
 
-2025年度の部内大会で使用するはずのコード
+4発マルチコプターのFCコードです
 
 ## 1. 使用について
 
@@ -81,6 +81,8 @@ Core/
 │  │  └─ FlightStateInterface.h // 状態クラスのインターフェース
 │  ├─ UserSetting/          
 │  │  ├─ MotorSetting.hpp   // モーター設定
+│  │  ├─ LEDSetting.hpp     // LED設定
+│  │  ├─ ImuSetting.hpp     // IMU設定
 │  │  └─ PIDSetting.hpp     // PID設定
 │  └─ Utils/               
 │     ├─ ICM42688P_SPI_Util.hpp // ICM42688PSPI用ユーティリティ

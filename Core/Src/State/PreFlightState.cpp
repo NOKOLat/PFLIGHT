@@ -10,8 +10,8 @@ void PreFlightState::update(FlightManager& manager) {
 	}
 
 	// Servo判定とPwm出力(abc_value = 0)
-	PwmCalcServo(manager.sbus_data, 0, manager.control_data.servo_pwm);
-	PwmGenerateServo(manager.control_data.servo_pwm);
+	manager.pwm.CalcServo(manager.sbus_data, 0, manager.control_data.servo_pwm);
+	manager.pwm.GenerateServo(manager.control_data.servo_pwm);
 
 	// Flightスイッチの判定
 	if(manager.sbus_data.fly){
@@ -28,9 +28,10 @@ void PreFlightState::update(FlightManager& manager) {
 		manager.madgwick.begin(UserSetting::MadgwickSampleFreq);
 
 		//飛行用LEDをつける
-		greenLed(PinState::on);
+		manager.green_led.Set(PinState::on);
 
 		// 飛行状態に遷移
 		manager.changeState(std::make_unique<FlyingState>());
+		return;
 	}
 }

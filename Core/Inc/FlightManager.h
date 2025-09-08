@@ -8,6 +8,7 @@
 #include "PID/PID.h"
 #include "Utils/ICM42688P_SPI_Util.hpp"
 #include "Utils/LED.hpp"
+#include "Utils/PWM.hpp"
 #include "MadgwickAHRS/src/MadgwickAHRS.h"
 #include <memory>
 #include <iostream>
@@ -48,7 +49,7 @@ class FlightManager {
 
         // 状態遷移
         void changeState(std::unique_ptr<FlightStateInterface> newState);
-        
+    
         // メインループ
         void update();
 
@@ -66,12 +67,16 @@ class FlightManager {
         PID rate_pitch;
         PID rate_roll;
         PID rate_yaw;
-		ICM42688P_SPI_Util* imuUtil;
-		Madgwick madgwick;
+        ICM42688P_SPI_Util* imuUtil;
+        Madgwick madgwick;
+		PWM pwm;
+		LED red_led;
+		LED yellow_led;
+		LED green_led;
 
     private:
 
-    std::unique_ptr<FlightStateInterface> current_state;
-    uint16_t sbus_lost_count = 0;
+		std::unique_ptr<FlightStateInterface> current_state;
+		uint16_t sbus_lost_count = 0;
 
 };

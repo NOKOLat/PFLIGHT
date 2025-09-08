@@ -1,6 +1,8 @@
 #include "State/Headers/FlightStates.h"
 #include "UserSetting/PIDSetting.hpp"
+#include "UserSetting/LEDSetting.hpp"
 
+void InitLED(FlightManager& manager);
 void InitPIDFromUserSetting(FlightManager& manager);
 
 void InitState::update(FlightManager& manager) {
@@ -21,12 +23,12 @@ void InitState::update(FlightManager& manager) {
 			return;
 		}
 	}
-
+	
 	// Servoの初期化
-	PwmInitServo();
+	manager.pwm.InitServo();
 
 	// 赤LEDをつける
-	redLed(PinState::on);
+	manager.red_led.Set(PinState::on);
 
 	// PreArmStateへの遷移
 	manager.changeState(std::make_unique<PreArmingState>());
@@ -37,11 +39,25 @@ void InitState::enter(FlightManager& manager) {
 	printf("FC start \n");
 
 	//PWMの停止（安全のため）
-	PwmStop();
+	manager.pwm.MotorStop();
+
+	// LED初期化
+	InitLED(manager);
 
 	// PIDの初期化（FlightManager の PID インスタンスに設定を反映）
 	InitPIDFromUserSetting(manager);
 }
+
+// LEDの初期化関数
+void InitLED(FlightManager& manager) {
+
+	using namespace UserSetting;
+
+	manager.red_led.LEDInit(redLedSetting.gpio_port, redLedSetting.gpio_pin);
+	manager.yellow_led.LEDInit(yellowLedSetting.gpio_port, yellowLedSetting.gpio_pin);
+	manager.green_led.LEDInit(greenLedSetting.gpio_port, greenLedSetting.gpio_pin);
+}
+
 
 // PIDの初期化関数
 void InitPIDFromUserSetting(FlightManager& manager) {
