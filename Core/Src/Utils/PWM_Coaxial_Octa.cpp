@@ -4,6 +4,16 @@
  */
 #include "Utils/MotorUtility.hpp"
 
+uint8_t PWM_Coaxial_Octa::CheckMotorSetting(uint8_t motor_num){
+
+    if(motor_num != 8){
+
+        return 1; // error
+    }
+
+    return 0; // ok
+}
+
 void PWM_Coaxial_Octa::InitMotor(){
 
     HAL_TIM_PWM_Start(motor_tim.motor1, motor_channel.motor1);

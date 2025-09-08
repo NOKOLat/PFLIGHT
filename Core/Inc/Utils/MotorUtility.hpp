@@ -18,6 +18,7 @@ class PWM_Quad : public PWM {
         virtual ~PWM_Quad() = default;
 
         // Motor関連実装
+        uint8_t CheckMotorSetting(uint8_t motor_num) override;
         void InitMotor() override;
         void CalcMotor(float throttle, std::array<float,4>& control, uint16_t* motor_pwm) override;
         void GenerateMotor(uint16_t* motor_pwm) override;
@@ -36,6 +37,8 @@ class PWM_Coaxial_Octa : public PWM {
         PWM_Coaxial_Octa() = default;
         virtual ~PWM_Coaxial_Octa() = default;
 
+        // Motor関連実装
+        uint8_t CheckMotorSetting(uint8_t motor_num) override;
         void InitMotor() override;
         void CalcMotor(float throttle, std::array<float,4>& control, uint16_t* motor_pwm) override;
         void GenerateMotor(uint16_t* motor_pwm) override;

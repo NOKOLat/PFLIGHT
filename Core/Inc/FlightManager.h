@@ -71,8 +71,8 @@ class FlightManager {
         PID rate_yaw;
         ICM42688P_SPI_Util* imuUtil;
         Madgwick madgwick;
-		//PWM_Quad pwm;
-        PWM_Coaxial_Octa pwm;
+		//PWM_Quad pwm; //4Motor
+        PWM_Coaxial_Octa pwm; //8Motor
 		LED red_led;
 		LED yellow_led;
 		LED green_led;

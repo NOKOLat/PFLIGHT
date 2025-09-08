@@ -16,7 +16,7 @@
  * 	3	4
  */
 
-constexpr uint8_t motor_count = 4;
+constexpr uint8_t motor_count = 8;
 
 //モーターのタイマー番号
 struct MotorTim{

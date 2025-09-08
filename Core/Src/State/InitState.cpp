@@ -24,6 +24,13 @@ void InitState::update(FlightManager& manager) {
 		}
 	}
 	
+	// Motorの設定チェック
+	if(manager.pwm.CheckMotorSetting(motor_count)){
+
+		printf("MotorSetting_Error\n");
+		return;
+	}
+
 	// Servoの初期化
 	manager.pwm.InitServo();
 

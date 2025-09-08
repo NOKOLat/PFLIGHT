@@ -3,6 +3,16 @@
  */
 #include "Utils/MotorUtility.hpp"
 
+uint8_t PWM_Quad::CheckMotorSetting(uint8_t motor_num){
+
+    if(motor_num != 4){
+
+        return 1; // error
+    }
+
+    return 0; // ok
+}
+
 // Motor初期化
 void PWM_Quad::InitMotor(){
 

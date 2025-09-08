@@ -15,8 +15,11 @@
 // 基底PWMクラス
 class PWM {
 public:
+
     PWM() = default;
     virtual ~PWM() = default;
+
+    virtual uint8_t CheckMotorSetting(uint8_t motor_num) = 0;
 
     // -------- Servo (仮想: 既定実装あり) --------
     virtual void InitServo();
