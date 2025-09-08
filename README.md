@@ -6,6 +6,9 @@
 
 4発マルチコプターのFCコードです
 
+情報はこちらにも書いてあります
+[PFLIGHT_Wiki](https://github.com/NOKOLat/PFLIGHT/wiki)
+
 ## 1. 使用について
 
 - 2025年9月30日までは、開発チーム以外の一切の使用を禁止します
