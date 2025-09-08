@@ -67,25 +67,25 @@ void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, u
 void PWM_Coaxial_Octa::GenerateMotor(uint16_t* motor){
 
     __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor[0]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor2, motor[1]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor3, motor[2]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor4, motor[3]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor5, motor[4]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor6, motor[5]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor7, motor[6]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor8, motor[7]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor[1]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor[2]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor[3]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor[4]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor[5]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor[6]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor[7]);
 }
 
 void PWM_Coaxial_Octa::MotorStop(){
 
     HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor1);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor2);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor3);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor4);
-    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor5);
-    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor6);
-    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor7);
-    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor8);
+    HAL_TIM_PWM_Stop(motor_tim.motor2, motor_channel.motor2);
+    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor3);
+    HAL_TIM_PWM_Stop(motor_tim.motor4, motor_channel.motor4);
+    HAL_TIM_PWM_Stop(motor_tim.motor5, motor_channel.motor5);
+    HAL_TIM_PWM_Stop(motor_tim.motor6, motor_channel.motor6);
+    HAL_TIM_PWM_Stop(motor_tim.motor7, motor_channel.motor7);
+    HAL_TIM_PWM_Stop(motor_tim.motor8, motor_channel.motor8);
 
 }
 

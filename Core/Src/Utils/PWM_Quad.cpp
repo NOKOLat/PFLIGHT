@@ -55,18 +55,18 @@ void PWM_Quad::CalcMotor(float throttle, std::array<float,4>& control, uint16_t*
 void PWM_Quad::GenerateMotor(uint16_t* motor){
 
     __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor[0]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor2, motor[1]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor3, motor[2]);
-    __HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor4, motor[3]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor[1]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor[2]);
+    __HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor[3]);
 }
 
 // Motor停止
 void PWM_Quad::MotorStop(){
 
     HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor1);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor2);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor3);
-    HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor4);
+    HAL_TIM_PWM_Stop(motor_tim.motor2, motor_channel.motor2);
+    HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor3);
+    HAL_TIM_PWM_Stop(motor_tim.motor4, motor_channel.motor4);
 }
 
 // Motor設定
