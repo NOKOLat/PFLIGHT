@@ -67,7 +67,7 @@ void FlyingState::update(FlightManager& manager) {
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
-	manager.pwm.CalcMotor8(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm);
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
 
 	//ADCX値の読み取り
 	manager.sensor_data.adc_value = HAL_ADC_GetValue(&hadc1);
@@ -82,7 +82,7 @@ void FlyingState::update(FlightManager& manager) {
 	manager.pwm.CalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
 
 	// PWMを生成
-	manager.pwm.GenerateMotor8(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm);
+	manager.pwm.GenerateMotor(manager.control_data.motor_pwm);
 	manager.pwm.GenerateServo(manager.control_data.servo_pwm);
 
 	//Debug用のコード
@@ -92,4 +92,6 @@ void FlyingState::update(FlightManager& manager) {
 	//printf("adc_value: %d \n", manager.sensor_data.adc_value);
 	//printf("sbus_yaw: %lf \n", manager.sbus_data.target_value[2]);
 	//printf("motorPwm: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
+	//printf("motorPwm: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
+
 }

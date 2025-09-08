@@ -33,12 +33,6 @@ public:
     void GenerateMotor(std::array<uint16_t,4>& motor);
     void MotorStop();
 
-    // 8Motor
-    void InitMotor8();
-    void CalcMotor8(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor);
-    void GenerateMotor8(std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor);
-    void MotorStop8();
-
     // Config
     void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm);
     void SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm);
