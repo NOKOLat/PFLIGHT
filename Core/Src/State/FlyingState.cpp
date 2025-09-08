@@ -67,7 +67,7 @@ void FlyingState::update(FlightManager& manager) {
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// PID結果を各モーターに分配
-	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm);
+	manager.pwm.CalcMotor8(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm);
 
 	//ADCX値の読み取り
 	manager.sensor_data.adc_value = HAL_ADC_GetValue(&hadc1);
@@ -82,7 +82,8 @@ void FlyingState::update(FlightManager& manager) {
 	manager.pwm.CalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
 
 	// PWMを生成
-	manager.pwm.Generate(manager.control_data.motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.GenerateMotor8(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm);
+	manager.pwm.GenerateServo(manager.control_data.servo_pwm);
 
 	//Debug用のコード
 	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);

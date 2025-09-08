@@ -91,13 +91,6 @@ void PWM::GenerateServo(std::array<uint16_t,2>& servo){
 	__HAL_TIM_SET_COMPARE(servo_tim.servo1 , servo_channel.servo2, servo[1]);
 }
 
-// モーターとサーボのPWMをまとめて出力
-void PWM::Generate(std::array<uint16_t,4>& motor, std::array<uint16_t,2>& servo){
-
-	GenerateMotor(motor);
-	GenerateServo(servo);
-}
-
 // モーターの停止
 void PWM::MotorStop(){
 
@@ -109,6 +102,7 @@ void PWM::MotorStop(){
 
 // 設定セッター（Motor）
 void PWM::SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm){
+
 	motor_tim = tim;
 	motor_channel = channel;
 	motor_pwm = pwm;
@@ -116,7 +110,104 @@ void PWM::SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const
 
 // 設定セッター（Servo）
 void PWM::SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm){
+
 	servo_tim = tim;
 	servo_channel = channel;
 	servo_pwm = pwm;
+}
+
+/*---------8発用のコード---------*/
+
+// モーター用PWMの初期化
+void PWM::InitMotor8(){
+
+	//motor start
+	HAL_TIM_PWM_Start(motor_tim.motor1, motor_channel.motor1);
+	HAL_TIM_PWM_Start(motor_tim.motor2, motor_channel.motor2);
+	HAL_TIM_PWM_Start(motor_tim.motor3, motor_channel.motor3);
+	HAL_TIM_PWM_Start(motor_tim.motor4, motor_channel.motor4);
+
+	HAL_TIM_PWM_Start(motor_tim.motor5, motor_channel.motor5);
+	HAL_TIM_PWM_Start(motor_tim.motor6, motor_channel.motor6);
+	HAL_TIM_PWM_Start(motor_tim.motor7, motor_channel.motor7);
+	HAL_TIM_PWM_Start(motor_tim.motor8, motor_channel.motor8);
+
+	//motor init
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.init);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.init);
+
+	//初期化待機
+	HAL_Delay(2500);
+}
+
+// 各モーターに制御量を分配
+void PWM::CalcMotor8(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor){
+
+	//モーターの値を計算
+	upper_motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
+	upper_motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
+	upper_motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
+	upper_motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
+
+	lower_motor[0] = motor_pwm.min + (throttle + control[0] - control[1] + control[2]);
+	lower_motor[1] = motor_pwm.min + (throttle + control[0] + control[1] - control[2]);
+	lower_motor[2] = motor_pwm.min + (throttle - control[0] - control[1] - control[2]);
+	lower_motor[3] = motor_pwm.min + (throttle - control[0] + control[1] + control[2]);
+
+	//　最大値と最小値を超えた場合の処理
+	for(uint8_t i=0; i<4; i++){
+
+		if(upper_motor[i] >= motor_pwm.max){
+
+			upper_motor[i] = motor_pwm.max;
+		}
+		if(upper_motor[i] <= motor_pwm.min){
+
+			upper_motor[i] = motor_pwm.min;
+		}
+
+		if(lower_motor[i] >= motor_pwm.max){
+
+			lower_motor[i] = motor_pwm.max;
+		}
+		if(lower_motor[i] <= motor_pwm.min){
+
+			lower_motor[i] = motor_pwm.min;
+		}
+	}
+}
+
+// モーター用のPWM出力
+void PWM::GenerateMotor8(std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor){
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, upper_motor[0]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, upper_motor[1]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, upper_motor[2]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, upper_motor[3]);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, lower_motor[0]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, lower_motor[1]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, lower_motor[2]);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, lower_motor[3]);
+}
+
+// モーターの停止
+void PWM::MotorStop8(){
+
+	HAL_TIM_PWM_Stop(motor_tim.motor1, motor_channel.motor1);
+	HAL_TIM_PWM_Stop(motor_tim.motor2, motor_channel.motor2);
+	HAL_TIM_PWM_Stop(motor_tim.motor3, motor_channel.motor3);
+	HAL_TIM_PWM_Stop(motor_tim.motor4, motor_channel.motor4);
+
+	HAL_TIM_PWM_Stop(motor_tim.motor5, motor_channel.motor5);
+	HAL_TIM_PWM_Stop(motor_tim.motor6, motor_channel.motor6);
+	HAL_TIM_PWM_Stop(motor_tim.motor7, motor_channel.motor7);
+	HAL_TIM_PWM_Stop(motor_tim.motor8, motor_channel.motor8);
 }
