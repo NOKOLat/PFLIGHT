@@ -6,6 +6,9 @@ void AutoFlyState::update(FlightManager& manager) {
 	static uint32_t loop_count = 0;
 	loop_count++;
 
+	float target_value[3] = {}; // pitch, roll, yaw
+	float altitude_value = 0.0f;
+
     // Armのチェック
 	if(!manager.sbus_data.arm){
 
@@ -19,12 +22,15 @@ void AutoFlyState::update(FlightManager& manager) {
 		manager.changeState(std::make_unique<FlyingState>());
 		return;
 	}
+		// scale
+		
+		target_value[0] = (manager.autopilot_data.pitch / 127.0f) * 10.0f; // degrees
+		target_value[1] = (manager.autopilot_data.roll / 127.0f) * 10.0f; // degrees
+		target_value[2] = (manager.autopilot_data.yaw / 127.0f) * 30.0f; // dps
 
-    // 目標角データの取得(仮で0)
-    // Todo: データ取得機構とデコードの機構の実装
-    manager.sbus_data.target_value[0] = 0.0f; //target_angle_x
-    manager.sbus_data.target_value[1] = 0.0f; //target_angle_y
-    manager.sbus_data.target_value[2] = 0.0f; //target_rate_z
+		// throttle_assist used as altitude target proxy (meters)
+		altitude_value = (manager.autopilot_data.throttle / 255.0f) * 1.0f; // meters
+	
 
 	// Madgwickフィルターでの姿勢推定
 	manager.madgwick.updateIMU(
@@ -50,13 +56,13 @@ void AutoFlyState::update(FlightManager& manager) {
 
     	// 目標角と現在角から目標角速度を計算
 		// pitch, rollの目標角速度計算: calc() を呼んだ後 getData() で結果を取得
-		manager.angle_pitch.calc(manager.sbus_data.target_value[0], manager.sensor_data.angle[0]);
+		manager.angle_pitch.calc(target_value[0], manager.sensor_data.angle[0]);
 		manager.angle_pitch.getData(&manager.control_data.target_rate[0]);
-		manager.angle_roll.calc(manager.sbus_data.target_value[1], manager.sensor_data.angle[1]);
+		manager.angle_roll.calc(target_value[1], manager.sensor_data.angle[1]);
 		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
-        manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+        manager.control_data.target_rate[2] = target_value[2];
 
 
 		// --- 気圧の取得 ---

@@ -3,6 +3,7 @@
 #include "FlightData/ControlData.hpp"
 #include "FlightData/SbusData.hpp"
 #include "FlightData/SensorData.hpp"
+#include "FlightData/AutopilotData.hpp"
 #include "UserSetting/PIDSetting.hpp"
 #include "UserSetting/ImuSetting.hpp"
 #include "UserSetting/Dps368Setting.hpp"
@@ -64,6 +65,7 @@ class FlightManager {
         SensorData sensor_data;
         SbusChannelData sbus_data;
         ControlData control_data;
+        AutopilotData autopilot_data;
 
         PID angle_pitch;
         PID angle_roll;

@@ -14,9 +14,23 @@ FlightLoopManager flightLoopManager;
 nokolat::SBUS sbus;
 nokolat::SBUS_DATA sbus_data;
 SbusChannelData decoded_sbus_data;
-uint8_t esp_data_buffer[17];
+P2PPackage::P2PReceiver p2p_receiver;
+
+
+// ESC calibration at startup:
+// If you want the firmware to run ESC calibration sequence in init(),
+// enable the macro below (uncomment). Alternatively, define ESC_CALIBRATION
+// in your build 9flags (e.g. -DESC_CALIBRATION).
+#define ESC_CALIBRATION
+#include "Utils/PWM.hpp"
 
 void init(){
+    #ifdef ESC_CALIBRATION
+        // Run ESC calibration sequence if enabled at compile time.
+
+        PwmCalibrateESC();
+    #endif
+
     
     DebugSbus::overrideData.arm = true;
     DebugSbus::overrideData.throttle = 0;
@@ -27,7 +41,7 @@ void init(){
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
 
     //UART3(DMA) ESPからのデータ受信用
-    HAL_UART_Receive_DMA(&huart3, esp_data_buffer, sizeof(esp_data_buffer));
+    HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
 
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -79,10 +93,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
     // UART3(DMA)
     if(huart == &huart3){
-    // Process fixed-length P2P packet from esp (use utility)
-    Utils::P2PReceiver::Process(esp_data_buffer, sizeof(esp_data_buffer), flightManager);
+    p2p_receiver.Process(flightManager);
 
     // restart UART3 DMA receive
-    HAL_UART_Receive_DMA(&huart3, esp_data_buffer, sizeof(esp_data_buffer));
+    HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
     }
 }

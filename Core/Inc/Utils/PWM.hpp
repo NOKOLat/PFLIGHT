@@ -23,6 +23,10 @@ void PwmCalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint
 void PwmInitMotor();
 void PwmInitServo();
 
+// ESC calibration routine: runs a simple max->min pulse sequence for all motors.
+// Call only when motors are connected and safe to spin. Minimal implementation.
+void PwmCalibrateESC();
+
 // Pwmの出力
 void PwmGenerate(std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor, std::array<uint16_t,2>& servo);
 void PwmGenerateUpperMotor(std::array<uint16_t,4>& upper_motor);

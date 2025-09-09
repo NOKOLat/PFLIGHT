@@ -165,3 +165,60 @@ void PwmStop(){
 	HAL_TIM_PWM_Stop(motor_tim.motor7, motor_channel.motor7);
 	HAL_TIM_PWM_Stop(motor_tim.motor8, motor_channel.motor8);
 }
+
+// Minimal ESC calibration: send max pulse then min pulse on all motors.
+// Caller must ensure props are removed and it's safe to run calibration.
+void PwmCalibrateESC(){
+
+	//motor start
+	HAL_TIM_PWM_Start(motor_tim.motor1, motor_channel.motor1);
+	HAL_TIM_PWM_Start(motor_tim.motor2, motor_channel.motor2);
+	HAL_TIM_PWM_Start(motor_tim.motor3, motor_channel.motor3);
+	HAL_TIM_PWM_Start(motor_tim.motor4, motor_channel.motor4);
+
+	HAL_TIM_PWM_Start(motor_tim.motor5, motor_channel.motor5);
+	HAL_TIM_PWM_Start(motor_tim.motor6, motor_channel.motor6);
+	HAL_TIM_PWM_Start(motor_tim.motor7, motor_channel.motor7);
+	HAL_TIM_PWM_Start(motor_tim.motor8, motor_channel.motor8);
+
+	// send max to all channels
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.max);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.max);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.max);
+
+	// short wait for ESC to register max
+	HAL_Delay(5000);
+
+	// send min to all channels
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.min);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.min);
+
+	// wait for ESC to register min
+	HAL_Delay(5000);
+
+	// restore init
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.init);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.init);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.init);
+
+	HAL_Delay(5000);
+}
