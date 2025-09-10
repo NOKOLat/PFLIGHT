@@ -17,13 +17,20 @@ void InitState::update(FlightManager& manager) {
 	// IMUの通信チェック
 	if (manager.imuUtil) {
 
-		if (manager.imuUtil->init() != 0) {
+		if (manager.imuUtil->Init() != 0) {
 
 			printf("IMU_ERROR \n");
 			return;
 		}
 	}
 	
+	// Motorの設定チェック
+	if(manager.pwm.CheckMotorSetting(motor_count)){
+
+		printf("MotorSetting_Error\n");
+		return;
+	}
+
 	// Servoの初期化
 	manager.pwm.InitServo();
 

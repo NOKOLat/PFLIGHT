@@ -30,27 +30,26 @@ constexpr float sampleFrequency = 400.0f;
 namespace UserSetting {
 
     // 角度PID設定
-    constexpr PIDGain angle_pitch_gain = { 1.9, 0.01, 0.10 };
-    constexpr PIDLimit angle_pitch_limit = { 20.0, 50.0 };
-    constexpr PIDDt angle_pitch_dt = { 4.0f / sampleFrequency};
+	constexpr PIDGain angle_pitch_gain = { 1.9, 0.01, 0.10 };
+	constexpr PIDLimit angle_pitch_limit = { 20.0, 50.0 };
+	constexpr PIDDt angle_pitch_dt = { 4.0f / sampleFrequency};
 
-    constexpr PIDGain angle_roll_gain = { 1.9, 0.01, 0.10 };
-    constexpr PIDLimit angle_roll_limit = { 20.0, 50.0 };
-    constexpr PIDDt angle_roll_dt = { 4.0f / sampleFrequency};
+	constexpr PIDGain angle_roll_gain = { 1.9, 0.01, 0.10 };
+	constexpr PIDLimit angle_roll_limit = { 20.0, 50.0 };
+	constexpr PIDDt angle_roll_dt = { 4.0f / sampleFrequency};
 
-    // 角速度PID設定
-    constexpr PIDGain rate_pitch_gain = { 0.7, 0.0, 0.042 };
-    constexpr PIDLimit rate_pitch_limit = { 0.0, 100.0};
-    constexpr PIDDt rate_pitch_dt = { 1.0f / sampleFrequency};
+	// 角速度PID設定
+	constexpr PIDGain rate_pitch_gain = { 0.7, 0.0, 0.042 };
+	constexpr PIDLimit rate_pitch_limit = { 0.0, 100.0};
+	constexpr PIDDt rate_pitch_dt = { 1.0f / sampleFrequency};
 
-    constexpr PIDGain rate_roll_gain = { 0.7, 0.0, 0.042 };
-    constexpr PIDLimit rate_roll_limit = { 0.0, 100.0 };
-    constexpr PIDDt rate_roll_dt = { 1.0f / sampleFrequency};
+	constexpr PIDGain rate_roll_gain = { 0.7, 0.0, 0.042 };
+	constexpr PIDLimit rate_roll_limit = { 0.0, 100.0 };
+	constexpr PIDDt rate_roll_dt = { 1.0f / sampleFrequency};
 
-    constexpr PIDGain rate_yaw_gain = { 3, 0.0, 0.0012 };
-    constexpr PIDLimit rate_yaw_limit = { 0.0, 40.0};
-    constexpr PIDDt rate_yaw_dt = { 1.0f / sampleFrequency};
-
+	constexpr PIDGain rate_yaw_gain = { 5, 0.0, 0.04 };
+	constexpr PIDLimit rate_yaw_limit = { 0.0, 40.0};
+	constexpr PIDDt rate_yaw_dt = { 1.0f / sampleFrequency};
 
     //Madgwick用のサンプル周波数
     constexpr float MadgwickSampleFreq = sampleFrequency;

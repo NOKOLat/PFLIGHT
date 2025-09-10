@@ -44,6 +44,7 @@ void FlightManager::update() {
             return;
         }
     }
+
     if (current_state) {
 
         current_state->update(*this);
@@ -65,6 +66,5 @@ bool FlightManager::checkSbusConnect(){
 		return false;
 	}
     
-
 	return true;
 }

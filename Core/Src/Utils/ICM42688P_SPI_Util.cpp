@@ -5,7 +5,7 @@ ICM42688P_SPI_Util::ICM42688P_SPI_Util(SPI_HandleTypeDef* hspi, GPIO_TypeDef* gp
     : icm(hspi, gpio_port, gpio_pin) {}
 
 // センサーの設定
-uint8_t ICM42688P_SPI_Util::init() {
+uint8_t ICM42688P_SPI_Util::Init() {
 
     if (icm.Connection() == 1) {
 
@@ -22,7 +22,7 @@ uint8_t ICM42688P_SPI_Util::init() {
 }
 
 // キャリブレーション
-uint8_t ICM42688P_SPI_Util::calibration(uint16_t calibration_count) {
+uint8_t ICM42688P_SPI_Util::Calibration(uint16_t calibration_count) {
 
     uint8_t calibration_error = icm.Calibration(calibration_count);
 
@@ -39,7 +39,7 @@ uint8_t ICM42688P_SPI_Util::calibration(uint16_t calibration_count) {
 }   
 
 // データの取得
-uint8_t ICM42688P_SPI_Util::getData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
+uint8_t ICM42688P_SPI_Util::GetData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
 
     float accel[3] = {};
     float gyro[3]  = {};

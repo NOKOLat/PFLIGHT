@@ -9,7 +9,7 @@ void PreArmingState::update(FlightManager& manager) {
 		manager.pwm.InitMotor();
 
 		// センサーのキャリブレーション
-		manager.imuUtil->calibration(UserSetting::calibration_count);
+		manager.imuUtil->Calibration(UserSetting::calibration_count);
 
 		//黄LEDをつける
 		manager.yellow_led.Set(PinState::on);

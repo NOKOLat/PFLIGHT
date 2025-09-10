@@ -1,4 +1,8 @@
 #pragma once
+
+#include <memory>
+#include <iostream>
+
 #include "state/interface/FlightStateInterface.h"
 #include "FlightData/ControlData.hpp"
 #include "FlightData/SbusData.hpp"
@@ -8,13 +12,11 @@
 #include "PID/PID.h"
 #include "Utils/ICM42688P_SPI_Util.hpp"
 #include "Utils/LED.hpp"
-#include "Utils/PWM.hpp"
 #include "MadgwickAHRS/src/MadgwickAHRS.h"
-#include <memory>
-#include <iostream>
+#include "Utils/MotorUtility.hpp"
+
 
 // ループ管理構造体
-
 struct FlightLoopManager{
 
     public:
@@ -69,7 +71,8 @@ class FlightManager {
         PID rate_yaw;
         ICM42688P_SPI_Util* imuUtil;
         Madgwick madgwick;
-		PWM pwm;
+		//PWM_Quad pwm; //4Motor
+        PWM_Coaxial_Octa pwm; //8Motor
 		LED red_led;
 		LED yellow_led;
 		LED green_led;
