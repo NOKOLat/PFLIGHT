@@ -93,9 +93,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
     // UART3(DMA)
     if(huart == &huart3){
-    p2p_receiver.Process(flightManager);
+        p2p_receiver.Process(flightManager);
 
-    // restart UART3 DMA receive
-    HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
+        // restart UART3 DMA receive
+        HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
     }
 }

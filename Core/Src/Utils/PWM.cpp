@@ -196,20 +196,6 @@ void PwmCalibrateESC(){
 	HAL_Delay(5000);
 
 	// send min to all channels
-	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.min);
-
-	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.min);
-	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.min);
-
-	// wait for ESC to register min
-	HAL_Delay(5000);
-
-	// restore init
 	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.init);
@@ -219,6 +205,20 @@ void PwmCalibrateESC(){
 	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.init);
 	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.init);
+
+	// wait for ESC to register min
+	HAL_Delay(5000);
+
+	// restore init
+	__HAL_TIM_SET_COMPARE(motor_tim.motor1 , motor_channel.motor1, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor2 , motor_channel.motor2, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor3 , motor_channel.motor3, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor4 , motor_channel.motor4, motor_pwm.min);
+
+	__HAL_TIM_SET_COMPARE(motor_tim.motor5 , motor_channel.motor5, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor6 , motor_channel.motor6, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor7 , motor_channel.motor7, motor_pwm.min);
+	__HAL_TIM_SET_COMPARE(motor_tim.motor8 , motor_channel.motor8, motor_pwm.min);
 
 	HAL_Delay(5000);
 }

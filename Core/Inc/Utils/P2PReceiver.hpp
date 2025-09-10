@@ -10,7 +10,7 @@ namespace P2PPackage {
 class P2PReceiver {
 public:
     // Process raw fixed-length buffer received from UART3 and update FlightManager
-    static void Process(const uint8_t* buf, size_t len, FlightManager& manager);
+    static void Process(const uint8_t* buf, uint8_t len, FlightManager& manager);
 
     // Instance API: hold an internal receive buffer so caller can pass
     // its pointer to HAL_UART_Receive_DMA.
@@ -20,7 +20,7 @@ public:
     uint8_t* getReceiveBufferPtr();
 
     // Returns the number of bytes the DMA should receive into the buffer
-    size_t getDataLen() const;
+    uint8_t getDataLen() const;
 
     // Process data currently stored in the internal buffer
     void Process(FlightManager& manager);
