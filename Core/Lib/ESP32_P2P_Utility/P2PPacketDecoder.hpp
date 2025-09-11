@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 
-#include "UserSetting/P2PPacketSetting.hpp"
 #include "PacketDataType.hpp"
 #include "PacketUtility.hpp"
 
@@ -22,7 +21,6 @@ public:
     PacketError SetData(const uint8_t* buffer, uint8_t size);
 
     // Get typed data by passing the enum and reference to variable of correct type
-    using PacketDataType = UserSetting::PacketDataType;
     PacketError GetData(PacketDataType type, float &out);
     PacketError GetData(PacketDataType type, uint32_t &out);
     PacketError GetData(PacketDataType type, int32_t &out);

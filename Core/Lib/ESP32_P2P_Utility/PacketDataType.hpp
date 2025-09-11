@@ -1,9 +1,21 @@
-// Backwards-compatible header: alias to UserSetting::PacketDataType
 #ifndef PACKET_DATA_TYPE_HPP
 #define PACKET_DATA_TYPE_HPP
 
-#include "UserSetting/P2PPacketSetting.hpp"
+#include <cstdint>
 
-using PacketDataType = UserSetting::PacketDataType;
+// 単一の enum class にまとめた PacketDataType
+    enum class PacketDataType : uint8_t {
+
+        // int32_t (上位2ビット = 00 -> 0x00〜0x3F)
+        Pitch = 0x00,
+        Roll = 0x01,
+        Yaw = 0x02,
+        Throttle = 0x03,
+
+        // uint32_t (上位2ビット = 01 -> 0x40〜0x7F)
+
+        // float (上位2ビット = 10 -> 0x80〜0xBF)
+
+    };
 
 #endif // PACKET_DATA_TYPE_HPP

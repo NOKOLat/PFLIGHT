@@ -4,9 +4,13 @@
 #include "FlightManager.h"
 #include "Sbus\sbus.h"
 #include "Utils/SbusDecoder.hpp"
-
 #include "Utils/SbusDebug.hpp"
-#include "Utils/P2PReceiver.hpp"
+
+
+#include "P2PPacketDecoder.hpp"
+P2PPacketDecoder decoder;
+uint8_t receive_data[22] = {};
+bool received = false;
 
 
 FlightManager flightManager;
@@ -14,15 +18,16 @@ FlightLoopManager flightLoopManager;
 nokolat::SBUS sbus;
 nokolat::SBUS_DATA sbus_data;
 SbusChannelData decoded_sbus_data;
-P2PPackage::P2PReceiver p2p_receiver;
 
 
 // ESC calibration at startup:
 // If you want the firmware to run ESC calibration sequence in init(),
 // enable the macro below (uncomment). Alternatively, define ESC_CALIBRATION
 // in your build 9flags (e.g. -DESC_CALIBRATION).
-#define ESC_CALIBRATION
+//#define ESC_CALIBRATION
 #include "Utils/PWM.hpp"
+
+
 
 void init(){
     #ifdef ESC_CALIBRATION
@@ -41,7 +46,7 @@ void init(){
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
 
     //UART3(DMA) ESPからのデータ受信用
-    HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
+    HAL_UART_Receive_DMA(&huart3, receive_data, 22);
 
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -54,9 +59,24 @@ void loop(){
 
     	// ループ管理フラグをセット
         flightLoopManager.setWaitFlag();
-        
+
         // 状態ごとの処理の呼び出し
         flightManager.update();
+    }
+    if (received) {
+//        received = false;
+//        for (uint8_t i=0;i<22;i++){
+//			printf("%d ",receive_data[i]);
+//		}
+
+    	decoder.SetData(receive_data, 22);
+		decoder.GetData(PacketDataType::Pitch, flightManager.autopilot_data.pitch);
+		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
+		decoder.GetData(PacketDataType::Yaw, flightManager.autopilot_data.yaw);
+		decoder.GetData(PacketDataType::Throttle, flightManager.autopilot_data.throttle);
+
+        printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
+        received = false;
     }
 }
 
@@ -92,10 +112,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
     }
 
     // UART3(DMA)
-    if(huart == &huart3){
-        p2p_receiver.Process(flightManager);
+	if(huart == &huart3){
+		// 正常に受信できている場合
+		if(receive_data[0] == 0x0f && receive_data[21] == 0xf0){
 
-        // restart UART3 DMA receive
-        HAL_UART_Receive_DMA(&huart3, p2p_receiver.getReceiveBufferPtr(), p2p_receiver.getDataLen());
-    }
+			received = true;
+		}
+
+		//割り込み受信の再開
+		HAL_UART_Receive_DMA(&huart3, receive_data, 22);
+
+	}
 }

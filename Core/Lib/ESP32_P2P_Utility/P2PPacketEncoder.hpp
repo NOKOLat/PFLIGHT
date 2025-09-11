@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstring>
 
-#include "UserSetting/P2PPacketSetting.hpp"
 #include "PacketDataType.hpp"
 #include "PacketUtility.hpp"
 
@@ -21,7 +20,6 @@ public:
     PacketError Begin();
     PacketError End();
 
-    using PacketDataType = UserSetting::PacketDataType;
     PacketError AddData(PacketDataType type, float data);
     PacketError AddData(PacketDataType type, uint32_t data);
     PacketError AddData(PacketDataType type, int32_t data);

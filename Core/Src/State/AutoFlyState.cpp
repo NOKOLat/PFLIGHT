@@ -7,7 +7,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	loop_count++;
 
 	float target_value[3] = {}; // pitch, roll, yaw
-	float altitude_value = 0.0f;
+	static float altitude_value = 0.0f;
 
     // Armのチェック
 	if(!manager.sbus_data.arm){
@@ -30,7 +30,8 @@ void AutoFlyState::update(FlightManager& manager) {
 
 		// throttle_assist used as altitude target proxy (meters)
 		altitude_value = (manager.autopilot_data.throttle / 255.0f) * 1.0f; // meters
-	
+		printf("%f m",altitude_value);
+
 
 	// Madgwickフィルターでの姿勢推定
 	manager.madgwick.updateIMU(

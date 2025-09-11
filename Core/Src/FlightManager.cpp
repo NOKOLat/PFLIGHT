@@ -2,6 +2,7 @@
 #include "state/headers/FlightStates.h"
 #include <iomanip>
 #include <cstring>
+#include "Utils/SbusDebug.hpp"
 
 
 // コンストラクタ
@@ -64,12 +65,12 @@ void FlightManager::sbusUpdate(SbusChannelData sbus_data){
 
 // SBUS接続チェック
 bool FlightManager::checkSbusConnect(){
+    // If a debug override is enabled, treat SBUS as connected for debug purposes
+    if (DebugSbus::isOverrideEnabled()) return true;
 
-	if(sbus_data.failsafe_bit || (sbus_lost_count > 1000)){
+    if(sbus_data.failsafe_bit || (sbus_lost_count > 1000)){
+        return false;
+    }
 
-		return false;
-	}
-    
-
-	return true;
+    return true;
 }

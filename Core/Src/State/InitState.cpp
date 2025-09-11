@@ -1,4 +1,5 @@
 #include "State/Headers/FlightStates.h"
+#include "Utils/SbusDebug.hpp"
 #include "UserSetting/PIDSetting.hpp"
 
 void InitPIDFromUserSetting(FlightManager& manager);
@@ -7,9 +8,13 @@ void InitState::update(FlightManager& manager) {
 
 	// SBUSの受信チェック
 	if(!manager.sbus_data.is_receive){
-
-		printf("SBUS_ERROR \n");
-		return;
+		// If a debug override is enabled, apply it so initialization can continue
+		if (DebugSbus::isOverrideEnabled()) {
+			DebugSbus::applyOverride(manager.sbus_data);
+		} else {
+			printf("SBUS_ERROR \n");
+			return;
+		}
 	}
 
 	// IMUの通信チェック
