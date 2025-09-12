@@ -18,17 +18,10 @@ void EmergencyControlState::update(FlightManager& manager) {
 		manager.changeState(std::make_unique<FlyingState>());
 	}
 
-<<<<<<< Updated upstream
-    // センサーデータの取得
-	if (manager.imuUtil){
-
-		manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
-=======
 	// センサーデータの取得
 	if (manager.imuUtil){
 
 		manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
->>>>>>> Stashed changes
 	}
 
 	// Madgwickフィルターでの姿勢推定
