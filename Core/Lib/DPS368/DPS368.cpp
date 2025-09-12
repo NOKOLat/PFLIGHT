@@ -46,6 +46,25 @@ uint8_t DPS368::init(){
 		}
 	}
 
+	// 係数を一度読み込んで保存しておく（getData で毎回読み込ませない）
+	uint8_t ret = ReadCoefficients();
+	if(ret != 0){
+		return 3; // 係数読み込み失敗
+	}
+
+	// Configure pressure and temperature measurement to higher rates/sampling
+	// so that new measurements are available at higher frequency.
+	// Use max measurement rate and moderate oversampling by default.
+	uint8_t cfg_ret = pressConfig(MEAS_RATE::_128pr_sec, MEAS_SAMPLING::_004_times);
+	if(cfg_ret != 0){
+		// non-fatal: continue but notify
+		printf("DPS368: pressConfig failed\n");
+	}
+	cfg_ret = tempConfig(MEAS_RATE::_128pr_sec, MEAS_SAMPLING::_004_times);
+	if(cfg_ret != 0){
+		printf("DPS368: tempConfig failed\n");
+	}
+
 	return 0;
 }
 
@@ -145,11 +164,20 @@ uint8_t DPS368::ReadCoefficients(){
 	m_c30 = ((uint32_t)buffer[16] << 8) | (uint32_t)buffer[17];
 	GetTwosComplement(&m_c30, 16);
 
+	// mark that coefficients are loaded
+	coeffs_loaded = true;
+
 	return 0;
 }
 
-// New PascalCase GetData which assumes coefficients are already read via ReadCoefficients
-uint8_t DPS368::GetData(float * pressData, float * tempData){
+uint8_t DPS368::updateCoefficients(){
+	// simply call ReadCoefficients to refresh saved coefficients
+	uint8_t ret = ReadCoefficients();
+	return ret;
+}
+
+// Data retrieval: uses coefficients read during init()
+uint8_t DPS368::getData(float * pressData, float * tempData){
 
 	//生のセンサーデータの取得
 	uint8_t rawData[6] = {};
@@ -175,13 +203,6 @@ uint8_t DPS368::GetData(float * pressData, float * tempData){
 	tempData[0] = m_c0_half + m_c1 * rawTempSC + 30.0;
 
 	return 0;
-}
-
-// Keep existing compatibility wrapper: call ReadCoefficients() once then GetData()
-uint8_t DPS368::getData(float * pressData, float * tempData){
-	uint8_t ret = ReadCoefficients();
-	if(ret != 0) return ret;
-	return GetData(pressData, tempData);
 }
 
 void DPS368::GetTwosComplement(int32_t *raw, uint8_t length){

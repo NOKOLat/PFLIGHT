@@ -9,15 +9,26 @@ void CalibrationState::enter(FlightManager& manager) {
 
     // IMUのキャリブレーション
     manager.imuUtil->calibration(1000);
+    calibration_count = 0;
 
     // 気圧センサーのキャリブレーション
 
 }
 void CalibrationState::update(FlightManager& manager) {
+    static float sum_accel = 0.0f;
+    
+    float average_accel = 0.0f;
+    
+    std::array<float, 3> accel = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> gyro = {0.0f, 0.0f, 0.0f}; 
+    
+    float pressure = 0.0f;
 
     // 6軸データの取得
-    manager.imuUtil->getData(calibrated_accel, calibrated_gyro);
-    if(calibration_count %4 == 0){
+    manager.imuUtil->getData(accel, gyro);
+    sum_accel += accel[2];
+
+    if(calibration_count %8 == 0){
         
         // 気圧センサーのデータ取得
         float temperature = 0.0f;
@@ -33,20 +44,22 @@ void CalibrationState::update(FlightManager& manager) {
 
         // 高度キャリブレーションの計算
         // 観測加速度は IMU から取得した z 成分 (m/s^2)
-        float observed_accel = calibrated_accel[2];
+        
 
+        average_accel = sum_accel / 8.0f;
+        sum_accel = 0.0f;
         // Altitude モジュールの逐次キャリブレーション呼び出し
-        altitude.Calibration(pressure, observed_accel);
+        altitude.Calibration(pressure, average_accel);
         // データ取得と計算が成功したらカウントを進める
     }
     calibration_count ++;
 
-    // キャリブレーション完了後、PreFlightへ遷移
-    if (calibration_count >= 400) {
+     //キャリブレーション完了後、PreFlightへ遷移
+     if (calibration_count >= 1600) {
 
-        manager.changeState(std::make_unique<PreFlightState>());
-        return;
-    }
+         manager.changeState(std::make_unique<PreFlightState>());
+         return;
+     }
 }
 
 #endif // CALIBRATION_STATE_CPP

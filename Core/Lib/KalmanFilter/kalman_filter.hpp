@@ -9,10 +9,11 @@
 #define INC_KALMAN_FILTER_HPP_
 
 #include <cstdint>
+#include "math.h"
 
 
 // EWMA alpha for noise estimation
-#define NOISE_ALPHA 0.05f
+#define NOISE_ALPHA 0.02f
 
 // 簡易スムーザー有効/無効
 #define KALMAN_USE_SMOOTHER false

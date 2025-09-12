@@ -47,9 +47,7 @@ class CalibrationState : public FlightStateInterface {
 
     private:
         uint16_t calibration_count = 0;
-        std::array<float, 3> calibrated_accel = {0.0f, 0.0f, 0.0f};
-        std::array<float, 3> calibrated_gyro = {0.0f, 0.0f, 0.0f};
-        float pressure = 0.0f;
+        
 };
 
 // 飛行状態

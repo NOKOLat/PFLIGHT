@@ -20,13 +20,14 @@ class DPS368{
 		uint8_t tempConfig(MEAS_RATE rate, MEAS_SAMPLING sampling);
 		uint8_t getPress();
 		uint8_t getTemp();
-		// PascalCase API: new method that uses pre-read coefficients
-		uint8_t GetData(float * pressData, float * tempData);
-		// compatibility wrapper for existing code
+		// Data retrieval (uses coefficients read during init)
 		uint8_t getData(float * pressData, float * tempData);
 
-		// Read calibration coefficients once (call from main once)
+		// Read calibration coefficients once (call from main or when updating)
 		uint8_t ReadCoefficients();
+
+		// Force re-read of calibration coefficients at runtime
+		uint8_t updateCoefficients();
 
 	protected:
 
@@ -51,6 +52,9 @@ class DPS368{
 		// Compensation scale factors
 		int32_t press_compensation_scale_factors = 524288;
 		int32_t temp_compensation_scale_factors = 524288;
+
+		// whether coefficients have been successfully loaded
+		bool coeffs_loaded = false;
 
 };
 

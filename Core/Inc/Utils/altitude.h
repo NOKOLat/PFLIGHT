@@ -33,6 +33,11 @@ class Altitude {
         float reference_pressure = 0.0f;
         uint32_t calib_count = 0u; 
 
+        // altitude offset applied to ensure non-negative reported altitude.
+        // When estimated altitude goes below 0 the offset is increased
+        // so reported altitude becomes 0 while preserving internal state.
+        float altitude_offset = 0.0f; // m
+
         // calibration for accel: running mean and M2 for Welford variance
         float accel_calib_mean = 0.0f;
         float accel_calib_M2 = 0.0f;

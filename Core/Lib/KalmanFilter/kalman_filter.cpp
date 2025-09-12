@@ -6,7 +6,7 @@
  */
 
 #include "kalman_filter.hpp"
-#include <math.h>
+
 
 
 // Lightweight Kalman filter implementation for altitude estimation.
@@ -18,24 +18,24 @@ void KalmanFilter::Init(uint8_t state_size, uint8_t obs_size) {
     OBS_SIZE = obs_size;
 
     // Clear arrays (only up to max sizes defined in header)
-    for (int i = 0; i < STATE_SIZE_MAX * STATE_SIZE_MAX; ++i) {
+    for (uint8_t i = 0; i < (STATE_SIZE_MAX * STATE_SIZE_MAX); ++i) {
         prediction_covariance[i] = 0.0f;
         prediction_noise_matrix[i] = 0.0f;
         identity_matrix[i] = 0.0f;
         system_matrix[i] = 0.0f;
     }
-    for (int i = 0; i < OBS_SIZE_MAX * OBS_SIZE_MAX; ++i) {
+    for (uint8_t i = 0; i < (OBS_SIZE_MAX * OBS_SIZE_MAX); ++i) {
         observation_noise_matrix[i] = 0.0f;
         observation_covariance[i] = 0.0f;
     }
-    for (int i = 0; i < STATE_SIZE_MAX * OBS_SIZE_MAX; ++i) {
+    for (uint8_t i = 0; i < (STATE_SIZE_MAX * OBS_SIZE_MAX); ++i) {
         kalman_gain[i] = 0.0f;
     }
-    for (int i = 0; i < STATE_SIZE_MAX; ++i) {
+    for (uint8_t i = 0; i < STATE_SIZE_MAX; ++i) {
         prediction[i] = 0.0f;
         output[i] = 0.0f;
     }
-    for (int i = 0; i < OBS_SIZE_MAX; ++i) {
+    for (uint8_t i = 0; i < OBS_SIZE_MAX; ++i) {
         observation[i] = 0.0f;
     }
 
@@ -67,45 +67,45 @@ void KalmanFilter::Update() {
         observation_noise_matrix[i * OBS_SIZE + i] = observation_noise;
     }
 
-    const int s = STATE_SIZE;
-    const int o = OBS_SIZE;
+    const uint8_t s = STATE_SIZE;
+    const uint8_t o = OBS_SIZE;
 
     // Temporary buffers (fixed max size)
     float tmpA[STATE_SIZE_MAX * STATE_SIZE_MAX];
     float tmpB[STATE_SIZE_MAX * STATE_SIZE_MAX];
-    for (int i = 0; i < STATE_SIZE_MAX * STATE_SIZE_MAX; ++i) { tmpA[i] = 0.0f; tmpB[i] = 0.0f; }
+    for (uint8_t i = 0; i < (STATE_SIZE_MAX * STATE_SIZE_MAX); ++i) { tmpA[i] = 0.0f; tmpB[i] = 0.0f; }
 
     // ---------- P = F * P * F^T + Q ----------
     // tmpA = F * P
-    for (int i = 0; i < s; ++i) {
-        for (int j = 0; j < s; ++j) {
+    for (uint8_t i = 0; i < s; ++i) {
+        for (uint8_t j = 0; j < s; ++j) {
             float sum = 0.0f;
-            for (int k = 0; k < s; ++k) {
+            for (uint8_t k = 0; k < s; ++k) {
                 sum += system_matrix[i * s + k] * prediction_covariance[k * s + j];
             }
             tmpA[i * s + j] = sum;
         }
     }
     // tmpB = tmpA * F^T -> newP
-    for (int i = 0; i < s; ++i) {
-        for (int j = 0; j < s; ++j) {
+    for (uint8_t i = 0; i < s; ++i) {
+        for (uint8_t j = 0; j < s; ++j) {
             float sum = 0.0f;
-            for (int k = 0; k < s; ++k) {
+            for (uint8_t k = 0; k < s; ++k) {
                 sum += tmpA[i * s + k] * system_matrix[j * s + k];
             }
             tmpB[i * s + j] = sum + prediction_noise_matrix[i * s + j];
         }
     }
     // copy back to P
-    for (int i = 0; i < s * s; ++i) prediction_covariance[i] = tmpB[i];
+    for (uint8_t i = 0; i < (s * s); ++i) prediction_covariance[i] = tmpB[i];
 
     // ---------- SO = H * P * H^T + R ----------
     // Since OBS_SIZE is 1 in this project, handle scalar path efficiently
     float so = 0.0f;
     if (o == 1) {
         // SO = H * P * H^T + R (scalar)
-        for (int i = 0; i < s; ++i) {
-            for (int j = 0; j < s; ++j) {
+        for (uint8_t i = 0; i < s; ++i) {
+            for (uint8_t j = 0; j < s; ++j) {
                 so += observation_matrix[0 * s + i] * prediction_covariance[i * s + j] * observation_matrix[0 * s + j];
             }
         }
@@ -113,12 +113,12 @@ void KalmanFilter::Update() {
         observation_covariance[0] = so;
     } else {
         // general (rare) path: compute SO matrix
-        for (int i = 0; i < o * o; ++i) observation_covariance[i] = 0.0f;
-        for (int ii = 0; ii < o; ++ii) {
-            for (int jj = 0; jj < o; ++jj) {
+        for (uint8_t i = 0; i < (o * o); ++i) observation_covariance[i] = 0.0f;
+        for (uint8_t ii = 0; ii < o; ++ii) {
+            for (uint8_t jj = 0; jj < o; ++jj) {
                 float sum = 0.0f;
-                for (int m = 0; m < s; ++m) {
-                    for (int n = 0; n < s; ++n) {
+                for (uint8_t m = 0; m < s; ++m) {
+                    for (uint8_t n = 0; n < s; ++n) {
                         sum += observation_matrix[ii * s + m] * prediction_covariance[m * s + n] * observation_matrix[jj * s + n];
                     }
                 }
@@ -134,66 +134,66 @@ void KalmanFilter::Update() {
         float inv_so = (fabsf(so) > EPS) ? (1.0f / so) : (1.0f / EPS);
         // temp = P * H^T -> state x 1
         float temp_ph[STATE_SIZE_MAX];
-        for (int i = 0; i < s; ++i) {
+        for (uint8_t i = 0; i < s; ++i) {
             float sum = 0.0f;
-            for (int j = 0; j < s; ++j) {
+            for (uint8_t j = 0; j < s; ++j) {
                 sum += prediction_covariance[i * s + j] * observation_matrix[0 * s + j];
             }
             temp_ph[i] = sum;
         }
         // K = temp_ph * inv_so
-        for (int i = 0; i < s; ++i) {
+        for (uint8_t i = 0; i < s; ++i) {
             kalman_gain[i * o + 0] = temp_ph[i] * inv_so;
         }
     } else {
         // Not expected for altitude use-case; leave K zeroed for safety
-        for (int i = 0; i < s * o; ++i) kalman_gain[i] = 0.0f;
+        for (uint8_t i = 0; i < (s * o); ++i) kalman_gain[i] = 0.0f;
     }
 
     // ---------- output = prediction + K * (observation - H * prediction) ----------
     // compute H * prediction (obs vector)
     float hpred[OBS_SIZE_MAX];
-    for (int ii = 0; ii < o; ++ii) {
+    for (uint8_t ii = 0; ii < o; ++ii) {
         float sum = 0.0f;
-        for (int j = 0; j < s; ++j) sum += observation_matrix[ii * s + j] * prediction[j];
+        for (uint8_t j = 0; j < s; ++j) sum += observation_matrix[ii * s + j] * prediction[j];
         hpred[ii] = sum;
     }
     // residual z - H*pred
     float resid[OBS_SIZE_MAX];
-    for (int ii = 0; ii < o; ++ii) resid[ii] = observation[ii] - hpred[ii];
+    for (uint8_t ii = 0; ii < o; ++ii) resid[ii] = observation[ii] - hpred[ii];
     // delta = K * resid
     float delta[STATE_SIZE_MAX];
-    for (int i = 0; i < s; ++i) {
+    for (uint8_t i = 0; i < s; ++i) {
         float sum = 0.0f;
-        for (int ii = 0; ii < o; ++ii) sum += kalman_gain[i * o + ii] * resid[ii];
+        for (uint8_t ii = 0; ii < o; ++ii) sum += kalman_gain[i * o + ii] * resid[ii];
         delta[i] = sum;
     }
     // OUT = PRE + delta -> store in output[]
-    for (int i = 0; i < s; ++i) {
+    for (uint8_t i = 0; i < s; ++i) {
         output[i] = prediction[i] + delta[i];
     }
 
     // ---------- P = (I - K * H) * P ----------
     // Compute (I - K*H)
     float ImKH[STATE_SIZE_MAX * STATE_SIZE_MAX];
-    for (int i = 0; i < s; ++i) {
-        for (int j = 0; j < s; ++j) {
+    for (uint8_t i = 0; i < s; ++i) {
+        for (uint8_t j = 0; j < s; ++j) {
             float kh = 0.0f;
-            for (int ii = 0; ii < o; ++ii) {
+            for (uint8_t ii = 0; ii < o; ++ii) {
                 kh += kalman_gain[i * o + ii] * observation_matrix[ii * s + j];
             }
             ImKH[i * s + j] = identity_matrix[i * s + j] - kh;
         }
     }
     // newP = ImKH * P
-    for (int i = 0; i < s; ++i) {
-        for (int j = 0; j < s; ++j) {
+    for (uint8_t i = 0; i < s; ++i) {
+        for (uint8_t j = 0; j < s; ++j) {
             float sum = 0.0f;
-            for (int k = 0; k < s; ++k) sum += ImKH[i * s + k] * prediction_covariance[k * s + j];
+            for (uint8_t k = 0; k < s; ++k) sum += ImKH[i * s + k] * prediction_covariance[k * s + j];
             tmpA[i * s + j] = sum;
         }
     }
-    for (int i = 0; i < s * s; ++i) prediction_covariance[i] = tmpA[i];
+    for (uint8_t i = 0; i < (s * s); ++i) prediction_covariance[i] = tmpA[i];
 
 #if KALMAN_USE_SMOOTHER
     Smoother();

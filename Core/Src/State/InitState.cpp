@@ -27,6 +27,7 @@ void InitState::update(FlightManager& manager) {
 		}
 	}
 
+	// 気圧センサーの通信チェック
 	if (manager.dps368) {
 
 		if (manager.dps368->init() != 0) {

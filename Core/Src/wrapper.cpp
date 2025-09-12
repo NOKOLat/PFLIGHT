@@ -55,52 +55,68 @@ void init(){
 	HAL_TIM_Base_Start_IT(&htim6);
 
 	HAL_TIM_Base_Start_IT(&htim7);
+
+	printf("start\n");
 }
 
 void loop(){
 
-	// ループ管理フラグのリセット待機
-    if(flightLoopManager.isWait() == false) {
-        
-    	// ループ管理フラグをセット
-        flightLoopManager.setWaitFlag();
-        //printf("Loop Time: %d us\n", time_count*100);
 
-        // 状態ごとの処理の呼び出し
-        flightManager.update();
+
+	 //ループ管理フラグのリセット待機
+     if(flightLoopManager.isWait() == false) {
+
+    		 static uint8_t loop_count=0;
+    		 if(loop_count >= 5){
+    			 printf("%d us ", time_count*2);
+    			 time_count = 0;
+    			 loop_count = 0;
+    		 }
+    	     loop_count ++;
+
+
+
+        
+     	// ループ管理フラグをセット
+         flightLoopManager.setWaitFlag();
+
+
+         // 状態ごとの処理の呼び出し
+         flightManager.update();
         
         
-    }
-    if (received) {
-//        received = false;
-//        for (uint8_t i=0;i<22;i++){
-//			printf("%d ",receive_data[i]);
-//		}
+     }
+     if (received) {
+ //        received = false;
+ //        for (uint8_t i=0;i<22;i++){
+ //			printf("%d ",receive_data[i]);
+ //		}
 
-    	decoder.SetData(receive_data, 22);
-		decoder.GetData(PacketDataType::Pitch, flightManager.autopilot_data.pitch);
-		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
-		decoder.GetData(PacketDataType::Yaw, flightManager.autopilot_data.yaw);
-		decoder.GetData(PacketDataType::Throttle, flightManager.autopilot_data.throttle);
+     	decoder.SetData(receive_data, 22);
+ 		decoder.GetData(PacketDataType::Pitch, flightManager.autopilot_data.pitch);
+ 		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
+ 		decoder.GetData(PacketDataType::Yaw, flightManager.autopilot_data.yaw);
+ 		decoder.GetData(PacketDataType::Throttle, flightManager.autopilot_data.throttle);
 
-        printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
-        received = false;
-    }
+         //printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
+         received = false;
+     }
 }
 
-// タイマー割り込み
+//タイマー割り込み
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+
+	if(htim == &htim7){
+		time_count ++;
+	}
 
 	// TIM6(400hz 割り込み） メインループ管理用
     if(htim == &htim6){
 
     	// ループ管理フラグをセット
         flightLoopManager.clearWaitFlag();
-        time_count = 0;
     }
-    if(htim == &htim7){
-		time_count ++;
-	}
+
 }
 
 // UART割り込み
