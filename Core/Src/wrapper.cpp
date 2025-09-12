@@ -7,7 +7,7 @@
 #include "Utils/SbusDebug.hpp"
 
 
-#include "P2PPacketDecoder.hpp"
+#include "ESP32_P2P_Utility/P2PPacketDecoder.hpp"
 P2PPacketDecoder decoder;
 uint8_t receive_data[22] = {};
 bool received = false;
@@ -19,6 +19,8 @@ nokolat::SBUS sbus;
 nokolat::SBUS_DATA sbus_data;
 SbusChannelData decoded_sbus_data;
 
+
+static uint32_t time_count = 0;
 
 // ESC calibration at startup:
 // If you want the firmware to run ESC calibration sequence in init(),
@@ -39,7 +41,8 @@ void init(){
     
     DebugSbus::overrideData.arm = true;
     DebugSbus::overrideData.throttle = 0;
-    DebugSbus::overrideData.fly = 0;
+    DebugSbus::overrideData.fly = true;
+    DebugSbus::overrideData.autofly = true;
     DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
@@ -50,18 +53,23 @@ void init(){
 
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
+
+	HAL_TIM_Base_Start_IT(&htim7);
 }
 
 void loop(){
 
 	// ループ管理フラグのリセット待機
     if(flightLoopManager.isWait() == false) {
-
+        
     	// ループ管理フラグをセット
         flightLoopManager.setWaitFlag();
+        //printf("Loop Time: %d us\n", time_count*100);
 
         // 状態ごとの処理の呼び出し
         flightManager.update();
+        
+        
     }
     if (received) {
 //        received = false;
@@ -88,7 +96,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
     	// ループ管理フラグをセット
         flightLoopManager.clearWaitFlag();
+        time_count = 0;
     }
+    if(htim == &htim7){
+		time_count ++;
+	}
 }
 
 // UART割り込み
@@ -123,4 +135,5 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_Receive_DMA(&huart3, receive_data, 22);
 
 	}
+
 }

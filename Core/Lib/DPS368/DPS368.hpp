@@ -20,7 +20,13 @@ class DPS368{
 		uint8_t tempConfig(MEAS_RATE rate, MEAS_SAMPLING sampling);
 		uint8_t getPress();
 		uint8_t getTemp();
+		// PascalCase API: new method that uses pre-read coefficients
+		uint8_t GetData(float * pressData, float * tempData);
+		// compatibility wrapper for existing code
 		uint8_t getData(float * pressData, float * tempData);
+
+		// Read calibration coefficients once (call from main once)
+		uint8_t ReadCoefficients();
 
 	protected:
 
@@ -29,9 +35,22 @@ class DPS368{
 
 	private:
 
-		void getTwosComplement(int32_t *raw, uint8_t length);
-		int32_t pressCompensationScaleFactors = 524288;
-		int32_t tempCompensationScaleFactors = 524288;
+		void GetTwosComplement(int32_t *raw, uint8_t length);
+
+		// calibration coefficients (kept as private members)
+		int32_t m_c0_half;
+		int32_t m_c1;
+		int32_t m_c00;
+		int32_t m_c10;
+		int32_t m_c01;
+		int32_t m_c11;
+		int32_t m_c20;
+		int32_t m_c21;
+		int32_t m_c30;
+
+		// Compensation scale factors
+		int32_t press_compensation_scale_factors = 524288;
+		int32_t temp_compensation_scale_factors = 524288;
 
 };
 

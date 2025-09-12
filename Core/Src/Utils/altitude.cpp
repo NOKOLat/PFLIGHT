@@ -7,7 +7,7 @@
 
 #include "Utils/altitude.h"
 #include <math.h>
-//#include "stdio.h"
+#include "stdio.h"
 
 #define ALTITUDE_PID_TIME 0.010f
 #define VELOCITY_PID_TIME 0.0025f
@@ -102,8 +102,8 @@ void Altitude::Calibration(float pressure_Pa, float observed_accel){
         accel_deadband = 0.01f;
     }
 
-//    //デバッグ用出力（任意）
-//    printf("Calib #%u: refP=%.2f, accel_mean=%.4f, deadband=%.4f\n", (unsigned)calib_count, reference_pressure, accel_calib_mean, accel_deadband);
+    //デバッグ用出力（任意）
+    printf("Calib #%u: refP=%.2f, accel_mean=%.4f, deadband=%.4f\n", (unsigned)calib_count, reference_pressure, accel_calib_mean, accel_deadband);
 }
 
 // Altitude::EstimateNoise removed — noise estimation moved to KalmanFilter

@@ -6,6 +6,8 @@ void AutoFlyState::update(FlightManager& manager) {
 	static uint32_t loop_count = 0;
 	loop_count++;
 
+	manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
+
 	float target_value[3] = {}; // pitch, roll, yaw
 	static float altitude_value = 0.0f;
 
@@ -30,7 +32,6 @@ void AutoFlyState::update(FlightManager& manager) {
 
 		// throttle_assist used as altitude target proxy (meters)
 		altitude_value = (manager.autopilot_data.throttle / 255.0f) * 1.0f; // meters
-		printf("%f m",altitude_value);
 
 
 	// Madgwickフィルターでの姿勢推定
@@ -76,9 +77,12 @@ void AutoFlyState::update(FlightManager& manager) {
 				manager.sensor_data.pressure = pressure_Pa;
 			}
 		}
+		//printf("P: %.2f Pa, T: %.2f C\n", pressure_Pa, temperature_C);
+		altitude.Update(manager.sensor_data.pressure, manager.sensor_data.accel.data(), manager.sensor_data.angle.data(), 0.001f);
+		float estimated_data[3] = {};
+		altitude.GetData(estimated_data);
+		printf("alt: %.2f\n", estimated_data[0]);
 
-		altitude.Update(pressure_Pa, manager.sensor_data.accel.data(), manager.sensor_data.angle.data(), 0.01f);
-		
 
     }
 

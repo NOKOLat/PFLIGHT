@@ -39,6 +39,8 @@ void InitState::update(FlightManager& manager) {
 	// Servoの初期化
 	PwmInitServo();
 
+	altitude.Init();
+
 	// 赤LEDをつける
 	redLed(PinState::on);
 

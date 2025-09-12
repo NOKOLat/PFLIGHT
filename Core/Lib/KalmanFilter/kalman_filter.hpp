@@ -8,7 +8,6 @@
 #ifndef INC_KALMAN_FILTER_HPP_
 #define INC_KALMAN_FILTER_HPP_
 
-#include "matrix.hpp"
 #include <cstdint>
 
 
@@ -74,13 +73,6 @@ private:
     // 汎用テンポラリバッファ（ヘッダでは最大サイズで確保）
     float temp_buffer_a[TEMP_BUFFER_MAX] = {};
     float temp_buffer_b[TEMP_BUFFER_MAX] = {};
-
-    // 行列オブジェクト（役割に合わせてCPP側で rows/cols を上書きして使う）
-    MATRIX P, Q, R, SO, K, I, F, H, Z,
-           PRE,OUT,
-           TEMP_A, // 汎用テンポラリ A
-           TEMP_B; // 汎用テンポラリ B
-
 
     #if KALMAN_USE_SMOOTHER
     float smooth_output[STATE_SIZE_MAX]={};            // 平滑化後の出力

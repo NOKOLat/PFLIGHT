@@ -6,58 +6,46 @@
  */
 
 #include "kalman_filter.hpp"
-#include <cstdint>
-#include "math.h"
+#include <math.h>
 
+
+// Lightweight Kalman filter implementation for altitude estimation.
+// Uses only raw arrays and simple loops. Keeps public API (Init/Update/GetData/EstimateNoise).
 
 void KalmanFilter::Init(uint8_t state_size, uint8_t obs_size) {
 
     STATE_SIZE = state_size;
     OBS_SIZE = obs_size;
 
-    // 各MATRIXメンバにdata/rows/colsをセット
-    P.data = prediction_covariance;     P.rows = state_size;    P.cols = state_size;
-    Q.data = prediction_noise_matrix;   Q.rows = state_size;    Q.cols = state_size;
-    R.data = observation_noise_matrix;  R.rows = obs_size;      R.cols = obs_size;
-    SO.data = observation_covariance;   SO.rows = obs_size;    SO.cols = obs_size;
-    K.data = kalman_gain;               K.rows = state_size;    K.cols = obs_size;
-    I.data = identity_matrix;           I.rows = state_size;    I.cols = state_size;
-    F.data = system_matrix;             F.rows = state_size;    F.cols = state_size;
-    H.data = observation_matrix;        H.rows = obs_size;      H.cols = state_size;
-    Z.data = observation;               Z.rows = obs_size;      Z.cols = obs_size;
-    PRE.data = prediction;              PRE.rows = state_size;  PRE.cols = 1;
-    OUT.data = output;                  OUT.rows = state_size;  OUT.cols = obs_size;
-    // 汎用テンポラリはヘッダで確保されたバッファを使用
-    TEMP_A.data = temp_buffer_a;    // ヘッダで定義された最大サイズのバッファ
-    TEMP_B.data = temp_buffer_b;
-    // 初期は最大サイズをセット（Update内で必要な rows/cols を上書きする）
-    TEMP_A.rows = STATE_SIZE_MAX; TEMP_A.cols = STATE_SIZE_MAX;
-    TEMP_B.rows = STATE_SIZE_MAX; TEMP_B.cols = STATE_SIZE_MAX;
+    // Clear arrays (only up to max sizes defined in header)
+    for (int i = 0; i < STATE_SIZE_MAX * STATE_SIZE_MAX; ++i) {
+        prediction_covariance[i] = 0.0f;
+        prediction_noise_matrix[i] = 0.0f;
+        identity_matrix[i] = 0.0f;
+        system_matrix[i] = 0.0f;
+    }
+    for (int i = 0; i < OBS_SIZE_MAX * OBS_SIZE_MAX; ++i) {
+        observation_noise_matrix[i] = 0.0f;
+        observation_covariance[i] = 0.0f;
+    }
+    for (int i = 0; i < STATE_SIZE_MAX * OBS_SIZE_MAX; ++i) {
+        kalman_gain[i] = 0.0f;
+    }
+    for (int i = 0; i < STATE_SIZE_MAX; ++i) {
+        prediction[i] = 0.0f;
+        output[i] = 0.0f;
+    }
+    for (int i = 0; i < OBS_SIZE_MAX; ++i) {
+        observation[i] = 0.0f;
+    }
 
-    // ゼロクリア
-    MatInit(&P);
-    MatInit(&Q);
-    MatInit(&R);
-    MatInit(&K);
-    MatInit(&I);
-    MatInit(&F);
-    MatInit(&H);
-    MatInit(&Z);
-    MatInit(&PRE);
-    MatInit(&OUT);
-    // initialize generic temporaries
-    MatInit(&TEMP_A);
-    MatInit(&TEMP_B);
-
-
-    // P, I を対角1で初期化
-    for (uint8_t i = 0; i < state_size; i++) {
-        prediction_covariance[i * state_size + i] = 1.0f;
-        identity_matrix[i * state_size + i] = 1.0f;
+    // Initialize P and I diagonal to 1.0 for active state size
+    for (uint8_t i = 0; i < STATE_SIZE; i++) {
+        prediction_covariance[i * STATE_SIZE + i] = 1.0f;
+        identity_matrix[i * STATE_SIZE + i] = 1.0f;
     }
 
 #if KALMAN_USE_SMOOTHER
-    // スムーザー用バッファ初期化
     for (uint8_t i = 0; i < STATE_SIZE_MAX; i++) {
         for (uint8_t j = 0; j < SMOOTHER_WINDOW_SIZE; j++) {
             smooth_buffer[i][j] = 0.0f;
@@ -71,8 +59,7 @@ void KalmanFilter::Init(uint8_t state_size, uint8_t obs_size) {
 
 
 void KalmanFilter::Update() {
-
-    // Q, R は Init() でゼロ初期化済みと仮定し、ここでは対角要素のみ更新
+    // Update Q and R diagonal entries
     for (uint8_t i = 0; i < STATE_SIZE; ++i) {
         prediction_noise_matrix[i * STATE_SIZE + i] = prediction_noise;
     }
@@ -80,77 +67,133 @@ void KalmanFilter::Update() {
         observation_noise_matrix[i * OBS_SIZE + i] = observation_noise;
     }
 
+    const int s = STATE_SIZE;
+    const int o = OBS_SIZE;
+
+    // Temporary buffers (fixed max size)
+    float tmpA[STATE_SIZE_MAX * STATE_SIZE_MAX];
+    float tmpB[STATE_SIZE_MAX * STATE_SIZE_MAX];
+    for (int i = 0; i < STATE_SIZE_MAX * STATE_SIZE_MAX; ++i) { tmpA[i] = 0.0f; tmpB[i] = 0.0f; }
+
     // ---------- P = F * P * F^T + Q ----------
-    // TEMP_A := F * P  (state x state)
-    TEMP_A.rows = STATE_SIZE; TEMP_A.cols = STATE_SIZE;
-    MatCalc(&F, &P, &TEMP_A, '*');        // TEMP_A = F * P
-
-    // TEMP_B := F^T  (state x state)
-    TEMP_B.rows = STATE_SIZE; TEMP_B.cols = STATE_SIZE;
-    MatCalc(&F, nullptr, &TEMP_B, 't');  // TEMP_B = F^T
-
-    // P := TEMP_A * TEMP_B  (state x state)
-    MatCalc(&TEMP_A, &TEMP_B, &P, '*');    // P = (F*P) * F^T
-
-    // P := P + Q
-    MatCalc(&P, &Q, &P, '+');
+    // tmpA = F * P
+    for (int i = 0; i < s; ++i) {
+        for (int j = 0; j < s; ++j) {
+            float sum = 0.0f;
+            for (int k = 0; k < s; ++k) {
+                sum += system_matrix[i * s + k] * prediction_covariance[k * s + j];
+            }
+            tmpA[i * s + j] = sum;
+        }
+    }
+    // tmpB = tmpA * F^T -> newP
+    for (int i = 0; i < s; ++i) {
+        for (int j = 0; j < s; ++j) {
+            float sum = 0.0f;
+            for (int k = 0; k < s; ++k) {
+                sum += tmpA[i * s + k] * system_matrix[j * s + k];
+            }
+            tmpB[i * s + j] = sum + prediction_noise_matrix[i * s + j];
+        }
+    }
+    // copy back to P
+    for (int i = 0; i < s * s; ++i) prediction_covariance[i] = tmpB[i];
 
     // ---------- SO = H * P * H^T + R ----------
-    // TEMP_A := H * P  (obs x state)
-    TEMP_A.rows = OBS_SIZE; TEMP_A.cols = STATE_SIZE;
-    MatCalc(&H, &P, &TEMP_A, '*');       // TEMP_A = H * P
-
-    // TEMP_B := H^T  (state x obs)
-    TEMP_B.rows = STATE_SIZE; TEMP_B.cols = OBS_SIZE;
-    MatCalc(&H, nullptr, &TEMP_B, 't');  // TEMP_B = H^T
-
-    // TEMP_A := TEMP_A * TEMP_B  (obs x obs) -> SO
-    TEMP_A.rows = OBS_SIZE; TEMP_A.cols = STATE_SIZE;
-    MatCalc(&TEMP_A, &TEMP_B, &SO, '*'); // SO = H * P * H^T
-
-    // SO := SO + R
-    MatCalc(&SO, &R, &SO, '+');
+    // Since OBS_SIZE is 1 in this project, handle scalar path efficiently
+    float so = 0.0f;
+    if (o == 1) {
+        // SO = H * P * H^T + R (scalar)
+        for (int i = 0; i < s; ++i) {
+            for (int j = 0; j < s; ++j) {
+                so += observation_matrix[0 * s + i] * prediction_covariance[i * s + j] * observation_matrix[0 * s + j];
+            }
+        }
+        so += observation_noise_matrix[0];
+        observation_covariance[0] = so;
+    } else {
+        // general (rare) path: compute SO matrix
+        for (int i = 0; i < o * o; ++i) observation_covariance[i] = 0.0f;
+        for (int ii = 0; ii < o; ++ii) {
+            for (int jj = 0; jj < o; ++jj) {
+                float sum = 0.0f;
+                for (int m = 0; m < s; ++m) {
+                    for (int n = 0; n < s; ++n) {
+                        sum += observation_matrix[ii * s + m] * prediction_covariance[m * s + n] * observation_matrix[jj * s + n];
+                    }
+                }
+                observation_covariance[ii * o + jj] = sum + observation_noise_matrix[ii * o + jj];
+            }
+        }
+    }
 
     // ---------- K = P * H^T * SO^-1 ----------
-    // INV_SO := inverse(TEMP_A) (obs x obs) - store into TEMP_A (overwrite)
-    TEMP_A.rows = OBS_SIZE; TEMP_A.cols = OBS_SIZE;
-    MatCalc(&SO, nullptr, &TEMP_A, 'i'); // TEMP_A = (SO)^-1
-
-    // TEMP_B := P * H^T  (state x obs)
-    TEMP_B.rows = STATE_SIZE; TEMP_B.cols = OBS_SIZE;
-    MatCalc(&P, &TEMP_B, &TEMP_B, '*');    // TEMP_B = P * H^T
-
-    // K := TEMP_B * TEMP_A  (state x obs)
-    K.rows = STATE_SIZE; K.cols = OBS_SIZE;
-    MatCalc(&TEMP_B, &TEMP_A, &K, '*');    // K = P * H^T * (SO)^-1
+    // For obs=1, use scalar inverse
+    if (o == 1) {
+        const float EPS = 1e-6f;
+        float inv_so = (fabsf(so) > EPS) ? (1.0f / so) : (1.0f / EPS);
+        // temp = P * H^T -> state x 1
+        float temp_ph[STATE_SIZE_MAX];
+        for (int i = 0; i < s; ++i) {
+            float sum = 0.0f;
+            for (int j = 0; j < s; ++j) {
+                sum += prediction_covariance[i * s + j] * observation_matrix[0 * s + j];
+            }
+            temp_ph[i] = sum;
+        }
+        // K = temp_ph * inv_so
+        for (int i = 0; i < s; ++i) {
+            kalman_gain[i * o + 0] = temp_ph[i] * inv_so;
+        }
+    } else {
+        // Not expected for altitude use-case; leave K zeroed for safety
+        for (int i = 0; i < s * o; ++i) kalman_gain[i] = 0.0f;
+    }
 
     // ---------- output = prediction + K * (observation - H * prediction) ----------
-
-    // TEMP_A := H * PRE  (obs x 1)
-    TEMP_A.rows = OBS_SIZE; TEMP_A.cols = 1;
-    MatCalc(&H, &PRE, &TEMP_A, '*');     // TEMP_A = H * prediction
-
-    // TEMP_B used as vector holder: TEMP_B := Z - TEMP_A  (obs x 1)
-    TEMP_B.rows = OBS_SIZE; TEMP_B.cols = 1;
-    MatCalc(&Z, &TEMP_A, &TEMP_B, '-');   // TEMP_B = z - Hx
-
-    // TEMP_A := K * TEMP_B  (state x 1)
-    TEMP_A.rows = STATE_SIZE; TEMP_A.cols = 1;
-    MatCalc(&K, &TEMP_B, &TEMP_A, '*');     // TEMP_A = K * (z - Hx)
-
-    // OUT := PRE + TEMP_A  (state x 1)
-    MatCalc(&PRE, &TEMP_A, &OUT, '+');     // OUT = PRE + TEMP_A
+    // compute H * prediction (obs vector)
+    float hpred[OBS_SIZE_MAX];
+    for (int ii = 0; ii < o; ++ii) {
+        float sum = 0.0f;
+        for (int j = 0; j < s; ++j) sum += observation_matrix[ii * s + j] * prediction[j];
+        hpred[ii] = sum;
+    }
+    // residual z - H*pred
+    float resid[OBS_SIZE_MAX];
+    for (int ii = 0; ii < o; ++ii) resid[ii] = observation[ii] - hpred[ii];
+    // delta = K * resid
+    float delta[STATE_SIZE_MAX];
+    for (int i = 0; i < s; ++i) {
+        float sum = 0.0f;
+        for (int ii = 0; ii < o; ++ii) sum += kalman_gain[i * o + ii] * resid[ii];
+        delta[i] = sum;
+    }
+    // OUT = PRE + delta -> store in output[]
+    for (int i = 0; i < s; ++i) {
+        output[i] = prediction[i] + delta[i];
+    }
 
     // ---------- P = (I - K * H) * P ----------
-    // TEMP_A := K * H  (state x state)
-    TEMP_A.rows = STATE_SIZE; TEMP_A.cols = STATE_SIZE;
-    MatCalc(&K, &H, &TEMP_A, '*');        // TEMP_A = K * H
-
-    // TEMP_A := I - TEMP_A  (state x state)
-    MatCalc(&I, &TEMP_A, &TEMP_A, '-');     // TEMP_A = I - K*H
-
-    // P := TEMP_A * P  (state x state)
-    MatCalc(&TEMP_A, &P, &P, '*');        // P = (I - K*H) * P
+    // Compute (I - K*H)
+    float ImKH[STATE_SIZE_MAX * STATE_SIZE_MAX];
+    for (int i = 0; i < s; ++i) {
+        for (int j = 0; j < s; ++j) {
+            float kh = 0.0f;
+            for (int ii = 0; ii < o; ++ii) {
+                kh += kalman_gain[i * o + ii] * observation_matrix[ii * s + j];
+            }
+            ImKH[i * s + j] = identity_matrix[i * s + j] - kh;
+        }
+    }
+    // newP = ImKH * P
+    for (int i = 0; i < s; ++i) {
+        for (int j = 0; j < s; ++j) {
+            float sum = 0.0f;
+            for (int k = 0; k < s; ++k) sum += ImKH[i * s + k] * prediction_covariance[k * s + j];
+            tmpA[i * s + j] = sum;
+        }
+    }
+    for (int i = 0; i < s * s; ++i) prediction_covariance[i] = tmpA[i];
 
 #if KALMAN_USE_SMOOTHER
     Smoother();
@@ -227,11 +270,9 @@ void KalmanFilter::EstimateNoise(float meas) {
     float v = meas - noise_meas_mean;
     noise_meas_var = (1.0f - NOISE_ALPHA) * noise_meas_var + NOISE_ALPHA * v * v;
 
-    // prediction error proxy: use PRE[0] (prediction vector first element)
+    // prediction error proxy: use prediction[0] (prediction vector first element)
     float pred0 = 0.0f;
-    if (PRE.data) {
-        pred0 = PRE.data[0];
-    }
+    pred0 = prediction[0];
     float pred_err = pred0 - noise_prev_pred0;
     noise_proc_mean = (1.0f - NOISE_ALPHA) * noise_proc_mean + NOISE_ALPHA * pred_err;
     float pv = pred_err - noise_proc_mean;
