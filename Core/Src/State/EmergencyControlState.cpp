@@ -18,7 +18,7 @@ void EmergencyControlState::update(FlightManager& manager) {
 		manager.changeState(std::make_unique<FlyingState>());
 	}
 
-    // センサーデータの取得
+	// センサーデータの取得
 	if (manager.imuUtil){
 
 		manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
@@ -53,7 +53,7 @@ void EmergencyControlState::update(FlightManager& manager) {
 		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
-		manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+    	manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
     }
 
     // 400hz 角速度制御
@@ -67,49 +67,26 @@ void EmergencyControlState::update(FlightManager& manager) {
 	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
-	// 上モーターを止める場合
-	if(manager.sbus_data.stop_motor_side == 2 && manager.sbus_data.emergency_control){
+	// サーボがcloseの時→下モーターを止める
+	if(manager.sbus_data.drop == 0){
 
-		// メインモーターの計算式で、下モーターのスロットル + 制御の計算を行う
-	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
+		// 上モーターのみを計算
+		manager.pwm.CalcMotorUpperOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 
-		// 計算値を2倍にする
-		for(uint8_t i=0; i<4; i++){
-
-			manager.control_data.lower_motor_pwm[i] *= 2;
-
-			// todo: 最大値を超えていないかの判定と処理
-		}
-
-		// 上モーターの出力を0にする
-		for(uint8_t i=0; i<4; i++){
-
-			manager.control_data.upper_motor_pwm[i] = 0;
-		}
 	}
-	//　下モーターを止める場合
-	else if(manager.sbus_data.stop_motor_side == 1 && manager.sbus_data.emergency_control){
-
-		// スロットルの値を少し上げる（定数倍）
-		manager.sbus_data.throttle *= 1.1f;
-
-		// メインモーターの計算式で、上モーターの計算を行う
-	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
-
-		// 下モーターの出力を0にする
-		for(uint8_t i=0; i<4; i++){
-
-			manager.control_data.lower_motor_pwm[i] = 0;
-		}
-	}
-	// どれも満たさない場合?
 	else{
 
-		// 通常状態に戻る
-		manager.changeState(std::make_unique<FlyingState>());
-		return;
+		// 下モータのみを計算
+		manager.pwm.CalcMotorLowerOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 	}
 
-	// Pwmの出力をする
+	//  サーボのpwmは計算しない
+
+	// adcは計算しない
+
+	// PWMを生成
 	manager.pwm.GenerateMotor(manager.control_data.motor_pwm.data());
+	manager.pwm.GenerateServo(manager.control_data.servo_pwm);
+
+	printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 }

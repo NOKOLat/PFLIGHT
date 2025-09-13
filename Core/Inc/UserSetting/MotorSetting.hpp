@@ -16,6 +16,8 @@
  * 	3	4
  */
 
+constexpr uint8_t motor_count = 8;
+
 //モーターのタイマー番号
 struct MotorTim{
 
@@ -23,7 +25,7 @@ struct MotorTim{
 	TIM_HandleTypeDef* motor2 = &htim1;
 	TIM_HandleTypeDef* motor3 = &htim1;
 	TIM_HandleTypeDef* motor4 = &htim1;
-	
+
 	TIM_HandleTypeDef* motor5 = &htim3;
 	TIM_HandleTypeDef* motor6 = &htim3;
 	TIM_HandleTypeDef* motor7 = &htim3;
@@ -76,6 +78,5 @@ struct ServoPWM{
 	uint16_t center = counter_period * 0.79;
 	uint16_t close  = counter_period * 0.98;
 };
-
 
 #endif /* INC_MOTORSETTING_HPP_ */
