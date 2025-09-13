@@ -1,11 +1,11 @@
 #include "Utils/ICM42688P_SPI_Util.hpp"
 
+// ICM42688Pクラスに引数を渡す
 ICM42688P_SPI_Util::ICM42688P_SPI_Util(SPI_HandleTypeDef* hspi, GPIO_TypeDef* gpio_port, uint32_t gpio_pin)
-    : icm(hspi, gpio_port, gpio_pin) {
+    : icm(hspi, gpio_port, gpio_pin) {}
 
-        
-    }
-uint8_t ICM42688P_SPI_Util::init() {
+// センサーの設定
+uint8_t ICM42688P_SPI_Util::Init() {
 
     if (icm.Connection() == 1) {
 
@@ -15,13 +15,14 @@ uint8_t ICM42688P_SPI_Util::init() {
     icm.AccelConfig(icm.ACCEL_Mode::LowNoize, icm.ACCEL_SCALE::SCALE02g, icm.ACCEL_ODR::ODR01000hz, icm.ACCEL_DLPF::ODR40);
     HAL_Delay(10);
 
-    icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0250, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
+    icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0500, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
     HAL_Delay(10);
 
     return 0;
 }
 
-uint8_t ICM42688P_SPI_Util::calibration(uint16_t calibration_count) {
+// キャリブレーション
+uint8_t ICM42688P_SPI_Util::Calibration(uint16_t calibration_count) {
 
     uint8_t calibration_error = icm.Calibration(calibration_count);
 
@@ -37,7 +38,8 @@ uint8_t ICM42688P_SPI_Util::calibration(uint16_t calibration_count) {
     return 0;
 }   
 
-uint8_t ICM42688P_SPI_Util::getData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
+// データの取得
+uint8_t ICM42688P_SPI_Util::GetData(std::array<float, 3>& accel_data, std::array<float, 3>& gyro_data) {
 
     float accel[3] = {};
     float gyro[3]  = {};

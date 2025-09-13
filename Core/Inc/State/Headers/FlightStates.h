@@ -18,7 +18,7 @@ class InitState : public FlightStateInterface {
     public:
         void update(FlightManager& manager) override;
         void enter(FlightManager& manager) override;
-        const char* getStateName() const override { return "Init"; }
+        const char* getStateName() const override { return "InitState"; }
 };
 
 // arm
