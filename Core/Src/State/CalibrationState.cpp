@@ -28,7 +28,7 @@ void CalibrationState::update(FlightManager& manager) {
     manager.imuUtil->GetData(accel, gyro);
     sum_accel += accel[2];
 
-    if(calibration_count %8 == 0){
+    if(calibration_count %4 == 0){
         
         // 気圧センサーのデータ取得
         float temperature = 0.0f;

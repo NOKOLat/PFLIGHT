@@ -109,17 +109,16 @@ void Altitude::Calibration(float pressure_Pa, float observed_accel){
         accel_deadband = 0.01f;
     }
 
-    //デバッグ用出力（任意）
-    printf("%u P=%.2f, a=%.4f, d=%.4f\n", (unsigned)calib_count, reference_pressure, accel_calib_mean, accel_deadband);
+    //デバッグ用出力
+    //printf("%u P=%.2f, a=%.4f, d=%.4f\n", (unsigned)calib_count, reference_pressure, accel_calib_mean, accel_deadband);
 }
 
 // Altitude::EstimateNoise removed — noise estimation moved to KalmanFilter
 
-void Altitude::GetData(float *out) {
+float Altitude::GetData(void) {
     // 内部は m 単位なのでそのまま出力。速度は m/s, accelは m/s^2
-    out[0] = estimated_altitude + altitude_offset;
-    out[1] = estimated_velocity;
-    out[2] = estimated_accel;
+    return (estimated_altitude + altitude_offset)*100.0f; // cm 単位で出力
+
 }
 
 void Altitude::Reset() {

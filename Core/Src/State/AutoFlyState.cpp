@@ -8,7 +8,7 @@ void AutoFlyState::update(FlightManager& manager) {
 
 	float target_value[3] = {}; // pitch, roll, yaw
 	float altitude_value = 0.0f; // meters
-	float estimated_data[3] = {};
+	float estimated_data = 0.0f;
 	static float throttle = 0.0f;
 
 	static float sum_accel[3] = {};
@@ -17,8 +17,6 @@ void AutoFlyState::update(FlightManager& manager) {
 	static float sum_angle[3] = {};
 	float average_angle[3] = {};
 
-	static float sum_pressure = 0.0f;
-	float average_pressure = 0.0f;
 
     // Armのチェック
 	if(!manager.sbus_data.arm){
@@ -41,7 +39,8 @@ void AutoFlyState::update(FlightManager& manager) {
 	target_value[2] = 0;
 
 	// throttle_assist used as altitude target proxy (meters)
-	altitude_value = (manager.autopilot_data.throttle / 255.0f) * 2.0f; // meters
+	//altitude_value = (manager.autopilot_data.throttle / 255.0f) * 2.0f; // meters
+	altitude_value = 30.0f;
 
 	//IMUデータの取得
 	manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
@@ -84,8 +83,8 @@ void AutoFlyState::update(FlightManager& manager) {
     	// yaw軸はセンサーデータを使用
         manager.control_data.target_rate[2] = target_value[2];
 
-			// --- 気圧の取得と高度推定 ---
-		// 8回に1回、50Hzで実行	
+
+		// --- 気圧の取得と高度推定 ---
 		float pressure_Pa = 0.0f;
 		float temperature_C = 0.0f;
 		// 可能ならバーオメータから取得（FlightManager に保持される dps368 を使用）
@@ -96,43 +95,78 @@ void AutoFlyState::update(FlightManager& manager) {
 				
 			}
 		}
-		// collect pressure (Pa) for averaging
-		sum_pressure += manager.sensor_data.pressure;
-
-    }
-
-	if(loop_count %8 == 0){
-		// 8回に1回、50Hzで実行
+	
 		for (uint8_t i=0; i<3; i++){
-			average_accel[i] = sum_accel[i] / 8.0f;
-			average_angle[i] = sum_angle[i] / 8.0f;
-			average_pressure = sum_pressure / 2.0f;
+			average_accel[i] = sum_accel[i] / 4.0f;
+			average_angle[i] = sum_angle[i] / 4.0f;
 
 			sum_accel[i] = 0.0f;
 			sum_angle[i] = 0.0f;
 			
 		}
-		sum_pressure = 0.0f;
 
 		//printf("%+2.2f, %+2.2f, %.4f\n", average_accel[2], average_angle[0], average_pressure);
+
+		altitude.Update(manager.sensor_data.pressure, average_accel, average_angle, 0.01f);
+
+		estimated_data = altitude.GetData();
+		//printf("%.1f cm ", estimated_data); // cm 単位で出力
+
+
+
+
+		float throttle_error = (altitude_value - estimated_data)*0.2f;
+
+		// 静的変数: 前回誤差の保持とDゲイン
+		static float prev_throttle_error = 0.0f;
+	
+		// 微分項の計算
+		float derivative = (throttle_error - prev_throttle_error) / 0.02f; // 50Hzなので0.02秒で割る
+		prev_throttle_error = throttle_error;
+
+		// D項の寄与
+		float d_term = 2.0f * derivative;
+
+		if(altitude_value < 0.0f){
+			if (estimated_data < 10.0f){
+				throttle = 0.0f;
+			}
+			else if (estimated_data > 10.0f){
+				throttle -= estimated_data;
+			}
+            
+		} else {
+			// P項のみの既存挙動を保ちつつ、D項を加算
+			float p_contrib = throttle_error;
+
+			if (throttle_error > 5.0f){
+				p_contrib = 5.0f;
+			}
+			if (throttle_error < 0.0f){
+				if (throttle_error < -5.0f){
+					p_contrib = -5.0f;
+				}
+				if(throttle <= 100.0f){
+					throttle = 100.0f;
+					p_contrib = 0.0f;
+					d_term = 0.0f;
+				}
+			}
+			throttle += p_contrib + d_term;
+
+			if(throttle >500.0f){
+				throttle = 500.0f;
+			}
+		}
+		//printf("%.1f\n", throttle);
 		
-		altitude.Update(average_pressure, average_accel, average_angle, 0.02f);
 
-		altitude.GetData(estimated_data);
-		printf("%.1f cm\n", estimated_data[0]*100.0f); // cm 単位で出力
+    }
 
-		float throttle_error = altitude_value - estimated_data[0]*10.0f;
-		if (throttle_error > 10.0f){
-			throttle += 10.0f;
-		} 
-		else if (throttle_error < -10.0f){
-			throttle -= 10.0f;
-		}
-		else{
-			throttle += throttle_error;
-		}
+	if(loop_count %16 == 0){
+		// 16回に1回、25Hzで実行
+		
 	}
-
 
     // 400hz 角速度制御
 	//目標角速度と現在角速度(センサーデータ）から制御量を計算

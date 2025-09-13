@@ -17,10 +17,10 @@ class Altitude {
     public:
 
         void Init();
-    void Update(float pressure_Pa, float accel[3], float angle[3], float dt);
+        void Update(float pressure_Pa, float accel[3], float angle[3], float dt);
     void Calibration(float pressure_Pa, float observed_accel);
         void Reset();
-        void GetData(float *out);
+        float GetData(void);
 
     private:
     
