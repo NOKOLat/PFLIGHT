@@ -67,8 +67,8 @@ void loop(){
      if(flightLoopManager.isWait() == false) {
 
     		 static uint8_t loop_count=0;
-    		 if(loop_count >= 5){
-    			 printf("%d us ", time_count*2);
+    		 if(loop_count >= 8){
+    			 //printf("%d us ", (int)(time_count*12.5f));
     			 time_count = 0;
     			 loop_count = 0;
     		 }
