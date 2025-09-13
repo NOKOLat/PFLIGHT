@@ -1,8 +1,6 @@
 /*
  * PWM.hpp
- *
- *  Created on: May 4, 2025
- *      Author: aoi25
+ * 基底PWMクラス: Servo系のデフォルト実装を提供し、Motor系は純粋仮想
  */
 
 #ifndef INC_PWM_HPP_
@@ -14,26 +12,33 @@
 #include "FlightData/SbusData.hpp"
 #include "UserSetting/MotorSetting.hpp"
 
-// Pwm値の計算
-void PwmCalcMainMotor(float throttle, std::array<float,3>& control, std::array<uint16_t,4>& motor);
-void PwmCalcSubMotor(float throttle, std::array<uint16_t,4>& motor);
-void PwmCalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
+// 基底PWMクラス
+class PWM {
+public:
 
-// 初期化
-void PwmInitMotor();
-void PwmInitServo();
+    PWM() = default;
+    virtual ~PWM() = default;
 
-// ESC calibration routine: runs a simple max->min pulse sequence for all motors.
-// Call only when motors are connected and safe to spin. Minimal implementation.
-void PwmCalibrateESC();
+    virtual uint8_t CheckMotorSetting(uint8_t motor_num) = 0;
 
-// Pwmの出力
-void PwmGenerate(std::array<uint16_t,4>& upper_motor, std::array<uint16_t,4>& lower_motor, std::array<uint16_t,2>& servo);
-void PwmGenerateUpperMotor(std::array<uint16_t,4>& upper_motor);
-void PwmGenerateLowerMotor(std::array<uint16_t,4>& lower_motor);
-void PwmGenerateServo(std::array<uint16_t,2>& servo);
+    // -------- Servo (仮想: 既定実装あり) --------
+    virtual void InitServo();
+    virtual void CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<uint16_t,2>& servo);
+    virtual void GenerateServo(std::array<uint16_t,2>& servo);
+    virtual void SetServoConfig(const ServoTim& tim, const ServoChannel& channel, const ServoPWM& pwm);
 
-// モーターの停止
-void PwmStop();
+    // -------- Motor (純粋仮想) --------
+    virtual void InitMotor() = 0;
+    virtual void CalcMotor(float throttle, std::array<float,4>& control, uint16_t* motor_pwm) = 0;
+    virtual void GenerateMotor(uint16_t* motor_pwm) = 0;
+    virtual void MotorStop() = 0;
+    virtual void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm) = 0;
+
+protected:
+    // Servo設定のみ基底が保持
+    ServoTim servo_tim{};
+    ServoChannel servo_channel{};
+    ServoPWM servo_pwm{};
+};
 
 #endif /* INC_PWM_HPP_ */

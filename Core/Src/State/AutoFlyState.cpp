@@ -44,7 +44,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	altitude_value = (manager.autopilot_data.throttle / 255.0f) * 2.0f; // meters
 
 	//IMUデータの取得
-	manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
+	manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
 
 	// Madgwickフィルターでの姿勢推定
 	manager.madgwick.updateIMU(
@@ -144,9 +144,8 @@ void AutoFlyState::update(FlightManager& manager) {
 	manager.rate_yaw.calc(manager.control_data.target_rate[2], manager.sensor_data.gyro[2]);
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
-	PwmCalcMainMotor(throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm);
-
-	PwmGenerate(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.CalcMotor(throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
+	manager.pwm.GenerateMotor(manager.control_data.motor_pwm.data());
 
 }
 

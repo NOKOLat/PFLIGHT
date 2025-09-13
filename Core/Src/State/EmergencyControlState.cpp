@@ -21,7 +21,7 @@ void EmergencyControlState::update(FlightManager& manager) {
     // センサーデータの取得
 	if (manager.imuUtil){
 
-		manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
+		manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
 	}
 
 	// Madgwickフィルターでの姿勢推定
@@ -71,7 +71,7 @@ void EmergencyControlState::update(FlightManager& manager) {
 	if(manager.sbus_data.stop_motor_side == 2 && manager.sbus_data.emergency_control){
 
 		// メインモーターの計算式で、下モーターのスロットル + 制御の計算を行う
-		PwmCalcMainMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.lower_motor_pwm);
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 
 		// 計算値を2倍にする
 		for(uint8_t i=0; i<4; i++){
@@ -94,7 +94,7 @@ void EmergencyControlState::update(FlightManager& manager) {
 		manager.sbus_data.throttle *= 1.1f;
 
 		// メインモーターの計算式で、上モーターの計算を行う
-		PwmCalcMainMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm);
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 
 		// 下モーターの出力を0にする
 		for(uint8_t i=0; i<4; i++){
@@ -111,5 +111,5 @@ void EmergencyControlState::update(FlightManager& manager) {
 	}
 
 	// Pwmの出力をする
-	PwmGenerate(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.GenerateMotor(manager.control_data.motor_pwm.data());
 }

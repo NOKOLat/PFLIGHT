@@ -30,7 +30,7 @@ void FlyingState::update(FlightManager& manager) {
 	// センサーデータの取得
 	if (manager.imuUtil){
 
-		manager.imuUtil->getData(manager.sensor_data.accel, manager.sensor_data.gyro);
+		manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
 	}
 
 	// Madgwickフィルターでの姿勢推定
@@ -77,10 +77,12 @@ void FlyingState::update(FlightManager& manager) {
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// 上のモーターはスロットル + 制御出力をミキシング
-	PwmCalcMainMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.upper_motor_pwm);
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 
 	// 下のモーターはスロットルのみに比例
-	PwmCalcSubMotor(manager.sbus_data.throttle, manager.control_data.lower_motor_pwm);
+	// Lower motors: use same CalcMotor but with control zeros for lower-only mixing
+	std::array<float,4> lower_control = {0.0f, 0.0f, 0.0f, 0.0f};
+	manager.pwm.CalcMotor(manager.sbus_data.throttle, lower_control, manager.control_data.motor_pwm.data());
 
 	//ADC値の読み取り
 	manager.sensor_data.adc_value = HAL_ADC_GetValue(&hadc1);
@@ -92,10 +94,10 @@ void FlyingState::update(FlightManager& manager) {
 	HAL_ADC_Start(&hadc1);
 
 	// Servoのpwmを生成
-	PwmCalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
+	manager.pwm.CalcServo(manager.sbus_data, manager.sensor_data.adc_value, manager.control_data.servo_pwm);
 
 	// PWMを生成
-	PwmGenerate(manager.control_data.upper_motor_pwm, manager.control_data.lower_motor_pwm, manager.control_data.servo_pwm);
+	manager.pwm.GenerateMotor(manager.control_data.motor_pwm.data());
 
 	//Debug用のコード
 	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);

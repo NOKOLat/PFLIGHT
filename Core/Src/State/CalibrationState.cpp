@@ -8,7 +8,7 @@ void CalibrationState::enter(FlightManager& manager) {
     // センサー単体のキャリブレーション
 
     // IMUのキャリブレーション
-    manager.imuUtil->calibration(1000);
+    manager.imuUtil->Calibration(1000);
     calibration_count = 0;
 
     // 気圧センサーのキャリブレーション
@@ -25,7 +25,7 @@ void CalibrationState::update(FlightManager& manager) {
     float pressure = 0.0f;
 
     // 6軸データの取得
-    manager.imuUtil->getData(accel, gyro);
+    manager.imuUtil->GetData(accel, gyro);
     sum_accel += accel[2];
 
     if(calibration_count %8 == 0){
