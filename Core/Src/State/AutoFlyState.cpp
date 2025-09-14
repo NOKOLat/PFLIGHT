@@ -21,7 +21,6 @@ static float sum_velocity = 0.0f;
 static uint32_t loop_count = 0;
 
 // プロトタイプ宣言: グローバル関数は FlightManager を引数に受け取る
-static void GetAltitude(FlightManager& manager);
 static void AltitudeControl(FlightManager& manager);
 static void AngularControl(FlightManager& manager);
 static void AngularVelocityControl(FlightManager& manager);
@@ -188,7 +187,7 @@ void AltitudeControl(FlightManager& manager){
 			throttle = 0.0f;
 		}
 		else {
-			p_contrib * 0.1;
+			p_contrib *= 0.1;
 			if (p_contrib < -2.0f){
 				p_contrib = -2.0f;
 			}
