@@ -83,7 +83,7 @@ namespace nokolat {
         }
 
         //自動操縦
-        if(sbus_data[(uint8_t)SbusChannel::autofly]){
+        if(sbus_data[(uint8_t)SbusChannel::autofly] > 1500){
 
             channel_data.autofly = true;
         }

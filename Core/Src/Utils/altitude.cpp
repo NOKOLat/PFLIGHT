@@ -24,6 +24,7 @@ void Altitude::Init() {
     estimated_accel = 0.0f;    // m/s^2
     reference_pressure = 101325.0f;
     altitude_offset = 0.0f;
+    offset_count = 0u;
 
 }
 
@@ -75,8 +76,7 @@ void Altitude::Update(float pressure_Pa, float accel[3], float angle[3], float d
     // Ensure reported altitude (estimated + offset) is non-negative.
     float reported = estimated_altitude + altitude_offset;
     if (reported < 0.0f) {
-        // increase offset so that reported becomes 0
-        altitude_offset += -reported;
+        offset();
     }
     return;
 }
@@ -113,11 +113,19 @@ void Altitude::Calibration(float pressure_Pa, float observed_accel){
     //printf("%u P=%.2f, a=%.4f, d=%.4f\n", (unsigned)calib_count, reference_pressure, accel_calib_mean, accel_deadband);
 }
 
-// Altitude::EstimateNoise removed — noise estimation moved to KalmanFilter
+void Altitude::offset() {
+    // Update running average of offset targets so that reported altitude becomes 0
+    // new sample is -estimated_altitude (m)
+    float sample = -estimated_altitude;
+    offset_count++;
+    altitude_offset += (sample - altitude_offset) / (float)offset_count;
+    //printf("offset=%.2f\n", altitude_offset);
+}
 
-float Altitude::GetData(void) {
-    // 内部は m 単位なのでそのまま出力。速度は m/s, accelは m/s^2
-    return (estimated_altitude + altitude_offset)*100.0f; // cm 単位で出力
+void Altitude::GetData(float out[3]) {
+    out[0] = (estimated_altitude + altitude_offset);
+    out[1] = estimated_velocity ;
+    out[2] = estimated_accel;
 
 }
 
@@ -127,12 +135,16 @@ void Altitude::Reset() {
     estimated_altitude = 0.0f; // m
     estimated_velocity = 0.0f; // m/s
     altitude_offset = 0.0f;
+    offset_count = 0u;
+
     // clear calibration state
     calib_count = 0u;
     accel_calib_mean = 0.0f;
     accel_calib_M2 = 0.0f;
     accel_deadband = 0.01f; // m/s^2
 }
+
+
 
 
 

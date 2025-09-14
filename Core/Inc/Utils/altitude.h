@@ -18,18 +18,19 @@ class Altitude {
 
         void Init();
         void Update(float pressure_Pa, float accel[3], float angle[3], float dt);
-    void Calibration(float pressure_Pa, float observed_accel);
+        void Calibration(float pressure_Pa, float observed_accel);
         void Reset();
-        float GetData(void);
+        void offset();
+        void GetData(float out[3]);
 
     private:
     
         KalmanFilter kalman;
-    // control targets and throttle removed (unused)
-    // 内部単位を m / m/s / m/s^2 に統一
-    float estimated_altitude = 0.0f; // m
-    float estimated_velocity = 0.0f; // m/s
-    float estimated_accel = 0.0f;    // m/s^2
+
+        // control targets and throttle removed (unused)
+        float estimated_altitude = 0.0f; // m
+        float estimated_velocity = 0.0f; // m/s
+        float estimated_accel = 0.0f;    // m/s^2
         float reference_pressure = 0.0f;
         uint32_t calib_count = 0u; 
 
@@ -37,13 +38,15 @@ class Altitude {
         // When estimated altitude goes below 0 the offset is increased
         // so reported altitude becomes 0 while preserving internal state.
         float altitude_offset = 0.0f; // m
+        // running average state for manual offset adjustments (offset())
+        uint32_t offset_count = 0u;
 
         // calibration for accel: running mean and M2 for Welford variance
         float accel_calib_mean = 0.0f;
         float accel_calib_M2 = 0.0f;
-    float accel_deadband = 0.01f; // default until calibrated (m/s^2)
-    // noise estimation state delegated to KalmanFilter
-            // キャリブレーション用（最初の N 回の気圧を平均してその時点を 0m とする）
+        float accel_deadband = 0.01f; // default until calibrated (m/s^2)
+        // noise estimation state delegated to KalmanFilter
+                // キャリブレーション用（最初の N 回の気圧を平均してその時点を 0m とする）
         
 };
 

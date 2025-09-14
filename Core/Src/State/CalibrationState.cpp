@@ -55,7 +55,7 @@ void CalibrationState::update(FlightManager& manager) {
     calibration_count ++;
 
      //キャリブレーション完了後、PreFlightへ遷移
-     if (calibration_count >= 1600) {
+     if (calibration_count >= 800) {
 
          manager.changeState(std::make_unique<PreFlightState>());
          return;
