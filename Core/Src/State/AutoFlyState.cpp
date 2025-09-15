@@ -226,7 +226,6 @@ void AltitudeControl(FlightManager& manager){
 	}
 	printf("%.1f\n", throttle);
 	
-
 }
 
 
@@ -242,9 +241,6 @@ void AngularControl(FlightManager& manager){
 
 	// yaw軸はセンサーデータを使用
 	manager.control_data.target_rate[2] = target_value[2];
-
-
-	
 
 }
 
@@ -276,12 +272,12 @@ void AutoFlyState::enter(FlightManager& manager) {
 	manager.rate_roll.reset();
 	manager.rate_yaw.reset();
 
-	// manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
+	manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp*1.5f, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
 	// manager.angle_pitch.setLimit(UserSetting::angle_pitch_limit.i_max, UserSetting::angle_pitch_limit.d_max);
 	// manager.angle_pitch.setTime(UserSetting::angle_pitch_dt.dt);
 	
 
-	// manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
+	manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp*1.5f, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
 	// manager.angle_roll.setLimit(UserSetting::angle_roll_limit.i_max, UserSetting::angle_roll_limit.d_max);
 	// manager.angle_roll.setTime(UserSetting::angle_roll_dt.dt);
 	
