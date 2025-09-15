@@ -19,6 +19,8 @@ struct SbusChannelData{
 
     // 目標値
 	std::array<float, 3> target_value;
+    // トリム値（送られてきたSBUSのニュートラル偏差を保持）
+    std::array<float, 3> trim = {0.0f, 0.0f, 0.0f};
     float throttle = 0.0;
 
     // スイッチ

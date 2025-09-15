@@ -27,13 +27,18 @@ namespace nokolat {
         channel_data.failsafe_bit = sbus_data.failsafe;
 
         //pitch(angle)
-        channel_data.target_value[0] = (float)((sbus_data[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch])) * channel_data.angle_pitch_max;
+    // 生の目標値（トリムを含む）
+    channel_data.target_value[0] = (float)((sbus_data[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch])) * channel_data.angle_pitch_max;
+    // trim = 実際に送られてきたニュートラル偏差（比率）を保存
+    channel_data.trim[0] = (float)(sbus_data[(uint8_t)SbusChannel::pitch] - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch] - channel_data.center[(uint8_t)SbusChannel::pitch]);
 
         //roll(angle)
-        channel_data.target_value[1] = (float)((sbus_data[(uint8_t)SbusChannel::roll]	 - channel_data.center[(uint8_t)SbusChannel::roll])  / (float)(channel_data.max[(uint8_t)SbusChannel::roll]     - channel_data.center[(uint8_t)SbusChannel::roll]))  * channel_data.angle_roll_max;
+    channel_data.target_value[1] = (float)((sbus_data[(uint8_t)SbusChannel::roll]	 - channel_data.center[(uint8_t)SbusChannel::roll])  / (float)(channel_data.max[(uint8_t)SbusChannel::roll]     - channel_data.center[(uint8_t)SbusChannel::roll]))  * channel_data.angle_roll_max;
+    channel_data.trim[1] = (float)(sbus_data[(uint8_t)SbusChannel::roll] - channel_data.center[(uint8_t)SbusChannel::roll]) / (float)(channel_data.max[(uint8_t)SbusChannel::roll] - channel_data.center[(uint8_t)SbusChannel::roll]);
 
         //yaw(rate)
-        channel_data.target_value[2] = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] 	  - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;
+    channel_data.target_value[2] = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] 	  - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;
+    channel_data.trim[2] = (float)(sbus_data[(uint8_t)SbusChannel::yaw] - channel_data.center[(uint8_t)SbusChannel::yaw]) / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] - channel_data.center[(uint8_t)SbusChannel::yaw]);
 
         //throttle
         channel_data.throttle 	     = (float)((sbus_data[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle]) / (float)(channel_data.max[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle])) * channel_data.throttle_max;

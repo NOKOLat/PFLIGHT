@@ -52,16 +52,21 @@ void AutoFlyState::update(FlightManager& manager) {
 		}
 	}
 
-	//target_value[0] = (manager.autopilot_data.pitch / 127.0f) * 10.0f; // degrees
-	//target_value[1] = (manager.autopilot_data.roll / 127.0f) * 10.0f; // degrees
-	//target_value[2] = (manager.autopilot_data.yaw / 127.0f) * 30.0f; // dps
-	target_value[0] = 0;
-	target_value[1] = 0;
-	target_value[2] = 0;
+	// 自動操縦用目標値: AutopilotData をスケールして使用
+	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
+	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
+	target_value[0] = (manager.autopilot_data.pitch / 127.0f) * 10;
+	target_value[1] = (manager.autopilot_data.roll / 127.0f) * 10;
+	target_value[2] = (manager.autopilot_data.yaw / 127.0f) * 30;
+
+	// trim を反映（trim は正規化値なので各軸の最大値でスケール）
+	target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
+	target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
+	target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
 
 	// throttle_assist used as altitude target proxy (cm)
-	//altitude_value = (manager.autopilot_data.throttle / 255.0f) * 2.0f; // meters
-	target_altitude = 0.40f;
+	//target_altitude = (manager.autopilot_data.throttle / 255.0f) * 1.5f; // meters
+	target_altitude = 1.00f;
 
 	//IMUデータの取得
 	manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
@@ -154,10 +159,10 @@ void AltitudeControl(FlightManager& manager){
 	const float mixing = 0.5f;
 
 	// PDゲイン: velocity_errorとその時間微分を throttle 単位にマッピング
-	const float Kp_vel = 5.0f; // throttle per 
-	const float Kd_vel = 5.0f; // throttle per 
+	const float Kp_vel = 10.0f; // throttle per 
+	const float Kd_vel = 10.0f; // throttle per 
 
-	printf("%.3f m ", estimated_altitude);
+	//printf("%.3f m ", estimated_altitude);
 
 	float velocity = ((estimated_altitude - prev_altitude) / dt_alt ) * mixing 
 					+ estimated_velocity * (1-mixing);
@@ -165,7 +170,7 @@ void AltitudeControl(FlightManager& manager){
 
 	// 目標速度
 	float target_velocity = target_altitude - estimated_altitude;
-	printf("v:%+.2fm/s tgt:%+.2fm/s ", velocity, target_velocity);
+	//printf("v:%+.2fm/s tgt:%+.2fm/s ", velocity, target_velocity);
 
 
 	// 速度誤差に基づく制御
@@ -188,8 +193,8 @@ void AltitudeControl(FlightManager& manager){
 		}
 		else {
 			p_contrib *= 0.1;
-			if (p_contrib < -2.0f){
-				p_contrib = -2.0f;
+			if (p_contrib < -5.0f){
+				p_contrib = -5.0f;
 			}
 
 			throttle += p_contrib + d_term;
@@ -197,11 +202,11 @@ void AltitudeControl(FlightManager& manager){
 			
 	} else {
 		// P項のクリップは throttle 単位で評価
-		if (p_contrib > 2.0f){
-			p_contrib = 2.0f;
+		if (p_contrib > 10.0f){
+			p_contrib = 10.0f;
 		}
-		if (p_contrib < -2.0f){
-			p_contrib = -2.0f;
+		if (p_contrib < -10.0f){
+			p_contrib = -10.0f;
 		}
 
 		if(p_contrib < 0.0f && throttle <= 50.0f){
@@ -210,22 +215,24 @@ void AltitudeControl(FlightManager& manager){
 			d_term = 0.0f;
 		}
 
-		if (d_term > 2.0f){
-			d_term = 2.0f;
+		if (d_term > 20.0f){
+			d_term = 20.0f;
 		}
-		if (d_term < -2.0f){
-			d_term = -2.0f;
+		if (d_term < -20.0f){
+			d_term = -20.0f;
 		}
 
 
 		throttle += p_contrib + d_term;
 
-		if(throttle >300.0f){
-			throttle = 300.0f;
+		if(throttle >600.0f){
+			throttle = 600.0f;
 		}
 	}
 	printf("%.1f\n", throttle);
+	printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 	
+
 }
 
 
@@ -272,12 +279,12 @@ void AutoFlyState::enter(FlightManager& manager) {
 	manager.rate_roll.reset();
 	manager.rate_yaw.reset();
 
-	manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp*1.5f, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
+	//manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp*1.5f, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
 	// manager.angle_pitch.setLimit(UserSetting::angle_pitch_limit.i_max, UserSetting::angle_pitch_limit.d_max);
 	// manager.angle_pitch.setTime(UserSetting::angle_pitch_dt.dt);
 	
 
-	manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp*1.5f, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
+	//manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp*1.5f, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
 	// manager.angle_roll.setLimit(UserSetting::angle_roll_limit.i_max, UserSetting::angle_roll_limit.d_max);
 	// manager.angle_roll.setTime(UserSetting::angle_roll_dt.dt);
 	
@@ -293,7 +300,7 @@ void AutoFlyState::enter(FlightManager& manager) {
 	// manager.rate_roll.setTime(UserSetting::rate_roll_dt.dt);
 	
 
-	manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
+	//manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
 	// manager.rate_yaw.setLimit(UserSetting::rate_yaw_limit.i_max, UserSetting::rate_yaw_limit.d_max);
 	// manager.rate_yaw.setTime(UserSetting::rate_yaw_dt.dt);
 	
