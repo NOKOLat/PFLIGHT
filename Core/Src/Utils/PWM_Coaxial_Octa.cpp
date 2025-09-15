@@ -40,18 +40,20 @@ void PWM_Coaxial_Octa::InitMotor(){
 
 void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, uint16_t* motor){
 
-    motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
-    motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
-    motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
-    motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
-    // motor[4] = motor_pwm.min + (throttle + control[0] - control[1] + control[2]);
-    // motor[5] = motor_pwm.min + (throttle + control[0] + control[1] - control[2]);
-    // motor[6] = motor_pwm.min + (throttle - control[0] - control[1] - control[2]);
-    // motor[7] = motor_pwm.min + (throttle - control[0] + control[1] + control[2]);
-    motor[4] = 1100;
-    motor[5] = 1100;
-    motor[6] = 1100;
-    motor[7] = 1100;
+    // motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
+    // motor[1] = motor_pwm.min + (throttle + control[0] + control[1] + control[2]);
+    // motor[2] = motor_pwm.min + (throttle - control[0] - control[1] + control[2]);
+    // motor[3] = motor_pwm.min + (throttle - control[0] + control[1] - control[2]);
+    motor[0] = 1100;
+    motor[1] = 1100;
+    motor[2] = 1100;
+    motor[3] = 1100;
+    
+    motor[4] = motor_pwm.min + (throttle + control[0] - control[1] + control[2]);
+    motor[5] = motor_pwm.min + (throttle + control[0] + control[1] - control[2]);
+    motor[6] = motor_pwm.min + (throttle - control[0] - control[1] - control[2]);
+    motor[7] = motor_pwm.min + (throttle - control[0] + control[1] + control[2]);
+    
 
     for(uint8_t i=0; i<4; i++){
 
@@ -60,10 +62,11 @@ void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, u
             motor[i] = motor_pwm.max;
         }
 
-        if(motor[i] <= motor_pwm.min){
+        if(motor[i] <= 1100){
 
-            motor[i] = motor_pwm.min;
-        }
+			motor[i] = 1100;
+		}
+        
     }
     for(uint8_t i=4; i<8; i++){
 
@@ -72,10 +75,11 @@ void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, u
 			motor[i] = motor_pwm.max;
 		}
 
-		if(motor[i] <= 1100){
+        if(motor[i] <= motor_pwm.min){
 
-			motor[i] = 1100;
-		}
+            motor[i] = motor_pwm.min;
+        }
+		
 	}
 
 }
