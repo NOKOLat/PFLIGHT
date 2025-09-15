@@ -39,11 +39,11 @@ void init(){
     #endif
 
     
-    DebugSbus::overrideData.arm = true;
-    DebugSbus::overrideData.throttle = 0;
-    DebugSbus::overrideData.fly = true;
-    DebugSbus::overrideData.autofly = true;
-    DebugSbus::enableOverride(true);
+    // DebugSbus::overrideData.arm = true;
+    // DebugSbus::overrideData.throttle = 0;
+    // DebugSbus::overrideData.fly = true;
+    // DebugSbus::overrideData.autofly = true;
+    // DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
