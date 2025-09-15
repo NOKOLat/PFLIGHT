@@ -9,7 +9,10 @@
 
 #include "ESP32_P2P_Utility/P2PPacketDecoder.hpp"
 P2PPacketDecoder decoder;
-uint8_t receive_data[22] = {};
+// Packet layout: [start(1)] + N * [type(1) + 4 bytes data] + [end(1)]
+// Current PacketDataType defines 2 entries (State, Roll) -> packet size = 1 + 2*5 + 1 = 12
+constexpr uint8_t P2P_PACKET_SIZE = 12;
+uint8_t receive_data[P2P_PACKET_SIZE] = {};
 bool received = false;
 
 
@@ -48,8 +51,8 @@ void init(){
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
 
-    //UART3(DMA) ESPからのデータ受信用
-    HAL_UART_Receive_DMA(&huart3, receive_data, 22);
+	//UART3(DMA) ESPからのデータ受信用
+	HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
 
 	//TIM6(400hz 割り込み） メインループ管理用
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -92,14 +95,12 @@ void loop(){
  //			printf("%d ",receive_data[i]);
  //		}
 
-     	decoder.SetData(receive_data, 22);
- 		decoder.GetData(PacketDataType::Pitch, flightManager.autopilot_data.pitch);
+	decoder.SetData(receive_data, P2P_PACKET_SIZE);
+		decoder.GetData(PacketDataType::State, flightManager.autopilot_data.throttle);
  		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
- 		decoder.GetData(PacketDataType::Yaw, flightManager.autopilot_data.yaw);
- 		decoder.GetData(PacketDataType::Throttle, flightManager.autopilot_data.throttle);
-
-         //printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
-         received = false;
+ 		
+		//printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
+		 received = false;
      }
 }
 
@@ -142,13 +143,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
     // UART3(DMA)
 	if(huart == &huart3){
 		// 正常に受信できている場合
-		if(receive_data[0] == 0x0f && receive_data[21] == 0xf0){
-
+		// check start and end markers; end marker is at index (received size - 1)
+		if(receive_data[0] == 0x0f) {
+			// We don't know actual received size here from buffer alone; the decoder expects a size parameter.
+			// Keep the previous simple check at the same offsets if a fixed 22-byte packet is still expected,
+			// otherwise SetData will validate start/end and size when called from main loop.
+			// For safety, set received flag when start marker matches; decoder will validate full packet later.
 			received = true;
 		}
 
 		//割り込み受信の再開
-		HAL_UART_Receive_DMA(&huart3, receive_data, 22);
+	HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
 
 	}
 

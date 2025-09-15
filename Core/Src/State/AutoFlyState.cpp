@@ -55,9 +55,9 @@ void AutoFlyState::update(FlightManager& manager) {
 	// 自動操縦用目標値: AutopilotData をスケールして使用
 	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
 	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
-	target_value[0] = (manager.autopilot_data.pitch / 127.0f) * 10;
-	target_value[1] = (manager.autopilot_data.roll / 127.0f) * 10;
-	target_value[2] = (manager.autopilot_data.yaw / 127.0f) * 30;
+	target_value[0] = 5;
+	target_value[1] = (manager.autopilot_data.roll / 127.0f) * 30;
+	target_value[2] = 0;
 
 	// trim を反映（trim は正規化値なので各軸の最大値でスケール）
 	target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
@@ -65,7 +65,6 @@ void AutoFlyState::update(FlightManager& manager) {
 	target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
 
 	// throttle_assist used as altitude target proxy (cm)
-	//target_altitude = (manager.autopilot_data.throttle / 255.0f) * 1.5f; // meters
 	target_altitude = 1.00f;
 
 	//IMUデータの取得
@@ -300,7 +299,7 @@ void AutoFlyState::enter(FlightManager& manager) {
 	// manager.rate_roll.setTime(UserSetting::rate_roll_dt.dt);
 	
 
-	//manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
+	manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
 	// manager.rate_yaw.setLimit(UserSetting::rate_yaw_limit.i_max, UserSetting::rate_yaw_limit.d_max);
 	// manager.rate_yaw.setTime(UserSetting::rate_yaw_dt.dt);
 	
