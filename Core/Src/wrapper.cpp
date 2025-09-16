@@ -5,7 +5,7 @@
 #include "Sbus\sbus.h"
 #include "Utils/SbusDecoder.hpp"
 #include "Utils/SbusDebug.hpp"
-
+#include "Utils/LED.hpp"
 
 #include "ESP32_P2P_Utility/P2PPacketDecoder.hpp"
 P2PPacketDecoder decoder;
@@ -42,11 +42,11 @@ void init(){
     #endif
 
     
-    // DebugSbus::overrideData.arm = true;
-    // DebugSbus::overrideData.throttle = 0;
-    // DebugSbus::overrideData.fly = true;
-    // DebugSbus::overrideData.autofly = true;
-    // DebugSbus::enableOverride(true);
+//     DebugSbus::overrideData.arm = true;
+//     DebugSbus::overrideData.throttle = 0;
+//     DebugSbus::overrideData.fly = true;
+//     DebugSbus::overrideData.autofly = true;
+//     DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
@@ -94,9 +94,10 @@ void loop(){
  //        for (uint8_t i=0;i<22;i++){
  //			printf("%d ",receive_data[i]);
  //		}
+ 		printf("r\n");
 
-	decoder.SetData(receive_data, P2P_PACKET_SIZE);
-		decoder.GetData(PacketDataType::State, flightManager.autopilot_data.throttle);
+		decoder.SetData(receive_data, P2P_PACKET_SIZE);
+		decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
  		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
  		
 		//printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);

@@ -55,17 +55,69 @@ void AutoFlyState::update(FlightManager& manager) {
 	// 自動操縦用目標値: AutopilotData をスケールして使用
 	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
 	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
-	target_value[0] = 5;
-	target_value[1] = (manager.autopilot_data.roll / 127.0f) * 30;
-	target_value[2] = 0;
+	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 30.0f;
 
-	// trim を反映（trim は正規化値なので各軸の最大値でスケール）
-	target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
-	target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
-	target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+	// state:
+	// 0 = 起動 / ホバリング: 全ての角度を0°に固定
+	// 1 = 横移動: roll を使用、pitch は 0
+	// 2 = 前進: pitch を 5° に固定、roll を使用
+	// 3 = 着陸: target_altitude を -1 に設定
+	
 
-	// throttle_assist used as altitude target proxy (cm)
-	target_altitude = 1.00f;
+	if (manager.autopilot_data.state == 0) {
+		//printf("AutoFly: Hovering\n");
+		// 起動 / ホバリング -> 角度全ゼロ、トリムは適用しない
+		target_value[0] = 0.0f;
+		target_value[1] = 0.0f;
+		target_value[2] = 0.0f;
+		// trim を反映
+		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
+		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
+		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+	
+	}
+	else if (manager.autopilot_data.state == 1) {
+		//printf("AutoFly: Moving sideways\n");
+		// 横移動 -> roll による横移動、pitch は 0
+		target_value[0] = 0.0f;
+		target_value[1] = raw_roll;
+		target_value[2] = 0.0f;
+		// trim を反映
+		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
+		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
+		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+	}
+	else if (manager.autopilot_data.state == 2) {
+		//printf("AutoFly: Moving forward\n");
+		// 前進 -> pitch を 5° に固定、roll は入力で制御
+		target_value[0] = -5.0f;//前が負の値
+		target_value[1] = raw_roll;
+		target_value[2] = 0.0f;
+		// trim を反映
+		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
+		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
+		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+	}
+	else if (manager.autopilot_data.state == 3) {
+		//printf("AutoFly: Landing\n");
+		// 着陸 -> 高度目標に -1 を設定（降下/モーター停止処理用フラグ）
+		target_altitude = -1.0f;
+		target_value[0] = 0.0f;
+		target_value[1] = 0.0f;
+		target_value[2] = 0.0f;
+	}
+	else {
+		// 未定義 state はホバリング相当にフォールバック
+		target_value[0] = 0.0f;
+		target_value[1] = 0.0f;
+		target_value[2] = 0.0f;
+	}
+
+	// throttle_assist used as altitude target proxy (cm) - landing が優先されるため、
+	// 着陸時は上書き済み。通常時は既定の高度を目標とする。
+	if (manager.autopilot_data.state != 3) {
+		target_altitude = 1.00f;
+	}
 
 	//IMUデータの取得
 	manager.imuUtil->GetData(manager.sensor_data.accel, manager.sensor_data.gyro);
@@ -187,15 +239,19 @@ void AltitudeControl(FlightManager& manager){
 	float d_term = Kd_vel * derivative; // throttle 単位
 
 	if(target_altitude < 0.0f){
-		if (estimated_altitude < 0.20f){
+		if (estimated_altitude < 0.10f){
 			throttle = 0.0f;
+			manager.changeState(std::make_unique<DisarmingState>());
+			return;
 		}
 		else {
-			p_contrib *= 0.1;
+			
 			if (p_contrib < -5.0f){
 				p_contrib = -5.0f;
 			}
-
+			if (d_term < -5.0f){
+				d_term = -5.0f;
+			}
 			throttle += p_contrib + d_term;
 		}
 			
@@ -214,11 +270,11 @@ void AltitudeControl(FlightManager& manager){
 			d_term = 0.0f;
 		}
 
-		if (d_term > 20.0f){
-			d_term = 20.0f;
+		if (d_term > 5.0f){
+			d_term = 5.0f;
 		}
-		if (d_term < -20.0f){
-			d_term = -20.0f;
+		if (d_term < -5.0f){
+			d_term = -5.0f;
 		}
 
 
@@ -299,7 +355,7 @@ void AutoFlyState::enter(FlightManager& manager) {
 	// manager.rate_roll.setTime(UserSetting::rate_roll_dt.dt);
 	
 
-	manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
+	//manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
 	// manager.rate_yaw.setLimit(UserSetting::rate_yaw_limit.i_max, UserSetting::rate_yaw_limit.d_max);
 	// manager.rate_yaw.setTime(UserSetting::rate_yaw_dt.dt);
 	

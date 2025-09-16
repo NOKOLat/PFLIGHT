@@ -5,11 +5,14 @@
 
 // Autopilot data populated from P2P packets (stored as int32_t per packet spec)
 struct AutopilotData {
-    int32_t pitch = 0;     // mapped parameter, -127..127
+    int32_t state = 0;
+    // state: (送信する値は TYPE_STATE = 0x00 で送ります)
+    // 0 = 起動 / ホバリング
+    // 1 = 横移動
+    // 2 = 前進
+    // 3 = 着陸
     int32_t roll = 0;      // mapped parameter, -127..127
-    int32_t yaw = 0;       // mapped parameter, -127..127
-    int32_t throttle = 0;  // mapped parameter, 0..255 (used as altitude proxy; 255 -> 1.0 m)
-
+    
 };
 
 #endif // AUTOPILOT_DATA_HPP

@@ -10,6 +10,7 @@ void FlyingState::update(FlightManager& manager) {
 	if(!manager.sbus_data.arm){
 
 		manager.changeState(std::make_unique<DisarmingState>());
+		return;
 	}
 
 	// automationへの遷移
