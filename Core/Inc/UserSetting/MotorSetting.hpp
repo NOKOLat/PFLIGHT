@@ -74,9 +74,9 @@ struct ServoPWM{
 
 	uint16_t counter_period = 2499 + 1;
 
-	uint16_t open   = counter_period * 0.68;
-	uint16_t center = counter_period * 0.79;
-	uint16_t close  = counter_period * 0.98;
+	uint16_t open   = counter_period * 0.66;
+	uint16_t center = counter_period * 0.66;
+	uint16_t close  = counter_period * 0.50;
 };
 
 #endif /* INC_MOTORSETTING_HPP_ */

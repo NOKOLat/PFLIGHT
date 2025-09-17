@@ -88,5 +88,5 @@ void EmergencyControlState::update(FlightManager& manager) {
 	manager.pwm.GenerateMotor(manager.control_data.motor_pwm.data());
 	manager.pwm.GenerateServo(manager.control_data.servo_pwm);
 
-	printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
+	//printf("E_Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 }
