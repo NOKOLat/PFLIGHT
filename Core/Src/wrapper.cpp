@@ -63,54 +63,54 @@ void init(){
 }
 
 void loop(){
+	
+	//ループ管理フラグのリセット待機
+	if(flightLoopManager.isWait() == false) {
+		//HAL_Delay(1);
+
+		// ループ管理フラグをセット
+		flightLoopManager.setWaitFlag();
+
+		// 状態ごとの処理の呼び出し
+		flightManager.update();
 
 
+		if (received) {
+//			for (uint8_t i=0;i<22;i++){
+//				printf("%d ",receive_data[i]);
+//			}
+			//printf("Received\n");
+			HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 10);
 
-	 //ループ管理フラグのリセット待機
-     if(flightLoopManager.isWait() == false) {
+			decoder.SetData(receive_data, P2P_PACKET_SIZE);
+			decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
+			decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
 
-    		 static uint8_t loop_count=0;
-    		 if(loop_count >= 8){
-    			 //printf("%d us ", (int)(time_count*12.5f));
-    			 time_count = 0;
-    			 loop_count = 0;
-    		 }
-    	     loop_count ++;
+			//printf("%d %d\n", (int)flightManager.autopilot_data.sate, (int)flightManager.autopilot_data.roll);
+			 received = false;
+		}
 
+		else{
+			HAL_UART_Transmit(&huart3, (uint8_t *)"1", 1, 10);
+		}
 
-
-        
-     	// ループ管理フラグをセット
-         flightLoopManager.setWaitFlag();
+//		printf("%d us\n", (int)(time_count*100.0f - 1000));
+//		time_count = 0;
 
 
-         // 状態ごとの処理の呼び出し
-         flightManager.update();
-        
-        
-     }
-     if (received) {
- //        received = false;
- //        for (uint8_t i=0;i<22;i++){
- //			printf("%d ",receive_data[i]);
- //		}
- 		printf("r\n");
+	}
 
-		decoder.SetData(receive_data, P2P_PACKET_SIZE);
-		decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
- 		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
- 		
-		//printf("%d %d %d %d\n", flightManager.autopilot_data.pitch, flightManager.autopilot_data.roll, flightManager.autopilot_data.yaw, flightManager.autopilot_data.throttle);
-		 received = false;
-     }
 }
 
 //タイマー割り込み
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
-	if(htim == &htim7){
-		time_count ++;
-	}
+//	if(htim == &htim7){
+//		if (flightLoopManager.isWait() == false){
+//			time_count ++;
+//		}
+//
+//	}
 
 	// TIM6(400hz 割り込み） メインループ管理用
     if(htim == &htim6){
@@ -145,16 +145,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart3){
 		// 正常に受信できている場合
 		// check start and end markers; end marker is at index (received size - 1)
-		if(receive_data[0] == 0x0f) {
-			// We don't know actual received size here from buffer alone; the decoder expects a size parameter.
-			// Keep the previous simple check at the same offsets if a fixed 22-byte packet is still expected,
-			// otherwise SetData will validate start/end and size when called from main loop.
-			// For safety, set received flag when start marker matches; decoder will validate full packet later.
+		if(receive_data[0] == 0x0f && receive_data[P2P_PACKET_SIZE - 1] == 0xf0){
 			received = true;
 		}
-
 		//割り込み受信の再開
-	HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
+		HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
 
 	}
 
