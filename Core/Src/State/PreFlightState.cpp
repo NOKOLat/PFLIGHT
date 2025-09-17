@@ -2,6 +2,13 @@
 
 void PreFlightState::update(FlightManager& manager) {
 
+	// リポ電圧チェック
+	if(!manager.lipo_check.CheckVoltage()){
+
+		printf("LIPO_VOLTAGE_ERROR\n");
+		return;
+	}
+
 	// Armスイッチの判定
 	if(!manager.sbus_data.arm){
 

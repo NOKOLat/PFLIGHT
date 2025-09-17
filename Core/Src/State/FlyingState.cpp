@@ -6,6 +6,12 @@ void FlyingState::update(FlightManager& manager) {
 	static uint8_t loop_count = 0;
 	loop_count++;
 
+	// リポ電圧チェック
+	if(!manager.lipo_check.CheckVoltage()){
+
+		// モーターの停止は危険が伴うため、ブザーやLEDの点滅のみを行う
+	}
+
     // Armのチェック
 	if(!manager.sbus_data.arm){
 

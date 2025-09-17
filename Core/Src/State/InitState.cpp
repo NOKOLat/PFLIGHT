@@ -1,6 +1,7 @@
 #include "State/Headers/FlightStates.h"
 #include "UserSetting/PIDSetting.hpp"
 #include "UserSetting/LEDSetting.hpp"
+#include "UserSetting/OtherSetting.hpp"
 
 void InitLED(FlightManager& manager);
 void InitPIDFromUserSetting(FlightManager& manager);
@@ -29,6 +30,20 @@ void InitState::update(FlightManager& manager) {
 
 		printf("MotorSetting_Error\n");
 		return;
+	}
+
+	// リポ電圧チェック設定
+	if(UserSetting::lipo_check){
+
+		manager.lipo_check.Setup(UserSetting::lipo_check, UserSetting::min_voltage, UserSetting::lipo_check_adc);
+		manager.lipo_check.SetupLED(UserSetting::lipo_check_led_port, UserSetting::lipo_check_led_pin);
+		manager.lipo_check.SetupBuzzer(UserSetting::lipo_check_buzzer_port, UserSetting::lipo_check_buzzer_pin);
+
+		if(!manager.lipo_check.CheckVoltage()){
+
+			printf("LIPO_VOLTAGE_ERROR\n");
+			return;
+		}
 	}
 
 	// Servoの初期化

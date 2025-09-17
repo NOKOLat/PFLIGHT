@@ -2,6 +2,14 @@
 
 void PreArmingState::update(FlightManager& manager) {
 
+	// リポ電圧チェック
+	if(!manager.lipo_check.CheckVoltage()){
+
+		// 電圧が足りない場合はエラーで終了
+		printf("LIPO_VOLTAGE_ERROR\n");
+		return;
+	}
+
 	// Armスイッチをチェック
 	if(manager.sbus_data.arm){
 

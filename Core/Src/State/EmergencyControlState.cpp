@@ -12,6 +12,12 @@ void EmergencyControlState::update(FlightManager& manager) {
 		manager.changeState(std::make_unique<DisarmingState>());
 	}
 
+	// リポ電圧チェック
+	if(!manager.lipo_check.CheckVoltage()){
+
+		// モーターの停止は危険が伴うため、ブザーやLEDの点滅のみを行う
+	}
+
     // 通常飛行への復帰
     if(!manager.sbus_data.emergency_control){
 

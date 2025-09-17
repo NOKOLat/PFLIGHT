@@ -14,6 +14,7 @@
 #include "Utils/LED.hpp"
 #include "MadgwickAHRS/src/MadgwickAHRS.h"
 #include "Utils/MotorUtility.hpp"
+#include "Utils/LipoCheck.hpp"
 
 
 // ループ管理構造体
@@ -64,18 +65,27 @@ class FlightManager {
         SbusChannelData sbus_data;
         ControlData control_data;
 
+        // PID(initで設定)
         PID angle_pitch;
         PID angle_roll;
         PID rate_pitch;
         PID rate_roll;
         PID rate_yaw;
+
         ICM42688P_SPI_Util* imuUtil;
         Madgwick madgwick;
+
+        // モーター・サーボ制御クラス
 		//PWM_Quad pwm; //4Motor
         PWM_Coaxial_Octa pwm; //8Motor
+
+        // LED(Initで設定)
 		LED red_led;
 		LED yellow_led;
 		LED green_led;
+
+        // リポチェック(Initで設定)
+        LipoVoltageCheck lipo_check;
 
     private:
 
