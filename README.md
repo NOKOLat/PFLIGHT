@@ -1,10 +1,10 @@
-# PFLIGHT v2.10.4
+# PFLIGHT v2.10.5.1
 
 > [!WARNING]
 > PIDの設定値が共有できていない可能性があるため、
 > 飛行前には`UserSetting/PIDSetting.hpp`で値を確認してください
 
-4発マルチコプターのFCコードです
+マルチコプターのFCコードです
 
 情報はこちらにも書いてあります
 [PFLIGHT_Wiki](https://github.com/NOKOLat/PFLIGHT/wiki)
