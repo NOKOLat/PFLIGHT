@@ -16,32 +16,27 @@ namespace nokolat {
 
         if(sbus_data[(uint8_t)SbusChannel::arm] != 0){
 
-            channel_data.is_receive = true;
+        	channel_data.is_receive = true;
         }
         else{
 
-            channel_data.is_receive = false;
+        	channel_data.is_receive = false;
         }
 
         //FailSafeの処理
         channel_data.failsafe_bit = sbus_data.failsafe;
 
         //pitch(angle)
-    // 生の目標値（トリムを含む）
-    channel_data.target_value[0] = (float)((sbus_data[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch])) * channel_data.angle_pitch_max;   
-    // trim = 実際に送られてきたニュートラル偏差（比率）を保存
-    channel_data.trim[0] = (float)(sbus_data[(uint8_t)SbusChannel::pitch] - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch] - channel_data.center[(uint8_t)SbusChannel::pitch]);
+        channel_data.target_value[0] = (float)((sbus_data[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch]) / (float)(channel_data.max[(uint8_t)SbusChannel::pitch]    - channel_data.center[(uint8_t)SbusChannel::pitch])) * channel_data.angle_pitch_max;
 
         //roll(angle)
-    channel_data.target_value[1] = (float)((sbus_data[(uint8_t)SbusChannel::roll]       - channel_data.center[(uint8_t)SbusChannel::roll])  / (float)(channel_data.max[(uint8_t)SbusChannel::roll]     - channel_data.center[(uint8_t)SbusChannel::roll]))  * channel_data.angle_roll_max;  
-    channel_data.trim[1] = (float)(sbus_data[(uint8_t)SbusChannel::roll] - channel_data.center[(uint8_t)SbusChannel::roll]) / (float)(channel_data.max[(uint8_t)SbusChannel::roll] - channel_data.center[(uint8_t)SbusChannel::roll]);
+        channel_data.target_value[1] = (float)((sbus_data[(uint8_t)SbusChannel::roll]	 - channel_data.center[(uint8_t)SbusChannel::roll])  / (float)(channel_data.max[(uint8_t)SbusChannel::roll]     - channel_data.center[(uint8_t)SbusChannel::roll]))  * channel_data.angle_roll_max;
 
         //yaw(rate)
-    channel_data.target_value[2] = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw]         - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;   
-    channel_data.trim[2] = (float)(sbus_data[(uint8_t)SbusChannel::yaw] - channel_data.center[(uint8_t)SbusChannel::yaw]) / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] - channel_data.center[(uint8_t)SbusChannel::yaw]);
+        channel_data.target_value[2] = (float)((sbus_data[(uint8_t)SbusChannel::yaw]      - channel_data.center[(uint8_t)SbusChannel::yaw])   / (float)(channel_data.max[(uint8_t)SbusChannel::yaw] 	  - channel_data.center[(uint8_t)SbusChannel::yaw]))   * channel_data.rate_yaw_max;
 
         //throttle
-        channel_data.throttle        = (float)((sbus_data[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle]) / (float)(channel_data.max[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle])) * channel_data.throttle_max;  
+        channel_data.throttle 	     = (float)((sbus_data[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle]) / (float)(channel_data.max[(uint8_t)SbusChannel::throttle] - channel_data.min[(uint8_t)SbusChannel::throttle])) * channel_data.throttle_max;
 
         //armの判定
         if(sbus_data[(uint8_t)SbusChannel::arm] > 1500){
@@ -97,18 +92,14 @@ namespace nokolat {
             channel_data.autofly = false;
         }
 
-        //モーター停止側の判定(dropチャンネルの参照)
-        if(sbus_data[(uint8_t)SbusChannel::drop] > 1500){
+        //対故障制御
+        if(sbus_data[(uint8_t)SbusChannel::emergency_control] > 1500){
 
-            channel_data.stop_motor_side = 2;
-        }
-        else if(sbus_data[(uint8_t)SbusChannel::drop] > 1000){
-
-            channel_data.stop_motor_side = 1;
+            channel_data.emergency_control = true;
         }
         else{
 
-            channel_data.stop_motor_side = 0;
+            channel_data.emergency_control = false;
         }
 
         return channel_data;

@@ -103,10 +103,11 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[2] = 0.0f;
 	}
 
-	// trim を反映
-	target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
-	target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
-	target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+	// 送られてくる sbus の目標値は既にスケーリング済みなので、trim を使わず
+	// 直接 `sbus_data.target_value` を加算して補正する
+	target_value[0] += manager.sbus_data.target_value[0];
+	target_value[1] += manager.sbus_data.target_value[1];
+	target_value[2] += manager.sbus_data.target_value[2];
 
 	// throttle_assist used as altitude target proxy (cm) - landing が優先されるため、
 	// 着陸時は上書き済み。通常時は既定の高度を目標とする。
