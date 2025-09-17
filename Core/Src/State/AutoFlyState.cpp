@@ -55,7 +55,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	// 自動操縦用目標値: AutopilotData をスケールして使用
 	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
 	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
-	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 30.0f;
+	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 10.0f;
 
 	// state:
 	// 0 = 起動 / ホバリング: 全ての角度を0°に固定
@@ -70,11 +70,7 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[0] = 0.0f;
 		target_value[1] = 0.0f;
 		target_value[2] = 0.0f;
-		// trim を反映
-		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
-		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
-		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
-	
+			
 	}
 	else if (manager.autopilot_data.state == 1) {
 		//printf("AutoFly: Moving sideways\n");
@@ -82,10 +78,7 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[0] = 0.0f;
 		target_value[1] = raw_roll;
 		target_value[2] = 0.0f;
-		// trim を反映
-		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
-		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
-		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+		
 	}
 	else if (manager.autopilot_data.state == 2) {
 		//printf("AutoFly: Moving forward\n");
@@ -93,10 +86,7 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[0] = -5.0f;//前が負の値
 		target_value[1] = raw_roll;
 		target_value[2] = 0.0f;
-		// trim を反映
-		target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
-		target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
-		target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
+		
 	}
 	else if (manager.autopilot_data.state == 3) {
 		//printf("AutoFly: Landing\n");
@@ -112,6 +102,11 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[1] = 0.0f;
 		target_value[2] = 0.0f;
 	}
+
+	// trim を反映
+	target_value[0] += manager.sbus_data.trim[0] * manager.sbus_data.angle_pitch_max;
+	target_value[1] += manager.sbus_data.trim[1] * manager.sbus_data.angle_roll_max;
+	target_value[2] += manager.sbus_data.trim[2] * manager.sbus_data.rate_yaw_max;
 
 	// throttle_assist used as altitude target proxy (cm) - landing が優先されるため、
 	// 着陸時は上書き済み。通常時は既定の高度を目標とする。
