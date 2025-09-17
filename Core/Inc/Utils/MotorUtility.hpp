@@ -45,6 +45,10 @@ class PWM_Coaxial_Octa : public PWM {
         void MotorStop() override;
         void SetMotorConfig(const MotorTim& tim, const MotorChannel& channel, const MotorPWM& pwm) override;
 
+        // 耐故障制御用
+        void CalcMotorUpperOnly(float throttle, std::array<float,4>& control, uint16_t* motor);
+        void CalcMotorLowerOnly(float throttle, std::array<float,4>& control, uint16_t* motor);
+
     private:
         MotorTim motor_tim{};
         MotorChannel motor_channel{};

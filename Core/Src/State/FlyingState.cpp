@@ -16,6 +16,10 @@ void FlyingState::update(FlightManager& manager) {
 
 
 	// EmergencyControlへの遷移
+	if(manager.sbus_data.emergency_control){
+
+		manager.changeState(std::make_unique<EmergencyControlState>());
+	}
 
 	// センサーデータの取得
 	if (manager.imuUtil){
@@ -94,5 +98,5 @@ void FlyingState::update(FlightManager& manager) {
 	//printf("UpperMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
 	//printf("LowerMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 
-	printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
+	//printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 }

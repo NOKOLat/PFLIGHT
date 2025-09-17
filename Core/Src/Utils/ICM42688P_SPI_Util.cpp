@@ -15,7 +15,7 @@ uint8_t ICM42688P_SPI_Util::Init() {
     icm.AccelConfig(icm.ACCEL_Mode::LowNoize, icm.ACCEL_SCALE::SCALE02g, icm.ACCEL_ODR::ODR01000hz, icm.ACCEL_DLPF::ODR40);
     HAL_Delay(10);
 
-    icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0250, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
+    icm.GyroConfig(icm.GYRO_MODE::LowNoize, icm.GYRO_SCALE::Dps0500, icm.GYRO_ODR::ODR01000hz, icm.GYRO_DLPF::ODR40);
     HAL_Delay(10);
 
     return 0;
