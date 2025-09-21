@@ -1,6 +1,6 @@
 #include "State/Headers/FlightStates.h"
 
-void FlyingState::update(FlightManager& manager) {
+void FlyingState::Update(FlightManager& manager) {
 
 	// ループカウント（PIDの処理をするかを決定）
 	static uint8_t loop_count = 0;

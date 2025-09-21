@@ -1,6 +1,6 @@
 #include "State/Headers/FlightStates.h"
 
-void DisarmingState::update(FlightManager& manager) {
+void DisarmingState::Update(FlightManager& manager) {
 
 	// Pwmの停止
 	manager.pwm.MotorStop();
@@ -16,13 +16,13 @@ void DisarmingState::update(FlightManager& manager) {
 	manager.changeState(std::make_unique<PreArmingState>());
 }
 
-void DisarmingState::enter(FlightManager& manager) {
+void DisarmingState::Enter(FlightManager& manager) {
 
 
 
 }
 
-void DisarmingState::exit(FlightManager& manager) {
+void DisarmingState::Exit(FlightManager& manager) {
 
 	manager.yellow_led.Set(PinState::off);
 	manager.green_led.Set(PinState::off);

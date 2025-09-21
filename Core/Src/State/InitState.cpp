@@ -5,7 +5,7 @@
 void InitLED(FlightManager& manager);
 void InitPIDFromUserSetting(FlightManager& manager);
 
-void InitState::update(FlightManager& manager) {
+void InitState::Update(FlightManager& manager) {
 
 	// SBUSの受信チェック
 	if(!manager.sbus_data.is_receive){
@@ -41,7 +41,7 @@ void InitState::update(FlightManager& manager) {
 	manager.changeState(std::make_unique<PreArmingState>());
 }
 
-void InitState::enter(FlightManager& manager) {
+void InitState::Enter(FlightManager& manager) {
 
 	printf("FC start \n");
 

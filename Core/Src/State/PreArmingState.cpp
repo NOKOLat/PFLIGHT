@@ -1,6 +1,6 @@
 #include "State/Headers/FlightStates.h"
 
-void PreArmingState::update(FlightManager& manager) {
+void PreArmingState::Update(FlightManager& manager) {
 
 	// Armスイッチをチェック
 	if(manager.sbus_data.arm){

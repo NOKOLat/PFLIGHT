@@ -1,6 +1,6 @@
 #include "State/Headers/FlightStates.h"
 
-void PreFlightState::update(FlightManager& manager) {
+void PreFlightState::Update(FlightManager& manager) {
 
 	// Armスイッチの判定
 	if(!manager.sbus_data.arm){

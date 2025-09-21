@@ -1,6 +1,6 @@
 #include "State/Headers/FlightStates.h"
 
-void FailSafeState::update(FlightManager& manager) {
+void FailSafeState::Update(FlightManager& manager) {
 
 	// LEDの点滅
 	while(1){
@@ -16,7 +16,7 @@ void FailSafeState::update(FlightManager& manager) {
 	}
 }
 
-void FailSafeState::enter(FlightManager& manager) {
+void FailSafeState::Enter(FlightManager& manager) {
 
 	// Pwmの停止
 	manager.pwm.MotorStop();
