@@ -11,6 +11,7 @@
 #include "tim.h"
 #include "UserSetting/SbusSetting.hpp"
 #include "UserSetting/MotorSetting.hpp"
+#include "UserSetting/OtherSetting.hpp"// 赤外線閾値用
 
 // 基底PWMクラス
 class PWM {
