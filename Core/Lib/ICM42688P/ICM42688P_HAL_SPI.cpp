@@ -34,7 +34,7 @@ void ICM42688P_HAL_SPI::Write(ICM42688P::BANK0 reg_addr, uint8_t* tx_buffer, uin
 
         HAL_GPIO_WritePin(cs_pin_type, cs_pin_num, GPIO_PIN_RESET);
 
-        HAL_SPI_Transmit(spi_pin, tx_tmp, 2, 10);
+        HAL_SPI_Transmit(spi_pin, tx_tmp, 2, 1);
 
         HAL_GPIO_WritePin(cs_pin_type, cs_pin_num, GPIO_PIN_SET);
 
@@ -53,7 +53,7 @@ void ICM42688P_HAL_SPI::Read(ICM42688P::BANK0 reg_addr, uint8_t* rx_buffer, uint
 
         HAL_GPIO_WritePin(cs_pin_type, cs_pin_num, GPIO_PIN_RESET);
 
-        HAL_SPI_TransmitReceive(spi_pin, tx_tmp, rx_tmp, 2, 10);
+        HAL_SPI_TransmitReceive(spi_pin, tx_tmp, rx_tmp, 2, 1);
 
         HAL_GPIO_WritePin(cs_pin_type, cs_pin_num, GPIO_PIN_SET);
 
