@@ -94,26 +94,6 @@ namespace nokolat {
             channel_data.autodrop = false;
         }
 
-        //自動操縦
-        if(sbus_data[(uint8_t)SbusChannel::autofly] > 1500){
-
-            channel_data.autofly = true;
-        }
-        else{
-
-            channel_data.autofly = false;
-        }
-
-        //対故障制御
-        if(sbus_data[(uint8_t)SbusChannel::emergency_control] > 1500){
-
-            channel_data.emergency_control = true;
-        }
-        else{
-
-            channel_data.emergency_control = false;
-        }
-
         return channel_data;
     }
 

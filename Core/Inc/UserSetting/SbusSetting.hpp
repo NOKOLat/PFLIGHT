@@ -13,7 +13,7 @@
 
 struct SbusChannelData{
 
-    // 中立の値
+    // 中立の値（スロットルカーブやトリムなしの値）
     std::array<uint16_t, 4> max = {1600, 1600, 1680, 1600};
 	std::array<uint16_t, 4> min = {400, 400, 368, 400};
 	std::array<uint16_t, 4> center = {1000, 1000, 1000, 1000};
@@ -22,7 +22,7 @@ struct SbusChannelData{
     float angle_pitch_max = 30.0f;
     float angle_roll_max = 30.0f;
     float rate_yaw_max = 60.0f;
-    float throttle_max = 750.0f; // PWMの最大値を指定(PWMは0~1000の範囲 値を大きくしすぎると高回転時に姿勢制御が難しくなる)
+    float throttle_max = 750.0f; // PWMの最大値を指定(PWMは大きく設定を変えない場合0~1000の範囲 値を大きくしすぎると高回転時に姿勢制御が難しくなる)
 
     // 目標値
 	std::array<float, 3> target_value;
@@ -33,8 +33,6 @@ struct SbusChannelData{
     bool fly = false;
     uint8_t drop = false;
     bool autodrop = false;
-    bool autofly = false;
-    bool emergency_control = false;
 
     // 受信判定
     bool is_receive = false;
@@ -55,8 +53,6 @@ enum class SbusChannel: uint8_t{
 	fly = 5 - 1,
 	drop = 7 - 1,
 	autodrop = 8 - 1,
-	autofly = 9 - 1,
-    emergency_control = 10 - 1,
 };
 
 #endif // SBUS_DATA_HPP
