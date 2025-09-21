@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <array>
 #include "tim.h"
-#include "FlightData/SbusData.hpp"
+#include "UserSetting/SbusSetting.hpp"
 #include "UserSetting/MotorSetting.hpp"
 
 // 基底PWMクラス

@@ -1,3 +1,15 @@
+/*
+ * LEDSetting.hpp
+ *
+ * LEDの制御に使用するピンの設定
+ * UserSetting名前空間に定義してあり、識別しやすいようにLEDSetting構造体にまとめている
+ * 
+ * 色ごとに定義してある（正直、役割ごとに分けたほうがいい: 例: armLed
+ *
+ *  Created on: Aug 24, 2025
+ *      Author: aoi25
+ */
+
 #ifndef INC_LEDSETTING_HPP_
 #define INC_LEDSETTING_HPP_
 

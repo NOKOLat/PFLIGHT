@@ -7,7 +7,7 @@
 FlightManager::FlightManager(){
     
     // IMUユーティリティのインスタンス化
-    imuUtil = new ICM42688P_SPI_Util(UserSetting::imuPinSetting.spi_pin, UserSetting::imuPinSetting.gpio_port, UserSetting::imuPinSetting.gpio_pin);
+    imuUtil = new ICM42688P_SPI_Util(UserSetting::imu_pin_setting.spi_pin, UserSetting::imu_pin_setting.gpio_port, UserSetting::imu_pin_setting.gpio_pin);
 
     // 初期状態をInitStateに設定
     current_state = std::make_unique<InitState>();

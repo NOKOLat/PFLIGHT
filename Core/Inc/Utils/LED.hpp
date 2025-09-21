@@ -1,6 +1,9 @@
 /*
  * LED.hpp
  *
+ * LED制御クラスのヘッダファイル
+ * UserSetting名前空間に定義してあるLEDSetting構造体を使用して、LEDの初期化と制御を行う
+ *
  *  Created on: Jun 29, 2025
  *      Author: Sezakiaoi
  */

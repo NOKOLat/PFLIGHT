@@ -1,3 +1,19 @@
+/*
+ * PIDSetting.hpp
+ *
+ * PID制御に使用するパラメータの設定
+ * UserSetting名前空間に定義してあり、識別しやすいようにPIDSetting構造体にまとめている
+ *
+ * 角度・角速度制御の定義をしてある
+ * 名前空間UserSetting内に実際の値が定義してある
+ * 
+ * また、madgwickフィルターのサンプル周波数もここで定義してある
+ *
+ *  Created on: Aug 24, 2025
+ *      Author: aoi25
+ */
+
+
 #ifndef PIDSETTING_HPP
 #define PIDSETTING_HPP
 
