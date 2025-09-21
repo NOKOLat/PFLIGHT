@@ -1,5 +1,10 @@
 #include "State/Headers/FlightStates.h"
 
+void FlyingState::Enter(FlightManager& manager) {
+
+	// 処理なし
+}
+
 void FlyingState::Update(FlightManager& manager) {
 
 	// ループカウント（PIDの処理をするかを決定）
@@ -90,4 +95,9 @@ void FlyingState::Update(FlightManager& manager) {
 	//printf("LowerMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 
 	//printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
+}
+
+void FlyingState::Exit(FlightManager& manager) {
+
+	// 処理なし
 }
