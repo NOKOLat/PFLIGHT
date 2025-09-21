@@ -1,10 +1,22 @@
+/* SbusDecoder.hpp
+ *
+ * SBUSデータをデコードして、SbusChannelData構造体に変換するユーティリティ
+ * Decode関数を提供し、SBUS_DATA構造体を引数に取り、SbusChannelData構造体を返す
+ * 
+ * チャンネルの設定や角度・角速度の最大値はSbusChannelData構造体内(FlightData/SbusData)で定義してある
+ *
+ *  Created on: Sep 1, 2025
+*/
+
+
+
 #ifndef SBUS_DECODER_HPP
 #define SBUS_DECODER_HPP
 
 #include <cstdint>
 #include <array>
 #include "Sbus/sbus.h"
-#include "FlightData/SbusData.hpp"
+#include "UserSetting/SbusSetting.hpp"
 
 namespace nokolat {
 
