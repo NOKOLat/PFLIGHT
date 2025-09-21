@@ -56,24 +56,6 @@ class DisarmingState : public FlightStateInterface {
         const char* getStateName() const override { return "Disarming"; }
 };
 
-// 対故障制御
-class EmergencyControlState : public FlightStateInterface {
-
-    public:
-        void update(FlightManager& manager) override;
-        const char* getStateName() const override { return "EmergencyControl"; }
-};
-
-// 自動操縦
-class AutoFlyState : public FlightStateInterface {
-
-    public:
-        void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        void exit(FlightManager& manager) override;
-        const char* getStateName() const override { return "AutoFly"; }
-};
-
 // フェイルセーフ
 class FailSafeState : public FlightStateInterface {
 
