@@ -8,9 +8,6 @@ void PreArmingState::update(FlightManager& manager) {
 		//ESCの初期化をすませておく
 		manager.pwm.InitMotor();
 
-	//黄LEDをつける
-	manager.yellow_led.Set(PinState::on);
-
 		//CalibrationStateに遷移
 		manager.changeState(std::make_unique<CalibrationState>());
 		return;

@@ -54,12 +54,15 @@ void CalibrationState::update(FlightManager& manager) {
     }
     calibration_count ++;
 
-     //キャリブレーション完了後、PreFlightへ遷移
-     if (calibration_count >= 800) {
+    //キャリブレーション完了後、PreFlightへ遷移
+    if (calibration_count >= 800) {
 
-         manager.changeState(std::make_unique<PreFlightState>());
-         return;
-     }
+        //黄LEDをつける
+        manager.yellow_led.Set(PinState::on);
+
+        manager.changeState(std::make_unique<PreFlightState>());
+        return;
+    }
 }
 
 #endif // CALIBRATION_STATE_CPP
