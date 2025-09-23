@@ -23,7 +23,7 @@ nokolat::SBUS_DATA sbus_data;
 SbusChannelData decoded_sbus_data;
 
 
-static uint32_t time_count = 0;
+//static uint32_t time_count = 0;
 
 // ESC calibration at startup:
 // If you want the firmware to run ESC calibration sequence in init(),
@@ -42,11 +42,11 @@ void init(){
     #endif
 
     
-    // DebugSbus::overrideData.arm = true;
-	// DebugSbus::overrideData.throttle = 0;
-    // DebugSbus::overrideData.fly = true;
-    // DebugSbus::overrideData.autofly = true;
-    // DebugSbus::enableOverride(true);
+     DebugSbus::overrideData.arm = true;
+	 DebugSbus::overrideData.throttle = 0;
+//     DebugSbus::overrideData.fly = true;
+//     DebugSbus::overrideData.autofly = true;
+     DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
@@ -66,7 +66,7 @@ void loop(){
 	
 	//ループ管理フラグのリセット待機
 	if(flightLoopManager.isWait() == false) {
-		//HAL_Delay(1);
+
 
 		// ループ管理フラグをセット
 		flightLoopManager.setWaitFlag();
@@ -78,22 +78,24 @@ void loop(){
 //		time_count = 0;
 
 		if (received) {
-//			for (uint8_t i=0;i<22;i++){
-//				printf("%d ",receive_data[i]);
-//			}
-			//printf("R\n");
+	//		for (uint8_t i=0;i<22;i++){
+	//			printf("%d ",receive_data[i]);
+	//		}
+	//		printf("R\n");
 			HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 100);
 
 			decoder.SetData(receive_data, P2P_PACKET_SIZE);
 			decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
 			decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
 
-			//printf("%d %d\n", (int)flightManager.autopilot_data.state, (int)flightManager.autopilot_data.roll);
+			printf("%d %d\n", (int)flightManager.autopilot_data.state, (int)flightManager.autopilot_data.roll);
 			received = false;
 		}
 
 
 	}
+
+
 
 }
 
@@ -140,11 +142,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &huart3){
 		// 正常に受信できている場合
 		// check start and end markers; end marker is at index (received size - 1)
-		if(receive_data[0] == 0x0f && receive_data[P2P_PACKET_SIZE - 1] == 0xf0){
+		if(receive_data[0] == 0x0f){
 			received = true;
+			HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
 		}
-		//割り込み受信の再開
-		HAL_UART_Receive_DMA(&huart3, receive_data, P2P_PACKET_SIZE);
 
 	}
 
