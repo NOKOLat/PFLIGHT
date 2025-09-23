@@ -42,11 +42,11 @@ void init(){
     #endif
 
     
-     DebugSbus::overrideData.arm = true;
-	 DebugSbus::overrideData.throttle = 0;
+//     DebugSbus::overrideData.arm = true;
+//	 DebugSbus::overrideData.throttle = 0;
 //     DebugSbus::overrideData.fly = true;
 //     DebugSbus::overrideData.autofly = true;
-     DebugSbus::enableOverride(true);
+//     DebugSbus::enableOverride(true);
 
 	//UART5(DMA) SBUS受信用
 	HAL_UART_Receive_DMA(&huart5, sbus.getReceiveBufferPtr(), sbus.getDataLen());
@@ -77,23 +77,23 @@ void loop(){
 //		printf("%d us\n", (int)(time_count*100.0f - 1000));
 //		time_count = 0;
 
-		if (received) {
-	//		for (uint8_t i=0;i<22;i++){
-	//			printf("%d ",receive_data[i]);
-	//		}
-	//		printf("R\n");
-			HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 100);
-
-			decoder.SetData(receive_data, P2P_PACKET_SIZE);
-			decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
-			decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
-
-			printf("%d %d\n", (int)flightManager.autopilot_data.state, (int)flightManager.autopilot_data.roll);
-			received = false;
-		}
-
-
 	}
+//	if (received) {
+////		for (uint8_t i=0;i<22;i++){
+////			printf("%d ",receive_data[i]);
+////		}
+////		printf("R\n");
+//		HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 10);
+//
+//		decoder.SetData(receive_data, P2P_PACKET_SIZE);
+//		decoder.GetData(PacketDataType::State, flightManager.autopilot_data.state);
+//		decoder.GetData(PacketDataType::Roll, flightManager.autopilot_data.roll);
+//
+//		// printf("%d %d\n", (int)flightManager.autopilot_data.state, (int)flightManager.autopilot_data.roll);
+//		received = false;
+//	}else{
+//		HAL_UART_Transmit(&huart3, (uint8_t *)"1", 1, 10);
+//	}
 
 
 

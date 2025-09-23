@@ -30,24 +30,24 @@ constexpr float sampleFrequency = 400.0f;
 namespace UserSetting {
 
     // 角度PID設定
-	constexpr PIDGain angle_pitch_gain = { 1.4, 0.01, 0.05 };
+	constexpr PIDGain angle_pitch_gain = { 1.8, 0.01, 0.05 };
 	constexpr PIDLimit angle_pitch_limit = { 20.0, 50.0 };
 	constexpr PIDDt angle_pitch_dt = { 4.0f / sampleFrequency};
 
-	constexpr PIDGain angle_roll_gain = { 1.4, 0.01, 0.05 };
+	constexpr PIDGain angle_roll_gain = { 1.8, 0.01, 0.05 };
 	constexpr PIDLimit angle_roll_limit = { 20.0, 50.0 };
 	constexpr PIDDt angle_roll_dt = { 4.0f / sampleFrequency};
 
 	// 角速度PID設定
-	constexpr PIDGain rate_pitch_gain = { 0.65, 0.0, 0.03 };
+	constexpr PIDGain rate_pitch_gain = { 0.8, 0.0, 0.03 };
 	constexpr PIDLimit rate_pitch_limit = { 0.0, 80.0};
 	constexpr PIDDt rate_pitch_dt = { 1.0f / sampleFrequency};
 
-	constexpr PIDGain rate_roll_gain = { 0.65, 0.0, 0.03 };
+	constexpr PIDGain rate_roll_gain = { 0.8, 0.0, 0.03 };
 	constexpr PIDLimit rate_roll_limit = { 0.0, 80.0 };
 	constexpr PIDDt rate_roll_dt = { 1.0f / sampleFrequency};
 
-	constexpr PIDGain rate_yaw_gain = { 5.5, 0.0, 0.2 };
+	constexpr PIDGain rate_yaw_gain = { 6, 0.0, 0.2 };
 	constexpr PIDLimit rate_yaw_limit = { 0.0, 40.0};
 	constexpr PIDDt rate_yaw_dt = { 1.0f / sampleFrequency};
 

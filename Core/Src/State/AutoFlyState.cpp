@@ -80,14 +80,14 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[2] = 0.0f;
 		
 	}
-	else if (manager.autopilot_data.state == 2) {
-		//printf("AutoFly: Moving forward\n");
-		// 前進 -> pitch を 5° に固定、roll は入力で制御
-		target_value[0] = -5.0f;//前が負の値
-		target_value[1] = raw_roll;
-		target_value[2] = 0.0f;
+	// else if (manager.autopilot_data.state == 2) {
+	// 	//printf("AutoFly: Moving forward\n");
+	// 	// 前進 -> pitch を 5° に固定、roll は入力で制御
+	// 	target_value[0] = -5.0f;//前が負の値
+	// 	target_value[1] = raw_roll;
+	// 	target_value[2] = 0.0f;
 		
-	}
+	// }
 	else if (manager.autopilot_data.state == 3) {
 		//printf("AutoFly: Landing\n");
 		// 着陸 -> 高度目標に -1 を設定（降下/モーター停止処理用フラグ）
@@ -112,7 +112,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	// throttle_assist used as altitude target proxy (cm) - landing が優先されるため、
 	// 着陸時は上書き済み。通常時は既定の高度を目標とする。
 	if (manager.autopilot_data.state != 3) {
-		target_altitude = 1.00f;
+		target_altitude = 0.80f;
 	}
 
 	//IMUデータの取得
@@ -172,6 +172,7 @@ void AutoFlyState::update(FlightManager& manager) {
 		altitude.GetData(getdata);
 		sum_altitude += getdata[0];
 		sum_velocity += getdata[1];
+//		printf("%.3f m\n",getdata[0]);
 	}
 
 	//12.5hz
@@ -242,8 +243,8 @@ void AltitudeControl(FlightManager& manager){
 		}
 		else {
 			
-			if (p_contrib < -5.0f){
-				p_contrib = -5.0f;
+			if (p_contrib < -2.0f){
+				p_contrib = -2.0f;
 			}
 			if (d_term < -5.0f){
 				d_term = -5.0f;
@@ -253,21 +254,21 @@ void AltitudeControl(FlightManager& manager){
 			
 	} else {
 		// P項のクリップは throttle 単位で評価
-		if (p_contrib > 10.0f){
-			p_contrib = 10.0f;
+		if (p_contrib > 5.0f){
+			p_contrib = 5.0f;
 		}
-		if (p_contrib < -10.0f){
-			p_contrib = -10.0f;
+		if (p_contrib < -2.0f){
+			p_contrib = -2.0f;
 		}
 
-		if(p_contrib < 0.0f && throttle <= 50.0f){
-			throttle = 50.0f;
+		if(p_contrib < 0.0f && throttle <= 100.0f){
+			throttle = 100.0f;
 			p_contrib = 0.0f;
 			d_term = 0.0f;
 		}
 
-		if (d_term > 5.0f){
-			d_term = 5.0f;
+		if (d_term > 10.0f){
+			d_term = 10.0f;
 		}
 		if (d_term < -5.0f){
 			d_term = -5.0f;
@@ -276,12 +277,12 @@ void AltitudeControl(FlightManager& manager){
 
 		throttle += p_contrib + d_term;
 
-		if(throttle >600.0f){
-			throttle = 600.0f;
+		if(throttle >500.0f){
+			throttle = 500.0f;
 		}
 	}
-	printf("%.1f\n", throttle);
-	printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
+	// printf("%.1f\n", throttle);
+	// printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 	
 
 }
@@ -330,12 +331,12 @@ void AutoFlyState::enter(FlightManager& manager) {
 	manager.rate_roll.reset();
 	manager.rate_yaw.reset();
 
-	//manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp*1.5f, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
+	// manager.angle_pitch.setGain(UserSetting::angle_pitch_gain.kp*1.5f, UserSetting::angle_pitch_gain.ki, UserSetting::angle_pitch_gain.kd);
 	// manager.angle_pitch.setLimit(UserSetting::angle_pitch_limit.i_max, UserSetting::angle_pitch_limit.d_max);
 	// manager.angle_pitch.setTime(UserSetting::angle_pitch_dt.dt);
 	
 
-	//manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp*1.5f, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
+	// manager.angle_roll.setGain(UserSetting::angle_roll_gain.kp*1.5f, UserSetting::angle_roll_gain.ki, UserSetting::angle_roll_gain.kd);
 	// manager.angle_roll.setLimit(UserSetting::angle_roll_limit.i_max, UserSetting::angle_roll_limit.d_max);
 	// manager.angle_roll.setTime(UserSetting::angle_roll_dt.dt);
 	
@@ -351,7 +352,7 @@ void AutoFlyState::enter(FlightManager& manager) {
 	// manager.rate_roll.setTime(UserSetting::rate_roll_dt.dt);
 	
 
-	//manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
+	// manager.rate_yaw.setGain(UserSetting::rate_yaw_gain.kp*1.5f, UserSetting::rate_yaw_gain.ki, UserSetting::rate_yaw_gain.kd);
 	// manager.rate_yaw.setLimit(UserSetting::rate_yaw_limit.i_max, UserSetting::rate_yaw_limit.d_max);
 	// manager.rate_yaw.setTime(UserSetting::rate_yaw_dt.dt);
 	
