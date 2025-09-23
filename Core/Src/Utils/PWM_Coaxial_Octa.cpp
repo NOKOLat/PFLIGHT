@@ -86,9 +86,9 @@ void PWM_Coaxial_Octa::CalcMotor(float throttle, std::array<float,4>& control, u
 
 void PWM_Coaxial_Octa::CalcMotorUpperOnly(float throttle, std::array<float,4>& control, uint16_t* motor){
 
-	throttle += (motor_pwm.max - motor_pwm.min) * 0.05;
+	throttle *= 1.5;
 	control[0] *= 1.1;
-	control[1] *= 1.1;
+	control[1] *= 1.5;
 	control[2] *= 1.1;
 
     motor[0] = motor_pwm.min + (throttle + control[0] - control[1] - control[2]);
