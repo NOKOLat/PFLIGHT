@@ -8,8 +8,47 @@ void PreArmingState::update(FlightManager& manager) {
 		//ESCの初期化をすませておく
 		manager.pwm.InitMotor();
 
-		//CalibrationStateに遷移
-		manager.changeState(std::make_unique<CalibrationState>());
+		if (manager.sbus_data.autofly){
+			static uint8_t autofly_count = 0;
+			autofly_count ++;
+			if (autofly_count % 50 == 0){
+				manager.yellow_led.Set(PinState::toggle);
+			}
+
+			if (autofly_count >= 2000){
+				manager.yellow_led.Set(PinState::on);
+
+				//CalibrationStateに遷移
+				manager.changeState(std::make_unique<CalibrationState>());
+				autofly_count = 0;
+			}
+			
+		}
+		else if(manager.sbus_data.emergency_control){
+			static uint8_t emergency_count = 0;
+			emergency_count++;
+
+			//対故障で飛行することの確認
+
+			if (emergency_count % 50 == 0) {
+				manager.red_led.Set(PinState::toggle);
+			}
+
+			if (emergency_count >= 2000) {
+				manager.red_led.Set(PinState::on);
+
+				manager.changeState(std::make_unique<EmergencyControlState>());
+				emergency_count = 0;
+			}
+
+		}
+		else{
+			//黄LEDをつける
+			manager.yellow_led.Set(PinState::on);
+
+			manager.changeState(std::make_unique<PreFlightState>());
+		}
+		
 		return;
 	}
 

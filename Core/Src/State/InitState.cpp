@@ -30,7 +30,7 @@ void InitState::update(FlightManager& manager) {
 	}
 
 	// IMUのキャリブレーション
-    manager.imuUtil->Calibration(1000);
+    manager.imuUtil->Calibration(5000);
 
 	// Motorの設定チェック
 	if(manager.pwm.CheckMotorSetting(motor_count)){
