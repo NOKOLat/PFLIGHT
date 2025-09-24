@@ -1,15 +1,17 @@
 #include "State/Headers/FlightStates.h"
 
+void PreArmingState::enter(FlightManager& manager) {
+	prearm_count = 0;
+}
 void PreArmingState::update(FlightManager& manager) {
 
 	// Armスイッチをチェック
 	if(manager.sbus_data.arm){
-		static uint16_t prearm_count=0;
-
 		if (prearm_count == 0){
 			//ESCの初期化をすませておく
 			manager.pwm.InitMotor();
 		}
+		
 
 
 		if (manager.sbus_data.autofly){

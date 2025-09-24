@@ -25,8 +25,11 @@ class InitState : public FlightStateInterface {
 class PreArmingState : public FlightStateInterface {
 
     public:
+        void enter(FlightManager& manager) override;
         void update(FlightManager& manager) override;
         const char* getStateName() const override { return "PreArming"; }
+    private:
+        uint16_t prearm_count = 0;
 };
 
 // PreFlight

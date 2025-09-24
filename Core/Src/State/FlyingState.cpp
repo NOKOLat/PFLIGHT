@@ -99,7 +99,7 @@ void FlyingState::update(FlightManager& manager) {
 	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.gyro[0], manager.sensor_data.gyro[1], manager.sensor_data.gyro[2]);
 	//printf("e_angle: %+4.4lf %+4.4lf %+4.4lf \n", manager.sensor_data.angle[0], manager.sensor_data.angle[1], manager.sensor_data.angle[2]);
 	//printf("PidResult: %+4.4lf %+4.4lf %+4.4lf \n", manager.control_data.pid_result[0], manager.control_data.pid_result[1], manager.control_data.pid_result[2]);
-	printf("adc_value: %d \n", manager.sensor_data.adc_value);
+	//printf("adc_value: %d \n", manager.sensor_data.adc_value);
 	//printf("sbus_yaw: %lf \n", manager.sbus_data.target_value[2]);
 	//printf("UpperMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3]);
 	//printf("LowerMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
