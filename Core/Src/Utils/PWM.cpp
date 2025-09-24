@@ -6,15 +6,15 @@ void PWM::CalcServo(SbusChannelData sbus_data, uint16_t adc_value, std::array<ui
 
 	for(uint8_t i=0; i<2; i++){
 
-		if(sbus_data.drop == 2){
+		if(sbus_data.drop == 2 || (sbus_data.autodrop && (adc_value < 1500))){
 
 			servo[i] = servo_pwm.open;
 		} 
-		else if(sbus_data.drop == 1){
+		else if(sbus_data.drop == 1 ){
 
 			servo[i] = servo_pwm.center;
 		} 
-		else if((sbus_data.autodrop && (adc_value < 1500)) || sbus_data.drop == 0){
+		else if(sbus_data.drop == 0){
 			
 			servo[i] = servo_pwm.close;
 		}

@@ -55,7 +55,8 @@ void AutoFlyState::update(FlightManager& manager) {
 	// 自動操縦用目標値: AutopilotData をスケールして使用
 	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
 	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
-	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 10.0f;
+	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 5.0f;
+	//printf("raw_roll: %.2f\n", raw_roll);
 
 	// state:
 	// 0 = 起動 / ホバリング: 全ての角度を0°に固定
@@ -66,28 +67,20 @@ void AutoFlyState::update(FlightManager& manager) {
 
 	if (manager.autopilot_data.state == 0) {
 		//printf("AutoFly: Hovering\n");
-		// 起動 / ホバリング -> 角度全ゼロ、トリムは適用しない
-		target_value[0] = 0.0f;
-		target_value[1] = 0.0f;
-		target_value[2] = 0.0f;
-			
-	}
-	else if (manager.autopilot_data.state == 1) {
-		//printf("AutoFly: Moving sideways\n");
-		// 横移動 -> roll による横移動、pitch は 0
+		// 起動 / ホバリング
 		target_value[0] = 0.0f;
 		target_value[1] = raw_roll;
 		target_value[2] = 0.0f;
-		
+			
 	}
-	// else if (manager.autopilot_data.state == 2) {
-	// 	//printf("AutoFly: Moving forward\n");
-	// 	// 前進 -> pitch を 5° に固定、roll は入力で制御
-	// 	target_value[0] = -5.0f;//前が負の値
-	// 	target_value[1] = raw_roll;
-	// 	target_value[2] = 0.0f;
+	 else if (manager.autopilot_data.state == 2) {
+	 	//printf("AutoFly: Moving forward\n");
+	 	// 前進 -> pitch を 5° に固定、roll は入力で制御
+	 	target_value[0] = -5.0f;//前が負の値
+	 	target_value[1] = raw_roll;
+	 	target_value[2] = 0.0f;
 		
-	// }
+	 }
 	else if (manager.autopilot_data.state == 3) {
 		//printf("AutoFly: Landing\n");
 		// 着陸 -> 高度目標に -1 を設定（降下/モーター停止処理用フラグ）
@@ -109,10 +102,14 @@ void AutoFlyState::update(FlightManager& manager) {
 	target_value[1] += manager.sbus_data.target_value[1];
 	target_value[2] += manager.sbus_data.target_value[2];
 
+	// printf("AutoFly: state=%d, target_pitch=%.2f, target_roll=%.2f\n",
+	// 	   manager.autopilot_data.state,
+	// 	   target_value[0], target_value[1]);
+
 	// throttle_assist used as altitude target proxy (cm) - landing が優先されるため、
 	// 着陸時は上書き済み。通常時は既定の高度を目標とする。
 	if (manager.autopilot_data.state != 3) {
-		target_altitude = 0.80f;
+		target_altitude = 0.60f;
 	}
 
 	//IMUデータの取得
@@ -243,8 +240,8 @@ void AltitudeControl(FlightManager& manager){
 		}
 		else {
 			
-			if (p_contrib < -2.0f){
-				p_contrib = -2.0f;
+			if (p_contrib < -10.0f){
+				p_contrib = -10.0f;
 			}
 			if (d_term < -5.0f){
 				d_term = -5.0f;
@@ -257,8 +254,8 @@ void AltitudeControl(FlightManager& manager){
 		if (p_contrib > 5.0f){
 			p_contrib = 5.0f;
 		}
-		if (p_contrib < -2.0f){
-			p_contrib = -2.0f;
+		if (p_contrib < -5.0f){
+			p_contrib = -5.0f;
 		}
 
 		if(p_contrib < 0.0f && throttle <= 100.0f){
@@ -270,8 +267,8 @@ void AltitudeControl(FlightManager& manager){
 		if (d_term > 10.0f){
 			d_term = 10.0f;
 		}
-		if (d_term < -5.0f){
-			d_term = -5.0f;
+		if (d_term < -10.0f){
+			d_term = -10.0f;
 		}
 
 
@@ -282,8 +279,11 @@ void AltitudeControl(FlightManager& manager){
 		}
 	}
 	// printf("%.1f\n", throttle);
-	// printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
-	
+	//  printf("%4u, %4u, %4u, %4u\n",
+	// 	 manager.control_data.motor_pwm[4],
+	// 	 manager.control_data.motor_pwm[5],
+	// 	 manager.control_data.motor_pwm[6],
+	// 	 manager.control_data.motor_pwm[7]);
 
 }
 
@@ -297,6 +297,7 @@ void AngularControl(FlightManager& manager){
 	manager.angle_pitch.getData(&manager.control_data.target_rate[0]);
 	manager.angle_roll.calc(target_value[1], manager.sensor_data.angle[1]);
 	manager.angle_roll.getData(&manager.control_data.target_rate[1]);
+	printf("target_pitch: %.2f, target_roll: %.2f\n", target_value[0], target_value[1]);
 
 	// yaw軸はセンサーデータを使用
 	manager.control_data.target_rate[2] = target_value[2];
