@@ -10,7 +10,7 @@ struct SensorData {
 	std::array<float, 3> gyro = {};
 	std::array<float, 3> angle = {};
     float altitude = 0.0f;
-    uint16_t adc_value = 0;
+    uint16_t adc_value = 4096;//論理反転
     float temperature = 0.0f;
     float pressure = 0.0f;
 };

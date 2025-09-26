@@ -1,4 +1,5 @@
 #include "State/Headers/FlightStates.h"
+#include "usart.h"
 
 bool entered = false;
 
@@ -27,6 +28,7 @@ static void AngularVelocityControl(FlightManager& manager);
 
 void AutoFlyState::update(FlightManager& manager) {
 
+	
 	loop_count++;
 
     // Armのチェック
@@ -55,7 +57,7 @@ void AutoFlyState::update(FlightManager& manager) {
 	// 自動操縦用目標値: AutopilotData をスケールして使用
 	// controller から送られる値にはトリムが含まれているため、sbus_data.trim を加算して補正する
 	// pitch, roll: 角度 (deg)、 yaw: 角速度 (dps)
-	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 5.0f;
+	float raw_roll = (manager.autopilot_data.roll / 127.0f) * 10.0f;
 	//printf("raw_roll: %.2f\n", raw_roll);
 
 	// state:
@@ -71,16 +73,27 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[0] = 0.0f;
 		target_value[1] = raw_roll;
 		target_value[2] = 0.0f;
+		HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 10);
 			
 	}
-	 else if (manager.autopilot_data.state == 2) {
+	else if (manager.autopilot_data.state == 1) {
+	 	//printf("AutoFly: Moving forward\n");
+		
+	 	target_value[0] = 0.0f;
+	 	target_value[1] = raw_roll;
+	 	target_value[2] = 0.0f;
+		HAL_UART_Transmit(&huart3, (uint8_t *)"1", 1, 10);
+		
+	}
+	else if (manager.autopilot_data.state == 2) {
 	 	//printf("AutoFly: Moving forward\n");
 	 	// 前進 -> pitch を 5° に固定、roll は入力で制御
 	 	target_value[0] = -5.0f;//前が負の値
 	 	target_value[1] = raw_roll;
 	 	target_value[2] = 0.0f;
+		HAL_UART_Transmit(&huart3, (uint8_t *)"2", 1, 10);
 		
-	 }
+	}
 	else if (manager.autopilot_data.state == 3) {
 		//printf("AutoFly: Landing\n");
 		// 着陸 -> 高度目標に -1 を設定（降下/モーター停止処理用フラグ）
@@ -88,12 +101,14 @@ void AutoFlyState::update(FlightManager& manager) {
 		target_value[0] = 0.0f;
 		target_value[1] = 0.0f;
 		target_value[2] = 0.0f;
+		HAL_UART_Transmit(&huart3, (uint8_t *)"3", 1, 10);
 	}
 	else {
 		// 未定義 state はホバリング相当にフォールバック
 		target_value[0] = 0.0f;
 		target_value[1] = 0.0f;
 		target_value[2] = 0.0f;
+		HAL_UART_Transmit(&huart3, (uint8_t *)"0", 1, 10);
 	}
 
 	// 送られてくる sbus の目標値は既にスケーリング済みなので、trim を使わず
@@ -233,7 +248,7 @@ void AltitudeControl(FlightManager& manager){
 	float d_term = Kd_vel * derivative; // throttle 単位
 
 	if(target_altitude < 0.0f){
-		if (estimated_altitude < 0.10f){
+		if (estimated_altitude < 0.05f){
 			throttle = 0.0f;
 			manager.changeState(std::make_unique<DisarmingState>());
 			return;
@@ -243,16 +258,16 @@ void AltitudeControl(FlightManager& manager){
 			if (p_contrib < -10.0f){
 				p_contrib = -10.0f;
 			}
-			if (d_term < -5.0f){
-				d_term = -5.0f;
+			if (d_term < -10.0f){
+				d_term = -10.0f;
 			}
 			throttle += p_contrib + d_term;
 		}
 			
 	} else {
 		// P項のクリップは throttle 単位で評価
-		if (p_contrib > 5.0f){
-			p_contrib = 5.0f;
+		if (p_contrib > 10.0f){
+			p_contrib = 10.0f;
 		}
 		if (p_contrib < -5.0f){
 			p_contrib = -5.0f;

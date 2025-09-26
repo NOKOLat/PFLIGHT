@@ -68,17 +68,20 @@ void EmergencyControlState::update(FlightManager& manager) {
 	manager.rate_yaw.getData(&manager.control_data.pid_result[2]);
 
 	// サーボがcloseの時→下モーターを止める
-	if(manager.sbus_data.drop == 0){
+//	if(manager.sbus_data.drop == 0){
+//
+//		// 上モーターのみを計算
+//		manager.pwm.CalcMotorUpperOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
+//
+//	}
+//	else{
+//
+//		// 下モータのみを計算
+//		manager.pwm.CalcMotorLowerOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
+//	}
+//
+	manager.pwm.CalcMotorLowerOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
 
-		// 上モーターのみを計算
-		manager.pwm.CalcMotorUpperOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
-
-	}
-	else{
-
-		// 下モータのみを計算
-		manager.pwm.CalcMotorLowerOnly(manager.sbus_data.throttle, manager.control_data.pid_result, manager.control_data.motor_pwm.data());
-	}
 
 	//  サーボのpwmは計算しない
 
