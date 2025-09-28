@@ -1,13 +1,14 @@
 #include "State/Headers/FlightStates.h"
 
-void FailSafeState::update(FlightManager& manager) {
+void FailSafeState::Update(FlightManager& manager) {
 
 	// LEDの点滅
 	while(1){
 
+		// いい感じのdelayだいたい1sくらい
 		for(volatile uint32_t i=0; i<1000000; i++);
 
-		// Pwmの停止
+		// Pwmの停止いっぱいやる
 		manager.pwm.MotorStop();
 
 		manager.red_led.Set(PinState::toggle);
@@ -16,7 +17,7 @@ void FailSafeState::update(FlightManager& manager) {
 	}
 }
 
-void FailSafeState::enter(FlightManager& manager) {
+void FailSafeState::Enter(FlightManager& manager) {
 
 	// Pwmの停止
 	manager.pwm.MotorStop();
@@ -29,3 +30,8 @@ void FailSafeState::enter(FlightManager& manager) {
 	manager.rate_yaw.reset();
 }
 
+void FailSafeState::Exit(FlightManager& manager) {
+
+	// 処理なし
+	// 普通に復帰できたらだめ
+}

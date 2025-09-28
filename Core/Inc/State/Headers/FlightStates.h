@@ -16,69 +16,67 @@ class FlightManager;
 class InitState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        const char* getStateName() const override { return "InitState"; }
+
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+        
+        const char* GetStateName() const override { return "InitState"; }
 };
 
 // arm
 class PreArmingState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
-        const char* getStateName() const override { return "PreArming"; }
+
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+
+        const char* GetStateName() const override { return "PreArming"; }
 };
 
 // PreFlight
 class PreFlightState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
 
-        const char* getStateName() const override { return "PreFlight"; }
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+
+        const char* GetStateName() const override { return "PreFlight"; }
 };
 
 // 飛行状態
 class FlyingState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
-        const char* getStateName() const override { return "Flying"; }
+
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+        const char* GetStateName() const override { return "Flying"; }
 };
 
 // Disarm状態
 class DisarmingState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        void exit(FlightManager& manager) override;
-        const char* getStateName() const override { return "Disarming"; }
-};
 
-// 対故障制御
-class EmergencyControlState : public FlightStateInterface {
-
-    public:
-        void update(FlightManager& manager) override;
-        const char* getStateName() const override { return "EmergencyControl"; }
-};
-
-// 自動操縦
-class AutoFlyState : public FlightStateInterface {
-
-    public:
-        void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        void exit(FlightManager& manager) override;
-        const char* getStateName() const override { return "AutoFly"; }
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+        const char* GetStateName() const override { return "Disarming"; }
 };
 
 // フェイルセーフ
 class FailSafeState : public FlightStateInterface {
 
     public:
-        void update(FlightManager& manager) override;
-        void enter(FlightManager& manager) override;
-        const char* getStateName() const override { return "FailSafe"; }
+
+        void Update(FlightManager& manager) override;
+        void Enter(FlightManager& manager) override;
+        void Exit(FlightManager& manager) override;
+        const char* GetStateName() const override { return "FailSafe"; }
 };

@@ -1,6 +1,11 @@
 #include "State/Headers/FlightStates.h"
 
-void FlyingState::update(FlightManager& manager) {
+void FlyingState::Enter(FlightManager& manager) {
+
+	// 処理なし
+}
+
+void FlyingState::Update(FlightManager& manager) {
 
 	// ループカウント（PIDの処理をするかを決定）
 	static uint8_t loop_count = 0;
@@ -10,15 +15,6 @@ void FlyingState::update(FlightManager& manager) {
 	if(!manager.sbus_data.arm){
 
 		manager.changeState(std::make_unique<DisarmingState>());
-	}
-
-	// automationへの遷移
-
-
-	// EmergencyControlへの遷移
-	if(manager.sbus_data.emergency_control){
-
-		manager.changeState(std::make_unique<EmergencyControlState>());
 	}
 
 	// センサーデータの取得
@@ -56,7 +52,7 @@ void FlyingState::update(FlightManager& manager) {
 		manager.angle_roll.getData(&manager.control_data.target_rate[1]);
 
     	// yaw軸はセンサーデータを使用
-    	manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
+		manager.control_data.target_rate[2] = manager.sbus_data.target_value[2];
     }
 
     // 400hz 角速度制御
@@ -99,4 +95,9 @@ void FlyingState::update(FlightManager& manager) {
 	//printf("LowerMotor: %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
 
 	//printf("Motor[8]: %4u, %4u, %4u, %4u %4u, %4u, %4u, %4u \n", manager.control_data.motor_pwm[0], manager.control_data.motor_pwm[1], manager.control_data.motor_pwm[2], manager.control_data.motor_pwm[3], manager.control_data.motor_pwm[4], manager.control_data.motor_pwm[5], manager.control_data.motor_pwm[6], manager.control_data.motor_pwm[7]);
+}
+
+void FlyingState::Exit(FlightManager& manager) {
+
+	// 処理なし
 }

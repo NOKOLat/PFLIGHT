@@ -1,4 +1,14 @@
-#pragma once
+/* ICM42688P_SPI_Util.hpp
+*
+* ICM42688PのSPI通信ユーティリティ
+* ICM42688P_HAL_SPIクラスをラップして、初期化、キャリブレーション、データ取得を簡単に行えるようにする
+*
+*  Created on: Sep 22, 2025
+*      Author: aoi25
+*/
+
+#ifndef ICM42688P_SPI_UTIL_HPP
+#define ICM42688P_SPI_UTIL_HPP
 
 #include <cstdint>
 #include <array>
@@ -19,3 +29,5 @@ private:
 
     ICM42688P_HAL_SPI icm;
 };
+
+#endif // ICM42688P_SPI_UTIL_HPP

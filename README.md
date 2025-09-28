@@ -1,10 +1,12 @@
-# PFLIGHT v2.10.5.1
+# PFLIGHT v2.11
 
 > [!WARNING]
 > PIDの設定値が共有できていない可能性があるため、
 > 飛行前には`UserSetting/PIDSetting.hpp`で値を確認してください
 
 マルチコプターのFCコードです
+
+練習飛行を目的としているので、いくつかの機能が消されて小さなプログラムになっています
 
 情報はこちらにも書いてあります
 [PFLIGHT_Wiki](https://github.com/NOKOLat/PFLIGHT/wiki)
@@ -52,69 +54,69 @@
 
 - Channel5によってArm状態に移行し、Channel6によって飛行状態に移行できます
 - プロポのスイッチ切断 or Channel5をオフにすることでDisArmします
-
-## 6. デバックとLEDについて
-
-- STLinkなどでFCとPCを接続することで、エラー出力や飛行状態の確認を行うことができます
-
-- 通常時はLEDを確認することで、現在がどの状態かを判定することができます
-
-| LED        | 状態      
-|--------------|------------------------|
-| 赤点灯 | 初期化成功     |
-| 黄点灯 | Arm成功     |
-| 緑点灯 | 飛行中     |
-| 全点滅 | FailSafe     |
-
-## 7. ファイル構成
-
-Coreの実装はこのようになっています(STM32CubeIDEによる生成ファイルは省略)
-
-Stateパターンをベースとした状態遷移を行っています
-
 ```
 Core/
-├─ Inc/          
-│  ├─ FlightManager.h       // 状態管理クラスのヘッダー                      
-│  ├─ wrapper.hpp           // C++ 用ラッパー
-│  ├─ FlightData/           // データ用の構造体
-│  │  ├─ ControlData.hpp    // 制御出力とPWM値
-│  │  ├─ SbusData.hpp       // SBUS
-│  │  └─ SensorData.hpp     // センサデータ
-│  ├─ State/                
+├─ Inc/                    # ヘッダー群（STM32Cube生成ヘッダは省略）
+│  ├─ FlightManager.h      # 状態管理クラスの定義
+│  ├─ wrapper.hpp          # C++ 用ラッパー（Cインターフェースの薄いラッパー）
+│  ├─ FlightData/          # データ構造体
+│  │  ├─ ControlData.hpp   # 制御出力・PWM 値を保持
+│  │  ├─ SbusData.hpp      # SBUS 入力データ
+│  │  └─ SensorData.hpp    # IMU 等のセンサデータ定義
+│  ├─ State/
 │  │  └─ Headers/
-│  │     └─ FlightStates.h   // 各状態の定義
+│  │     └─ FlightStates.h  # 各フライト状態列挙など
 │  ├─ State/Interface/
-│  │  └─ FlightStateInterface.h // 状態クラスのインターフェース
-│  ├─ UserSetting/          
-│  │  ├─ MotorSetting.hpp   // モーター設定
-│  │  ├─ LEDSetting.hpp     // LED設定
-│  │  ├─ ImuSetting.hpp     // IMU設定
-│  │  └─ PIDSetting.hpp     // PID設定
-│  └─ Utils/               
-│     ├─ ICM42688P_SPI_Util.hpp // ICM42688PSPI用ユーティリティ
-│     ├─ LED.hpp            // LEDラッパー
-│     ├─ PWM.hpp            // PWMラッパー
-│     └─ SbusDecoder.hpp    // SBUSデコード
-│
-├─ Lib/
-│  ├─ ICM42688P/            // IMU ライブラリ
+│  │  └─ FlightStateInterface.h # 状態クラスの共通インターフェース
+│  ├─ UserSetting/         # ユーザーが変更する設定値
+│  │  ├─ MotorSetting.hpp  # モーター設定（回転方向・PWMレンジ等）
+│  │  ├─ LEDSetting.hpp    # LED 表示設定
+│  │  ├─ ImuSetting.hpp    # IMU 設定
+│  │  └─ PIDSetting.hpp    # PID 初期値・ゲイン
+│  └─ Utils/               # 小さなユーティリティ・ラッパー
+│     ├─ ICM42688P_SPI_Util.hpp # ICM42688P の SPI 用ユーティリティ
+│     ├─ LED.hpp           # LED 操作用ラッパークラス
+│     ├─ PWM.hpp           # PWM 操作用ラッパークラス
+│     └─ SbusDecoder.hpp   # SBUS デコードロジック
+
+├─ Lib/                    # 外部ライブラリ（プロジェクト内に同梱）
+│  ├─ ICM42688P/           # ICM42688P IMU ドライバ
 │  │  ├─ ICM42688P.cpp
 │  │  ├─ ICM42688P.h
 │  │  ├─ ICM42688P_HAL_I2C.cpp/.h
 │  │  ├─ ICM42688P_HAL_SPI.cpp/.h
-│  │  └─ ICM42688P_Wire_I2C.* 
-│  ├─ KalmanFilter/         // カルマンフィルタ（現状未使用）
+│  │  └─ ICM42688P_Wire_I2C.*
+│  ├─ KalmanFilter/        # （オプション）カルマンフィルタ（未使用）
 │  │  ├─ kalman.cpp/.h
 │  │  └─ matrix.cpp/.h
-│  ├─ MadgwickAHRS/         // Madgwick AHRS ライブラリソース
+│  ├─ MadgwickAHRS/        # Madgwick AHRS（姿勢推定）
 │  │  └─ src/MadgwickAHRS.cpp/.h
-│  ├─ PID/                  // PID ライブラリ
+│  ├─ PID/                 # PID コントローラ実装
 │  │  ├─ PID.cpp
 │  │  └─ PID.h
-│  ├─ ringBuffer/           // リングバッファライブラリ
+│  ├─ ringBuffer/          # リングバッファ
 │  │  └─ ringBuffer.h
-│  └─ SBUS/                 // SBUS ライブラリ
+│  └─ SBUS/                # SBUS 入力ライブラリ
+│     ├─ sbus.cpp
+│     └─ sbus.h
+
+└─ Src/                    # 実装ソース
+   ├─ main.cpp                    # エントリーポイント
+   ├─ FlightManager.cpp           # 状態管理の実装
+   ├─ wrapper.cpp                 # C ラッパー実装
+   ├─ State/                      # 各状態の実装
+   │  ├─ InitState.cpp
+   │  ├─ PreArmingState.cpp
+   │  ├─ PreFlightState.cpp
+   │  ├─ FlyingState.cpp
+   │  ├─ AutoFlyState.cpp         # 未実装（雛形あり）
+   │  ├─ DisarmingState.cpp
+   │  ├─ EmergencyControlState.cpp# 未実装（雛形あり）
+   │  └─ FailSafeState.cpp
+   └─ Utils/
+      ├─ ICM42688P_SPI_Util.cpp
+      └─ PWM.cpp
+```
 │     ├─ sbus.cpp
 │     └─ sbus.h
 │

@@ -8,10 +8,10 @@ class FlightManager;
 class FlightStateInterface {
 public:
     virtual ~FlightStateInterface() = default;
-    virtual void update(FlightManager& manager) = 0;
-    virtual void enter(FlightManager& manager) {}
-    virtual void exit(FlightManager& manager) {}
-    virtual const char* getStateName() const = 0;
+    virtual void Update(FlightManager& manager) = 0;
+    virtual void Enter(FlightManager& manager) {}
+    virtual void Exit(FlightManager& manager) {}
+    virtual const char* GetStateName() const = 0;
 };
 
 #endif /* INC_FLIGHTSTATE_INTERFACE_HPP_ */

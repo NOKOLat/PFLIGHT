@@ -5,7 +5,7 @@
 
 #include "state/interface/FlightStateInterface.h"
 #include "FlightData/ControlData.hpp"
-#include "FlightData/SbusData.hpp"
+#include "UserSetting/SbusSetting.hpp"
 #include "FlightData/SensorData.hpp"
 #include "UserSetting/PIDSetting.hpp"
 #include "UserSetting/ImuSetting.hpp"
@@ -71,8 +71,8 @@ class FlightManager {
         PID rate_yaw;
         ICM42688P_SPI_Util* imuUtil;
         Madgwick madgwick;
-		//PWM_Quad pwm; //4Motor
-        PWM_Coaxial_Octa pwm; //8Motor
+		PWM_Quad pwm; //4Motor
+        //PWM_Coaxial_Octa pwm; //8Motor
 		LED red_led;
 		LED yellow_led;
 		LED green_led;
