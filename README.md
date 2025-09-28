@@ -117,23 +117,3 @@ Core/
       ├─ ICM42688P_SPI_Util.cpp
       └─ PWM.cpp
 ```
-│     ├─ sbus.cpp
-│     └─ sbus.h
-│
-└─ Src/
-   ├─ main.cpp                      // エントリーポイント
-   ├─ FlightManager.cpp             // 状態管理クラス
-   ├─ wrapper.cpp
-   ├─ State/
-   │  ├─ InitState.cpp
-   │  ├─ PreArmingState.cpp
-   │  ├─ PreFlightState.cpp
-   │  ├─ FlyingState.cpp
-   │  ├─ AutoFlyState.cpp           // 未実装
-   │  ├─ DisarmingState.cpp
-   │  ├─ EmergencyControlState.cpp  // 未実装
-   │  └─ FailSafeState.cpp
-   └─ Utils/
-      ├─ ICM42688P_SPI_Util.cpp
-      └─ PWM.cpp              
-```
